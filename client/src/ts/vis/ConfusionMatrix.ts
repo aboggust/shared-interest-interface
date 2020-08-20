@@ -78,15 +78,11 @@ export class ConfusionMatrix extends HTMLComponent<DI>{
         };
 
         // Build color scale
-        var colorScale = d3.scaleSequential(d3.interpolateYlGnBu);
-
-        // Create a size scale for bubbles on top right. Watch out: must be a rootscale!
-        var size = d3.scaleSqrt()
-            .domain([0, maxCount])
-            .range([2, 9]);
+        var colorScale = d3.scaleSequential()
+            .interpolator(d3.interpolateYlGnBu);
 
         // Build X scales and axis
-        var x = d3.scalePoint()
+        var x = d3.scaleBand()
             .domain(labelsList)
             .range([0, width]);
 
@@ -101,7 +97,7 @@ export class ConfusionMatrix extends HTMLComponent<DI>{
                 .attr("transform", "rotate(-65)");
 
         // Build Y scales and axis
-        var y = d3.scalePoint()
+        var y = d3.scaleBand()
             .range([height, 0])
             .domain(labelsList);
 
@@ -110,51 +106,31 @@ export class ConfusionMatrix extends HTMLComponent<DI>{
             .selectAll("text")
                 .style('font-size', '6pt');
 
-        // Create one 'g' element for each cell of the correlogram
-        var cor = svg.selectAll(".cor")
-            .data(data)
+        // Create a size scale for square height and width
+        var size = d3.scaleSqrt()
+            .domain([0, maxCount])
+            .range([0, x.bandwidth()]);
+
+        svg.selectAll()
+            .data(data, function(d) {return d.label+':'+d.prediction;})
             .enter()
-            .append("g")
-                .classed("cor", true)
-                .attr("transform", function(d) {
-                    return "translate(" + x(d.label) + "," + y(d.prediction) + ")";
-                });
-
-        console.log()
-
-        cor.append("circle")
-            .attr("r", function(d){return size(d.count)})
-            .style("fill", function(d){ return colorScale(d.score) })
-            .style("opacity", 0.8);
-
-
-//         svg.append('g')
-//             .attr('transform', 'translate(0,' + height + ')')
-//             .call(d3.axisBottom(x))
-//             .selectAll("text")
-//                 .style("text-anchor", "end")
-//                 .style('font-size', '6pt')
-//                 .attr("dx", "-.8em")
-//                 .attr("dy", ".15em")
-//                 .attr("transform", "rotate(-65)");
-//
-//
-//
-//
-//
-//
-//
-//         // Display the confusion matrix
-//         svg.selectAll()
-//             .data(data)
-//             .enter()
-//             .append("rect")
-//             .attr("x", function(d) { return x(d.label) })
-//             .attr("y", function(d) { return y(d.prediction) })
-//             .attr("width", x.bandwidth() )
-//             .attr("height", y.bandwidth() )
-//             .style("fill", function(d) { return colorScale(d.count)} )
-
+            .append("rect")
+                .attr("x", function(d) {
+                    return x(d.label) + (x.bandwidth() - size(d.count))/2;
+                })
+                .attr("y", function(d) {
+                    return y(d.prediction) + (y.bandwidth() - size(d.count))/2;
+                })
+                .attr("width", function(d) { return size(d.count) })
+                .attr("height", function(d) { return size(d.count) })
+                .style("fill", function(d) {
+                    if (d.score == 0) { return "white";}
+                    return colorScale(d.score)
+                })
+                .style("stroke-width", 4)
+                .style("stroke", "none")
+                .style("opacity", 0.8)
+        })
     }
 
 }

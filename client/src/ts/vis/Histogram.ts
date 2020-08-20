@@ -63,7 +63,8 @@ export class Histogram extends HTMLComponent<DI>{
             .attr('transform', 'translate(0,' + height + ')')
             .call(d3.axisBottom(x));
 
-        var colorScale = d3.scaleSequential(d3.interpolateYlGnBu);
+        var colorScale = d3.scaleSequential()
+            .interpolator(d3.interpolateYlGnBu);
 
         svg.selectAll('rect')
             .data(bins)
