@@ -154,14 +154,14 @@ export function main() {
     selectors.sortBy.on('change', () => {
         const sortByValue = selectors.sortBy.property('value')
         state.sortBy(sortByValue)
-        eventHelpers.updateImages(state)
+        eventHelpers.updatePage(state)
     });
 
     selectors.predictionFn.on('change', () => {
         const predictionValue = selectors.predictionFn.property('value')
         state.predictionFn(predictionValue)
         state.page(0)
-        eventHelpers.updateImages(state)
+        eventHelpers.updatePage(state)
     });
 
     selectors.scoreFn.on('change', () => {
@@ -174,7 +174,7 @@ export function main() {
         const labelFilter = selectors.labelFilter.property('value')
         state.labelFilter(labelFilter)
         state.page(0)
-        eventHelpers.updateImages(state)
+        eventHelpers.updatePage(state)
     });
 
     selectors.previousPageButton.on('click', () => {
