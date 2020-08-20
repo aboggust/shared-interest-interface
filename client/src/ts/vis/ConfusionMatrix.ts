@@ -59,7 +59,7 @@ export class ConfusionMatrix extends HTMLComponent<DI>{
             }
         }
 
-        var labelsList: string[] = Array.from(labels);
+        var labelsList: string[] = Array.from(labels).sort();
 
         // Convert confusion matrix counts into NxN data object
         var data = [];
@@ -122,7 +122,7 @@ export class ConfusionMatrix extends HTMLComponent<DI>{
         // Create a size scale for square height and width
         var size = d3.scaleSqrt()
             .domain([0, maxCount])
-            .range([0, x.bandwidth()]);
+            .range([3, x.bandwidth()]);
 
         svg.selectAll()
             .data(data, function(d) {return d.prediction+':'+d.label;})

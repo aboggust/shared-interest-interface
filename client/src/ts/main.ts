@@ -154,7 +154,7 @@ export function main() {
     selectors.sortBy.on('change', () => {
         const sortByValue = selectors.sortBy.property('value')
         state.sortBy(sortByValue)
-        eventHelpers.updatePage(state)
+        eventHelpers.updateImages(state)
     });
 
     selectors.predictionFn.on('change', () => {
