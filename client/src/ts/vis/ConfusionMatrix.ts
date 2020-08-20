@@ -125,14 +125,14 @@ export class ConfusionMatrix extends HTMLComponent<DI>{
             .range([0, x.bandwidth()]);
 
         svg.selectAll()
-            .data(data, function(d) {return d.label+':'+d.prediction;})
+            .data(data, function(d) {return d.prediction+':'+d.label;})
             .enter()
             .append("rect")
                 .attr("x", function(d) {
-                    return x(d.label) + (x.bandwidth() - size(d.count))/2;
+                    return x(d.prediction) + (x.bandwidth() - size(d.count))/2;
                 })
                 .attr("y", function(d) {
-                    return y(d.prediction) + (y.bandwidth() - size(d.count))/2;
+                    return y(d.label) + (y.bandwidth() - size(d.count))/2;
                 })
                 .attr("width", function(d) { return size(d.count) })
                 .attr("height", function(d) { return size(d.count) })
