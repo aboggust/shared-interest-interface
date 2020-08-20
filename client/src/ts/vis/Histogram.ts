@@ -63,6 +63,7 @@ export class Histogram extends HTMLComponent<DI>{
             .attr('transform', 'translate(0,' + height + ')')
             .call(d3.axisBottom(x));
 
+        // Color scale
         var colorScale = d3.scaleSequential()
             .interpolator(d3.interpolateYlGnBu);
 
@@ -71,7 +72,10 @@ export class Histogram extends HTMLComponent<DI>{
             .join('rect')
                 .attr('x', 1)
                 .attr('transform', d => 'translate(' + x(d.x0) + ',' + y(d.length) + ')')
-                .attr('width', d => x(d.x1) - x(d.x0) - 1)
+                .attr('width', function(d) {
+                    if (d.x1 == d.x0) { return 0}
+                    return x(d.x1) - x(d.x0) - 1
+                })
                 .attr('height', d => height - y(d.length))
                 .attr('fill', d => colorScale(d.x0))
     }

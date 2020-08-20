@@ -106,6 +106,19 @@ export class ConfusionMatrix extends HTMLComponent<DI>{
             .selectAll("text")
                 .style('font-size', '6pt');
 
+        // Build the grid
+        const xAxisGrid = d3.axisBottom(x).tickSize(-height).tickFormat('');
+        const yAxisGrid = d3.axisLeft(y).tickSize(-width).tickFormat('');
+
+        svg.append('g')
+            .attr('class', 'axis-grid')
+            .attr('transform', 'translate(0,' + height + ')')
+            .call(xAxisGrid);
+
+        svg.append('g')
+            .attr('class', 'axis-grid')
+            .call(yAxisGrid);
+
         // Create a size scale for square height and width
         var size = d3.scaleSqrt()
             .domain([0, maxCount])
@@ -131,6 +144,5 @@ export class ConfusionMatrix extends HTMLComponent<DI>{
                 .style("stroke", "none")
                 .style("opacity", 0.8)
         })
-    }
 
 }
