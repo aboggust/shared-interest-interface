@@ -34,7 +34,6 @@ export class ConfusionMatrix extends HTMLComponent<DI>{
             width = 300 - margin.left - margin.right,
             height = 300 - margin.top - margin.bottom;
 
-
         var svg = self.base
             .append('svg')
                 .attr('width', width + margin.left + margin.right)
@@ -53,70 +52,108 @@ export class ConfusionMatrix extends HTMLComponent<DI>{
                 counts[image.label] = {};
             };
             if (counts[image.label][image.prediction] === undefined) {
-                counts[image.label][image.prediction] = 1;
+                counts[image.label][image.prediction] = {'count': 1, 'score': parseFloat(image.score)};
             } else {
-                counts[image.label][image.prediction] += 1;
+                counts[image.label][image.prediction].count += 1;
+                counts[image.label][image.prediction].score += parseFloat(image.score);
             }
         }
+
         var labelsList: string[] = Array.from(labels);
 
         // Convert confusion matrix counts into NxN data object
         var data = [];
-        var maxDomain = 0;
+        var maxCount = 0;
         for (let label of labelsList) {
             for (let prediction of labelsList) {
                 if (counts[label] === undefined || counts[label][prediction] === undefined) {
-                    data.push({'label': label, 'prediction': prediction, 'count': 0})
+                    data.push({'label': label, 'prediction': prediction, 'count': 0, 'score': 0})
                 } else {
-                    data.push({'label': label, 'prediction': prediction, 'count': counts[label][prediction]});
-                    maxDomain = d3.max([maxDomain, counts[label][prediction]])
+                    data.push({'label': label, 'prediction': prediction,
+                               'count': counts[label][prediction].count,
+                               'score': counts[label][prediction].score / counts[label][prediction].count});
+                    maxCount = d3.max([maxCount, counts[label][prediction].count])
                 }
             }
         };
 
-        // Build X scales and axis
-        var x = d3.scaleBand()
-            .domain(labelsList)
-            .range([0, width])
-            .padding(0.01);
+        // Build color scale
+        var colorScale = d3.scaleSequential(d3.interpolateYlGnBu);
 
-        svg.append('g')
-            .attr('transform', 'translate(0,' + height + ')')
+        // Create a size scale for bubbles on top right. Watch out: must be a rootscale!
+        var size = d3.scaleSqrt()
+            .domain([0, maxCount])
+            .range([2, 9]);
+
+        // Build X scales and axis
+        var x = d3.scalePoint()
+            .domain(labelsList)
+            .range([0, width]);
+
+        svg.append("g")
+            .attr("transform", "translate(0," + height + ")")
             .call(d3.axisBottom(x))
             .selectAll("text")
-                .style("text-anchor", "end")
                 .style('font-size', '6pt')
+                .style("text-anchor", "end")
                 .attr("dx", "-.8em")
                 .attr("dy", ".15em")
                 .attr("transform", "rotate(-65)");
 
         // Build Y scales and axis
-        var y = d3.scaleBand()
-            .range([ height, 0 ])
-            .domain(labelsList)
-            .padding(0.01);
+        var y = d3.scalePoint()
+            .range([height, 0])
+            .domain(labelsList);
 
         svg.append("g")
             .call(d3.axisLeft(y))
             .selectAll("text")
                 .style('font-size', '6pt');
 
-        // Build color scale
-        var colorScale = d3.scalePow()
-            .exponent(3 / 4)
-            .range(["white", "#4f0606"])
-            .domain([0,maxDomain])
-
-        // Display the confusion matrix
-        svg.selectAll()
+        // Create one 'g' element for each cell of the correlogram
+        var cor = svg.selectAll(".cor")
             .data(data)
             .enter()
-            .append("rect")
-            .attr("x", function(d) { return x(d.label) })
-            .attr("y", function(d) { return y(d.prediction) })
-            .attr("width", x.bandwidth() )
-            .attr("height", y.bandwidth() )
-            .style("fill", function(d) { return colorScale(d.count)} )
+            .append("g")
+                .classed("cor", true)
+                .attr("transform", function(d) {
+                    return "translate(" + x(d.label) + "," + y(d.prediction) + ")";
+                });
+
+        console.log()
+
+        cor.append("circle")
+            .attr("r", function(d){return size(d.count)})
+            .style("fill", function(d){ return colorScale(d.score) })
+            .style("opacity", 0.8);
+
+
+//         svg.append('g')
+//             .attr('transform', 'translate(0,' + height + ')')
+//             .call(d3.axisBottom(x))
+//             .selectAll("text")
+//                 .style("text-anchor", "end")
+//                 .style('font-size', '6pt')
+//                 .attr("dx", "-.8em")
+//                 .attr("dy", ".15em")
+//                 .attr("transform", "rotate(-65)");
+//
+//
+//
+//
+//
+//
+//
+//         // Display the confusion matrix
+//         svg.selectAll()
+//             .data(data)
+//             .enter()
+//             .append("rect")
+//             .attr("x", function(d) { return x(d.label) })
+//             .attr("y", function(d) { return y(d.prediction) })
+//             .attr("width", x.bandwidth() )
+//             .attr("height", y.bandwidth() )
+//             .style("fill", function(d) { return colorScale(d.count)} )
 
     }
 
