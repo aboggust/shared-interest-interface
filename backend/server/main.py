@@ -32,6 +32,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+
 # Main routes
 @app.get("/")
 def index():
@@ -63,38 +65,38 @@ class SaliencyImage(BaseModel):
     features: list
 
 
+f = h5py.File("./data/output/data_100.hdf5", "r")
+
 @app.get("/api/get-images", response_model=List[str])
 async def get_images(sortBy: int, predictionFn: str, scoreFn: str, labelFilter: str):
     prediction_fn = get_prediction_function(predictionFn)
     score_fn = get_score_function(scoreFn)
     label_filter_fn = _label_filter(labelFilter)
-    with h5py.File("./data/output/data_100.hdf5", "r") as f:
-        data = f['images']
-        image_names = list(data.keys())
-        image_names = [name for name in image_names
-                       if label_filter_fn(data[name].attrs['label']) and
-                       prediction_fn(data[name].attrs['label'], data[name].attrs['prediction'])]
-        image_names.sort(key=lambda name: score_fn(data[name]['bbox'][()], data[name]['saliency'][()]) , reverse=sortBy==-1)
+    data = f['images']
+    image_names = list(data.keys())
+    image_names = [name for name in image_names
+                   if label_filter_fn(data[name].attrs['label']) and
+                   prediction_fn(data[name].attrs['label'], data[name].attrs['prediction'])]
+    image_names.sort(key=lambda name: score_fn(data[name]['bbox'][()], data[name]['saliency'][()]) , reverse=sortBy==-1)
     return image_names
 
 
 @app.get("/api/get-a-saliency-image", response_model=SaliencyImage)
 async def get_saliency_image(imageID: str, scoreFn: str):
-    with h5py.File("./data/output/data_100.hdf5", "r") as f:
-        data = f['images'][imageID]
-        image = data['image'][()]
-        bbox = data['bbox'][()]
-        bbox_polygons = _mask_to_polygon(cv2.resize(bbox, dsize=(175, 175), interpolation=cv2.INTER_CUBIC))
-        saliency = data['saliency'][()]
-        saliency_polygons = _mask_to_polygon(cv2.resize(saliency, dsize=(175, 175), interpolation=cv2.INTER_CUBIC))
-        features = data['feature'][()].squeeze(0).tolist()
-        image_string = _image_to_string(image.transpose(1, 2, 0))
+    data = f['images'][imageID]
+    image = data['image'][()]
+    bbox = data['bbox'][()]
+    bbox_polygons = _mask_to_polygon(cv2.resize(bbox, dsize=(175, 175), interpolation=cv2.INTER_CUBIC))
+    saliency = data['saliency'][()]
+    saliency_polygons = _mask_to_polygon(cv2.resize(saliency, dsize=(175, 175), interpolation=cv2.INTER_CUBIC))
+    features = data['feature'][()].squeeze(0).tolist()
+    image_string = _image_to_string(image.transpose(1, 2, 0))
 
-        label = data.attrs['label']
-        prediction = data.attrs['prediction']
-        score = get_score_function(scoreFn)(bbox, saliency)
-        return {'image': image_string, 'bbox': bbox_polygons, 'saliency': saliency_polygons,
-                'label': label, 'prediction': prediction, 'score': score, 'features': features}
+    label = data.attrs['label']
+    prediction = data.attrs['prediction']
+    score = get_score_function(scoreFn)(bbox, saliency)
+    return {'image': image_string, 'bbox': bbox_polygons, 'saliency': saliency_polygons,
+            'label': label, 'prediction': prediction, 'score': score, 'features': features}
 
 
 def _image_to_string(array):

@@ -19,6 +19,11 @@ dependencies:
   - black
   - shapely
   - opencv
+  - pillow
+  - tqdm
+  - pytorch
+  - torchvision
+  - lime
   - pip:
     - fastapi[all]==0.54.1
     - pydantic>=1.2.0,<2.0.0
