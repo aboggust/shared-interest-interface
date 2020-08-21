@@ -79,7 +79,8 @@ export class ConfusionMatrix extends HTMLComponent<DI>{
 
         // Build color scale
         var colorScale = d3.scaleSequential()
-            .interpolator(d3.interpolateYlGnBu);
+            .domain([-0.2, 1]) // start the color scheme from light blue instead of white
+            .interpolator(d3.interpolateBlues);
 
         // Build X scales and axis
         var x = d3.scaleBand()
@@ -125,24 +126,22 @@ export class ConfusionMatrix extends HTMLComponent<DI>{
             .range([3, x.bandwidth()]);
 
         svg.selectAll()
-            .data(data, function(d) {return d.prediction+':'+d.label;})
+            .data(data, d => d.prediction+':'+d.label)
             .enter()
             .append("rect")
-                .attr("x", function(d) {
-                    return x(d.prediction) + (x.bandwidth() - size(d.count))/2;
+                .attr("x", d => x(d.prediction) + (x.bandwidth() - size(d.count))/2)
+                .attr("y", d => y(d.label) + (y.bandwidth() - size(d.count))/2)
+                .attr("width", d => {
+                    if (d.count == 0) { return 0 }
+                    return size(d.count)
                 })
-                .attr("y", function(d) {
-                    return y(d.label) + (y.bandwidth() - size(d.count))/2;
+                .attr("height", d => {
+                    if (d.count == 0) { return 0 }
+                    return size(d.count)
                 })
-                .attr("width", function(d) { return size(d.count) })
-                .attr("height", function(d) { return size(d.count) })
-                .style("fill", function(d) {
-                    if (d.score == 0) { return "white";}
-                    return colorScale(d.score)
-                })
-                .style("stroke-width", 4)
+                .style("fill", d => colorScale(d.score))
+                .style("stroke-width", 1)
                 .style("stroke", "none")
-                .style("opacity", 0.8)
         })
 
 }

@@ -78,19 +78,8 @@ svg {
 select {
   font-size: 9pt;
   font-weight: 600;
-
-  //background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10px' height='10px'><polyline points='0,0 10,0 5,10'/></svg>");
   background-color: transparent;
-  //background-repeat: no-repeat;
-  //background-position: right 5px top 9px;
-  //background-size: 7px 7px;
-  //padding: 5px 15px 5px 5px;
   padding: 8px 6px;
-  //width: auto;
-  //font-size:16px;
-  //font-weight: bold;
-  //text-align:center;
-  //text-shadow:0 -1px 0 rgba(0, 0, 0, 0.25);
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
@@ -105,8 +94,6 @@ select {
   left: 0;
   width: 100%;
   height: 50px;
-  background-color: #edcb53;
-//   padding: 10px 10px 10px 30px;
 }
 
 .navbarContent {
@@ -123,15 +110,12 @@ select {
 
 .navbarTitle {
   font-size: 12pt;
-  //margin: 5pt;
   font-weight: bold;
 }
 
 .main_frame {
   position: fixed;
   top: 55px;
-  //margin: 0px 50px 0px 50px;
-  //background: #ffffff;
   overflow-x: hidden;
   overflow-y: auto;
 }
@@ -140,14 +124,6 @@ select {
   padding: 10px;
   height: 94%;
 }
-
-// .container {
-//   width: 100%;
-//   height: 95%;
-//   text-align: center;
-//   display: inline-block;
-//   margin: 5px auto;
-// }
 
 #bottom-margin {
   height: 100px;
@@ -175,19 +151,13 @@ select {
     justify-content: space-between;
 }
 
-.saliency-image {
-    height: 224px;
-    width: 224px;
-}
-
-
 .saliency-image-card {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 275px;
-    width: 260px;
+    width: 180px;
+    margin-bottom: 40px;
 }
 
 .row {
@@ -203,7 +173,6 @@ select {
 }
 
 .image-info .info {
-    background-color: #c3c9d9;
     font-size: 8pt;
     font-weight: 600;
     padding: 2pt;
@@ -215,16 +184,19 @@ select {
 #main {
     display: flex;
     flex-direction: row;
+    margin-top: 20px;
 }
 
 #sidebar {
-    margin-right: 5vw;
+    margin-right: 4vw;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .title {
     font-size: 10pt;
     font-weight: 600;
-    margin-top: 20px;
 }
 
 .mask {
@@ -235,18 +207,6 @@ select {
 
 .image-container {
     position: relative;
-}
-
-.saliency polygon {
-    fill-opacity: 25%;
-    stroke: red;
-    stroke-width: 1px;
-}
-
-.bbox polygon {
-    fill-opacity: 25%;
-    stroke: yellow;
-    stroke-width: 1px;
 }
 
 #footer {

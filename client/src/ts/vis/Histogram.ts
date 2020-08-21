@@ -63,9 +63,10 @@ export class Histogram extends HTMLComponent<DI>{
             .attr('transform', 'translate(0,' + height + ')')
             .call(d3.axisBottom(x));
 
-        // Color scale
+        // Build color scale
         var colorScale = d3.scaleSequential()
-            .interpolator(d3.interpolateYlGnBu);
+            .domain([-0.2, 1]) // start the color scheme from light blue instead of white
+            .interpolator(d3.interpolateBlues);
 
         svg.selectAll('rect')
             .data(bins)

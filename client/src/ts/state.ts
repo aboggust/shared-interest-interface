@@ -41,7 +41,7 @@ export class State {
             sortBy: params['sortBy'] || 1,
             predictionFn: params['predictionFn'] || 'all_images',
             page: params['page'] || 0,
-            numPerPage: params['numPerPage'] || 6,
+            numPerPage: params['numPerPage'] || 8,
             labelFilter: params['labelFilter'] || [],
         }
     }
