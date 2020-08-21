@@ -76,6 +76,7 @@ export function main() {
 
         updatePage: (state: State) => {
             const imageIDs = api.getImages(state.model(), state.method(), state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter())
+            selectors.body.style('cursor', 'progress')
             imageIDs.then(IDs => {
                 state.numImages(IDs.length)
                 eventHelpers.updatePageButtons(state)
@@ -98,7 +99,7 @@ export function main() {
                     // Add predictions to the prediction function selector
                     const predictions = Array.from(new Set(images.map(image => image.prediction)));
                     const predictionValues = predictions.slice();
-                    predictions.splice.apply(predictions, [0,0 as string | number].concat(predictionFnOptions.map(option => option.name)));
+                    predictions.splice.apply(predictions, [0, 0 as string | number].concat(predictionFnOptions.map(option => option.name)));
                     predictionValues.splice.apply(predictionValues, [0, 0 as string | number].concat(predictionFnOptions.map(option => option.value)));
                     selectors.predictionFn.selectAll('option')
                         .data(predictions)
@@ -114,18 +115,21 @@ export function main() {
                     const startIndex = state.numPerPage() * state.page()
                     const pageImages = images.slice(startIndex, startIndex + state.numPerPage())
                     vizs.saliencyImages.update(pageImages)
+
+                    // Finished async calls
+                    selectors.body.style('cursor', 'default')
                 })
             })
         },
 
         updatePageButtons: (state: State) => {
-            if ( state.page() == 0 ) {
+            if (state.page() == 0) {
                 selectors.previousPageButton.classed('disabled', true);
             } else {
                 selectors.previousPageButton.classed('disabled', false);
             };
 
-            if ( state.page() < state.maxPage() ) {
+            if (state.page() < state.maxPage()) {
                 selectors.nextPageButton.classed('disabled', false);
             } else {
                 selectors.nextPageButton.classed('disabled', true);
