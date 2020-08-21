@@ -10,11 +10,15 @@ dependencies:
   - boto3
   - regex
   - numpy
+  - h5py
+  - rasterio
   - cachetools
   - gunicorn
   - pytest
   - mypy
   - black
+  - shapely
+  - opencv
   - pillow
   - tqdm
   - pytorch

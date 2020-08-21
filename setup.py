@@ -8,7 +8,7 @@ setup(
     package_dir={"":"backend"},
     packages=find_packages("backend"),
     license="Apache",
-    author="Ben Hoover",
+    author="Angie Boggust",
     include_package_data=True,
     install_requires=requires
 )
