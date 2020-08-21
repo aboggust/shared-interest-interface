@@ -85,16 +85,14 @@ async def get_images(sortBy: int, predictionFn: str, scoreFn: str, labelFilter: 
 async def get_saliency_image(imageID: str, scoreFn: str):
     data = f['images'][imageID]
     image = data['image'][()]
-    bbox = data['bbox'][()]
-    bbox_polygons = _mask_to_polygon(cv2.resize(bbox, dsize=(175, 175), interpolation=cv2.INTER_CUBIC))
-    saliency = data['saliency'][()]
-    saliency_polygons = _mask_to_polygon(cv2.resize(saliency, dsize=(175, 175), interpolation=cv2.INTER_CUBIC))
+    bbox_polygons = list(data['bbox_polygons'][()])
+    saliency_polygons = list(data['saliency_polygons'][()])
     features = data['feature'][()].squeeze(0).tolist()
     image_string = _image_to_string(image.transpose(1, 2, 0))
 
     label = data.attrs['label']
     prediction = data.attrs['prediction']
-    score = get_score_function(scoreFn)(bbox, saliency)
+    score = data.attrs[scoreFn]
     return {'image': image_string, 'bbox': bbox_polygons, 'saliency': saliency_polygons,
             'label': label, 'prediction': prediction, 'score': score, 'features': features}
 
