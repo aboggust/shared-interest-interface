@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-requires = ['lime', 'PIL', 'numpy', 'torch', 'torchvision', 'tqdm']
+requires = []
 
 setup(
     name="SaliencyIOU",
