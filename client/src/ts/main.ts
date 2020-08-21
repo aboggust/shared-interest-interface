@@ -64,11 +64,8 @@ export function main() {
                 eventHelpers.updatePageButtons(state)
                 const startIndex = state.numPerPage() * state.page()
                 const pageIDs = IDs.slice(startIndex, startIndex + state.numPerPage())
-                var imagePromiseArray: Promise<SaliencyImg>[] = [];
-                for (let ID of pageIDs) {
-                    imagePromiseArray.push(api.getASaliencyImage(ID, state.scoreFn()))
-                }
-                Promise.all(imagePromiseArray).then(images => {
+                var imagePromiseArray = api.getSaliencyImages(pageIDs, state.scoreFn());
+                imagePromiseArray.then(images => {
                     vizs.saliencyImages.update(images)
                 })
             })
@@ -79,11 +76,8 @@ export function main() {
             imageIDs.then(IDs => {
                 state.numImages(IDs.length)
                 eventHelpers.updatePageButtons(state)
-                var imagePromiseArray: Promise<SaliencyImg>[] = [];
-                for (let ID of IDs) {
-                    imagePromiseArray.push(api.getASaliencyImage(ID, state.scoreFn()))
-                }
-                Promise.all(imagePromiseArray).then(images => {
+                var imagePromiseArray = api.getSaliencyImages(IDs, state.scoreFn())
+                imagePromiseArray.then(images => {
                     // Add labels to the label filter selector
                     const labels = Array.from(new Set(images.map(image => image.label)));
                     const labelValues = labels.slice();

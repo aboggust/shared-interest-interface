@@ -16,9 +16,10 @@ export class API {
     }
 
     /**
-     * Example API call, typed with expected response
+     * Get a single saliency image object.
      *
-     * @param firstname
+     * @param imageID: saliency image id
+     * @param scoreFn: string score function name
      */
     getASaliencyImage(imageID: string, scoreFn: string): Promise<SaliencyImg> {
         const imageToSend = {
@@ -29,10 +30,26 @@ export class API {
         return d3.json(url)
     }
 
+
     /**
-     * Example API call, typed with expected response
+     * Get the saliency image objects for all imageIDs.
      *
-     * @param firstname
+     * @imageIDs: list of string image ids to get saliency image objects for
+     * @scoreFn: string score function name
+     */
+    getSaliencyImages(imageIDs: string[], scoreFn: string): Promise<SaliencyImg[]> {
+        const imagesToSend = {
+            imageIDs: imageIDs,
+            scoreFn: scoreFn
+        }
+        const url = makeUrl(this.baseURL + "/get-saliency-images")
+        const payload = toPayload(imagesToSend)
+        return d3.json(url, payload)
+    }
+
+
+    /**
+     * Get image IDs
      */
     getImages(model: string, method: string, sortBy: number, predictionFn: string, scoreFn: string, labelFilter: string): Promise<string[]> {
         const toSend = {

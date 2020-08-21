@@ -83,7 +83,18 @@ async def get_images(sortBy: int, predictionFn: str, scoreFn: str, labelFilter: 
 
 @app.get("/api/get-a-saliency-image", response_model=SaliencyImage)
 async def get_saliency_image(imageID: str, scoreFn: str):
-    data = f['images'][imageID]
+    return _get_saliency_image(imageID, scoreFn)
+
+
+@app.post("/api/get-saliency-images", response_model=List[SaliencyImage])
+async def get_saliency_images(payload: api.ImagesPayload):
+    payload = api.ImagesPayload(**payload)
+    return [_get_saliency_image(imageID, payload.scoreFn) for imageID in payload.imageIDs]
+
+
+def _get_saliency_image(image_id: str, score_fn: str):
+    """Return saliency image object given image ID and score function."""
+    data = f['images'][image_id]
     image = data['image'][()]
     bbox_polygons = list(data['bbox_polygons'][()])
     saliency_polygons = list(data['saliency_polygons'][()])
@@ -92,7 +103,7 @@ async def get_saliency_image(imageID: str, scoreFn: str):
 
     label = data.attrs['label']
     prediction = data.attrs['prediction']
-    score = data.attrs[scoreFn]
+    score = data.attrs[score_fn]
     return {'image': image_string, 'bbox': bbox_polygons, 'saliency': saliency_polygons,
             'label': label, 'prediction': prediction, 'score': score, 'features': features}
 
