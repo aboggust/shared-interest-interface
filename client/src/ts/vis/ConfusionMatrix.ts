@@ -20,7 +20,7 @@ export class ConfusionMatrix extends HTMLComponent<DI>{
         this.base
             .append('div')
             .classed('title', true)
-            .text('Confusion Matrix')
+            .text('Confusion Matrix Filtering')
     }
 
     _render(images: SaliencyImg[]) {

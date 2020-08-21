@@ -20,7 +20,7 @@ export class Histogram extends HTMLComponent<DI>{
         this.base
             .append('div')
             .classed('title', true)
-            .text('Score Histogram')
+            .text('Score Range Selection')
     }
 
     _render(images: SaliencyImg[]) {
