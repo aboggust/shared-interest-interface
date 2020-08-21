@@ -1,4 +1,5 @@
 import argparse
+import pandas as pd
 from typing import *
 import json
 import h5py
@@ -9,6 +10,8 @@ from io import BytesIO
 import rasterio.features
 import shapely.geometry
 import cv2
+
+from time import time
 
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, RedirectResponse
@@ -61,24 +64,43 @@ class SaliencyImage(BaseModel):
     saliency: list
     label: str
     prediction: str
-    score: str
-    features: list
+    iou_score: str
+    bbox_proportion_score: str
+    saliency_proportion_score: str
 
 
-f = h5py.File("./data/output/data_100.hdf5", "r")
+# FULL
+f = h5py.File("./data/output/data_dogs.hdf5", "r")
+df = pd.read_json("./data/output/data_dogs.json")
+
+# TEST
+# f = h5py.File("./data/output/data_100.hdf5", "r")
+# df = pd.read_json("./data/output/data_100.json")
+N = len(df)
 
 @app.get("/api/get-images", response_model=List[str])
 async def get_images(sortBy: int, predictionFn: str, scoreFn: str, labelFilter: str):
-    prediction_fn = get_prediction_function(predictionFn)
-    score_fn = get_score_function(scoreFn)
-    label_filter_fn = _label_filter(labelFilter)
-    data = f['images']
-    image_names = list(data.keys())
-    image_names = [name for name in image_names
-                   if label_filter_fn(data[name].attrs['label']) and
-                   prediction_fn(data[name].attrs['label'], data[name].attrs['prediction'])]
-    image_names.sort(key=lambda name: score_fn(data[name]['bbox'][()], data[name]['saliency'][()]) , reverse=sortBy==-1)
-    return image_names
+    start = time()
+    if predictionFn == "all_images":
+        pred_inds = np.ones(N)
+    elif predictionFn == "correct_only":
+        pred_inds = df.label == df.prediction
+    elif predictionFn == "incorrect_only":
+        pred_inds = df.label != df.prediction
+
+    # Assume predictionFn is a label
+    else:
+        pred_inds = df.prediction == predictionFn
+
+    if labelFilter == '': label_inds = np.ones(N)
+    else: label_inds = df.label == labelFilter
+
+    mask = np.logical_and(pred_inds, label_inds)
+    filtered_df = df.loc[mask].sort_values(scoreFn, kind="mergesort", ascending=sortBy==1)
+
+    outnames = list(filtered_df.fname)
+    print(f"\nFiltering and sorting took {time() - start} seconds\n")
+    return outnames
 
 
 @app.get("/api/get-a-saliency-image", response_model=SaliencyImage)
@@ -88,8 +110,15 @@ async def get_saliency_image(imageID: str, scoreFn: str):
 
 @app.post("/api/get-saliency-images", response_model=List[SaliencyImage])
 async def get_saliency_images(payload: api.ImagesPayload):
+    start = time()
     payload = api.ImagesPayload(**payload)
-    return [_get_saliency_image(imageID, payload.scoreFn) for imageID in payload.imageIDs]
+
+    print(f"\nTrying to return {len(payload.imageIDs)} samples\n")
+    filtered_df = df.loc[df.fname.isin(payload.imageIDs)]
+    filtered_df['score'] = filtered_df[payload.scoreFn]
+
+    print(f"\nGetting all saliency images took {time() - start} seconds\n")
+    return filtered_df.to_dict('records')
 
 
 def _get_saliency_image(image_id: str, score_fn: str):

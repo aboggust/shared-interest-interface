@@ -7,6 +7,7 @@ channels:
 dependencies:
   - pip>=19.0.3
   - python>=3.8
+  - pandas
   - boto3
   - regex
   - numpy
@@ -24,6 +25,7 @@ dependencies:
   - pytorch
   - torchvision
   - lime
+  - tqdm
   - pip:
     - fastapi[all]==0.54.1
     - pydantic>=1.2.0,<2.0.0
