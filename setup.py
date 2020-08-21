@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-requires = ['lime', 'PIL', 'numpy', 'torch', 'torchvision', 'tqdm']
+requires = []
 
 setup(
     name="SaliencyIOU",
@@ -8,7 +8,7 @@ setup(
     package_dir={"":"backend"},
     packages=find_packages("backend"),
     license="Apache",
-    author="Ben Hoover",
+    author="Angie Boggust",
     include_package_data=True,
     install_requires=requires
 )
