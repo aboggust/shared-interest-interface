@@ -1,17 +1,8 @@
 import argparse
 import pandas as pd
 from typing import *
-import json
 import h5py
 import numpy as np
-import base64
-from PIL import Image
-from io import BytesIO
-import rasterio.features
-import shapely.geometry
-import cv2
-
-from time import time
 
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, RedirectResponse
@@ -21,7 +12,7 @@ from pydantic import BaseModel
 import uvicorn
 import backend.server.api as api
 import backend.server.path_fixes as pf
-from backend.server.util_functions import get_score_function, get_prediction_function
+
 
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("--port", default=8000, type=int, help="Port to run the app. ")
@@ -36,16 +27,17 @@ app.add_middleware(
 )
 
 
-
 # Main routes
 @app.get("/")
 def index():
     """For local development, serve the index.html in the dist folder"""
     return RedirectResponse(url="client/index.html")
 
-# the `file_path:path` says to accept any path as a string here. Otherwise, `file_paths` containing `/` will not be served properly
+
+# the `file_path:path` says to accept any path as a string here.
+# Otherwise, `file_paths` containing `/` will not be served properly
 @app.get("/client/{file_path:path}")
-def send_static_client(file_path:str):
+def send_static_client(file_path: str):
     """ Serves (makes accessible) all files from ./client/ to ``/client/{path}``. Used primarily for development. NGINX handles production.
 
     Args:
@@ -55,8 +47,9 @@ def send_static_client(file_path:str):
     print("Finding file: ", f)
     return FileResponse(f)
 
+
 # ======================================================================
-## MAIN API ##
+# MAIN API
 # ======================================================================
 class SaliencyImage(BaseModel):
     image: str
@@ -91,8 +84,8 @@ async def get_images(sortBy: int, predictionFn: str, scoreFn: str, labelFilter: 
 
     mask = np.logical_and(pred_inds, label_inds)
     filtered_df = df.loc[mask].sort_values(scoreFn, kind="mergesort", ascending=sortBy==1)
-    outnames = list(filtered_df.index)
-    return outnames
+    fnames = list(filtered_df.index)
+    return fnames
 
 
 @app.post("/api/get-saliency-images", response_model=List[SaliencyImage])
@@ -101,6 +94,16 @@ async def get_saliency_images(payload: api.ImagesPayload):
     filtered_df = df.loc[payload.imageIDs]
     filtered_df['score'] = filtered_df[payload.scoreFn]
     return filtered_df.to_dict('records')
+
+
+@app.get("/api/get-labels", response_model=List[str])
+async def get_labels():
+    return list(df.label.unique())
+
+
+@app.get("/api/get-predictions", response_model=List[str])
+async def get_predictions():
+    return list(df.prediction.unique())
 
 
 if __name__ == "__main__":

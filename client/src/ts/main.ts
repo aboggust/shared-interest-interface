@@ -58,7 +58,7 @@ export function main() {
 
     const eventHelpers = {
         updateImages: (state: State) => {
-            const imageIDs = api.getImages(state.model(), state.method(), state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter())
+            const imageIDs = api.getImages(state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter())
             imageIDs.then(IDs => {
                 state.numImages(IDs.length)
                 eventHelpers.updatePageButtons(state)
@@ -72,35 +72,13 @@ export function main() {
         },
 
         updatePage: (state: State) => {
-            const imageIDs = api.getImages(state.model(), state.method(), state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter())
+            const imageIDs = api.getImages(state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter())
             selectors.body.style('cursor', 'progress')
             imageIDs.then(IDs => {
                 state.numImages(IDs.length)
                 eventHelpers.updatePageButtons(state)
                 var imagePromiseArray = api.getSaliencyImages(IDs, state.scoreFn())
                 imagePromiseArray.then(images => {
-                    // Add labels to the label filter selector
-                    const labels = Array.from(new Set(images.map(image => image.label)));
-                    const labelValues = labels.slice();
-                    labels.splice.apply(labels, [0, 0 as string | number].concat(labelFilterOptions.map(option => option.name)));
-                    labelValues.splice.apply(labelValues, [0, 0 as string | number].concat(labelFilterOptions.map(option => option.value)));
-                    selectors.labelFilter.selectAll('option')
-                        .data(labels)
-                        .join('option')
-                        .attr('value', (label, i) => labelValues[i])
-                        .text(label => label)
-
-                    // Add predictions to the prediction function selector
-                    const predictions = Array.from(new Set(images.map(image => image.prediction)));
-                    const predictionValues = predictions.slice();
-                    predictions.splice.apply(predictions, [0, 0 as string | number].concat(predictionFnOptions.map(option => option.name)));
-                    predictionValues.splice.apply(predictionValues, [0, 0 as string | number].concat(predictionFnOptions.map(option => option.value)));
-                    selectors.predictionFn.selectAll('option')
-                        .data(predictions)
-                        .join('option')
-                        .attr('value', (prediction, i) => predictionValues[i])
-                        .text(label => label)
-
                     // Update sidebar
                     vizs.histogram.update(images)
                     vizs.confusionMatrix.update(images)
@@ -137,10 +115,39 @@ export function main() {
      * @param state the state of the application
      */
     async function initializeFromState(state: State) {
+        // Fill in label options
+        const labelsPromise = api.getLabels();
+        labelsPromise.then(labels => {
+            const labelValues = labels.slice();
+            labels.splice.apply(labels, [0, 0 as string | number].concat(labelFilterOptions.map(option => option.name)));
+            labelValues.splice.apply(labelValues, [0, 0 as string | number].concat(labelFilterOptions.map(option => option.value)));
+            selectors.labelFilter.selectAll('option')
+                .data(labels)
+                .join('option')
+                .attr('value', (label, i) => labelValues[i])
+                .text(label => label)
+        })
+
+        // Fill in prediction options
+        const predictionsPromise = api.getPredictions();
+        predictionsPromise.then(predictions => {
+            const predictionValues = predictions.slice();
+            predictions.splice.apply(predictions, [0, 0 as string | number].concat(predictionFnOptions.map(option => option.name)));
+            predictionValues.splice.apply(predictionValues, [0, 0 as string | number].concat(predictionFnOptions.map(option => option.value)));
+            selectors.predictionFn.selectAll('option')
+                .data(predictions)
+                .join('option')
+                .attr('value', (prediction, i) => predictionValues[i])
+                .text(prediction => prediction)
+        })
+
+        // Set frontend via state parameters
         selectors.sortBy.property('value', state.sortBy())
         selectors.predictionFn.property('value', state.predictionFn())
         selectors.scoreFn.property('value', state.scoreFn())
         selectors.labelFilter.property('value', state.labelFilter())
+
+        // Get data from state parameters
         eventHelpers.updatePage(state)
     }
 
