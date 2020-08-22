@@ -5,12 +5,14 @@ import h5py
 from tqdm import tqdm
 import numpy as np
 from args import get_args
-import nltk
+import cv2
 from nltk.corpus import wordnet
 import torchvision.models as models
 import torchvision.transforms as transforms
 from datasets import ImageBoundingBoxFolder
 from saliency_methods import compute_lime_mask
+import rasterio.features
+import shapely.geometry
 
 
 def main():
@@ -58,25 +60,49 @@ def main():
             label = wordnet.synset_from_pos_and_offset(nid[0], int(nid[1:])).name().split('.')[0]
             bbox_mask = bbox_mask.numpy().astype('uint8')
             lime_mask = compute_lime_mask(image.unsqueeze(0), model).astype('uint8')
-            score = float(np.sum(bbox_mask & lime_mask) / np.sum(lime_mask))
             outputs = model(image.unsqueeze(0).to(device))
-            feature = outputs.data.cpu().numpy()
             prediction = label_map[str(int(outputs.argmax(dim=1)))][1].lower()
             image = vector_to_image_transform(image.unsqueeze(0)).numpy()
 
+            bbox_polygons = _mask_to_polygon(cv2.resize(bbox_mask, dsize=(175, 175), interpolation=cv2.INTER_CUBIC))
+            saliency_polygons = _mask_to_polygon(cv2.resize(lime_mask, dsize=(175, 175), interpolation=cv2.INTER_CUBIC))
+            scores = _get_scores(bbox_mask, lime_mask)
+
             image_group = images_group.create_group(image_name)
             image_group.create_dataset('image', data=image)
-            image_group.create_dataset('bbox', data=bbox_mask)
-            image_group.create_dataset('saliency', data=lime_mask)
-            image_group.create_dataset('feature', data=feature)
+            image_group.create_dataset('bbox_polygons', data=np.array(bbox_polygons, dtype='S'))
+            image_group.create_dataset('saliency_polygons', data=np.array(saliency_polygons, dtype='S'))
             image_group.attrs['label'] = label
-            image_group.attrs['score'] = score
+
+            for score_key, score in scores.items():
+                image_group.attrs[score_key] = score
             image_group.attrs['prediction'] = prediction
 
-        image_names = sorted(list(images_group.keys()), key=lambda name: images_group[name].attrs['score'])
 
-    with open(os.path.join(args.outputdir, 'image_names.json'), 'w') as image_name_file:
-        json.dump(image_names, image_name_file)
+def _mask_to_polygon(mask_array):
+    """ Converts boolean array mask to polygon string. """
+    shapes = rasterio.features.shapes(mask_array)
+    polygons = [shapely.geometry.Polygon(shape[0]["coordinates"][0]) for shape in shapes if shape[1] == 1]
+    polygon_strings = [' '.join([','.join([str(c) for c in coord]) for coord in polygon.exterior.coords]) for polygon in polygons]
+    return polygon_strings
+
+
+def _get_scores(bbox, saliency):
+    def saliency_proportion_score(bbox_mask, saliency_mask):
+        """Proportion of saliency that overlaps with the bounding box."""
+        return float(np.sum(bbox_mask & saliency_mask) / np.sum(saliency_mask))
+
+    def bbox_proportion_score(bbox_mask, saliency_mask):
+        """Proportion of bounding box that overlaps with the saliency."""
+        return float(np.sum(bbox_mask & saliency_mask) / np.sum(bbox_mask))
+
+    def iou_score(bbox_mask, saliency_mask):
+        """Intersection over union of bounding box and saliency."""
+        return float(np.sum(bbox_mask & saliency_mask) / np.sum(bbox_mask | saliency_mask))
+
+    return {'saliency_proportion_score': saliency_proportion_score(bbox, saliency),
+            'bbox_proportion_score': bbox_proportion_score(bbox, saliency),
+            'iou_score': iou_score(bbox, saliency)}
 
 
 if __name__ == '__main__':
