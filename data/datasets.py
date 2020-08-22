@@ -17,9 +17,11 @@ class ImageBoundingBoxFolder(ImageFolder):
         self.bbox_transform = bbox_transform
         self.bbox_is_xml = bbox_is_xml
 
+        
     def __len__(self, ):
         return super().__len__()
 
+    
     def __getitem__(self, index):
         """Returns the image, the target label, and the bounding box mask."""
         image, target = super().__getitem__(index)
