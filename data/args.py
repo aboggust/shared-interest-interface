@@ -13,5 +13,7 @@ def get_args():
     parser.add_argument('-s', '--imagesplit', default='example', type=str, help='dataset split to get from imagedir')
     parser.add_argument('-l', '--labelmap', default='./imagenet9/label_map.json', type=str, help='path to label map')
     parser.add_argument('-o', '--outputdir', default='./output', type=str, help='directory to store output files')
+    parser.add_argument('-p', '--pretrain', action='store_true')
+    parser.add_argument('-m', '--model', default='/tmp/aboggust/vgg11_melanoma_model.pth', type=str, help='model state dict')
     args = parser.parse_args()
     return args
