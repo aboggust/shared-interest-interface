@@ -15,21 +15,6 @@ export class API {
         }
     }
 
-    /**
-     * Get a single saliency image object.
-     *
-     * @param imageID: saliency image id
-     * @param scoreFn: string score function name
-     */
-    getASaliencyImage(imageID: string, scoreFn: string): Promise<SaliencyImg> {
-        const imageToSend = {
-            imageID: imageID,
-            scoreFn: scoreFn
-        }
-        const url = makeUrl(this.baseURL + "/get-a-saliency-image", imageToSend)
-        return d3.json(url)
-    }
-
 
     /**
      * Get the saliency image objects for all imageIDs.
