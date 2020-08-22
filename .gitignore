@@ -3,7 +3,6 @@ _archive
 
 # Data
 data/imagenet9/
-data/args.py
 data/output/data_dogs.hdf5
 
 # Projects
