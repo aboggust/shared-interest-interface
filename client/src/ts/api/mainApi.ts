@@ -15,21 +15,6 @@ export class API {
         }
     }
 
-    /**
-     * Get a single saliency image object.
-     *
-     * @param imageID: saliency image id
-     * @param scoreFn: string score function name
-     */
-    getASaliencyImage(imageID: string, scoreFn: string): Promise<SaliencyImg> {
-        const imageToSend = {
-            imageID: imageID,
-            scoreFn: scoreFn
-        }
-        const url = makeUrl(this.baseURL + "/get-a-saliency-image", imageToSend)
-        return d3.json(url)
-    }
-
 
     /**
      * Get the saliency image objects for all imageIDs.
@@ -51,16 +36,32 @@ export class API {
     /**
      * Get image IDs
      */
-    getImages(model: string, method: string, sortBy: number, predictionFn: string, scoreFn: string, labelFilter: string): Promise<string[]> {
+    getImages(sortBy: number, predictionFn: string, scoreFn: string, labelFilter: string): Promise<string[]> {
         const toSend = {
-            model: model,
-            method: method,
             sortBy: sortBy,
             predictionFn: predictionFn,
             scoreFn: scoreFn,
             labelFilter: labelFilter,
         }
         const url = makeUrl(this.baseURL + "/get-images", toSend)
+        return d3.json(url)
+    }
+
+    /**
+     * Get all dataset predictions
+     */
+    getPredictions(): Promise<string[]> {
+        const toSend = {}
+        const url = makeUrl(this.baseURL + "/get-predictions", toSend)
+        return d3.json(url)
+    }
+
+    /**
+     * Get all dataset labels
+     */
+    getLabels(): Promise<string[]> {
+        const toSend = {}
+        const url = makeUrl(this.baseURL + "/get-labels", toSend)
         return d3.json(url)
     }
 

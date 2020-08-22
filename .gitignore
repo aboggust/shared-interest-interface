@@ -4,6 +4,7 @@ _archive
 # Data
 data/imagenet9/
 data/output/data_dogs.hdf5
+data/output/data_vehicle.hdf5
 
 # Projects
 .idea
