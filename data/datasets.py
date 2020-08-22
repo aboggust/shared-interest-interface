@@ -1,113 +1,69 @@
+# Datasets for ImageNet.
+
+import numpy as np
 import os
 import torch
-import json
-import h5py
-from tqdm import tqdm
-import numpy as np
-from args import get_args
-import cv2
-from nltk.corpus import wordnet
-import torchvision.models as models
-import torchvision.transforms as transforms
-from datasets import ImageBoundingBoxFolder
-from saliency_methods import compute_lime_mask
-import rasterio.features
-import shapely.geometry
+from PIL import Image
+from torchvision.datasets import ImageFolder
+import xml.etree.ElementTree as ET
 
 
-def main():
-    args = get_args()
-    image_directory = os.path.join(args.imagedir, args.imagesplit)
-    with open(args.labelmap, 'r') as f:
-        label_map = json.load(f)
+class ImageBoundingBoxFolder(ImageFolder):
+    """ImageFolder dataset with bounding box data."""
 
-    with h5py.File(os.path.join(args.outputdir, 'data.hdf5'), 'w') as hdf5_file:
-        images_group = hdf5_file.create_group('images')
+    def __init__(self, image_root, bbox_root, transform=None, bbox_transform=None, bbox_is_xml=True):
+        super().__init__(image_root, transform=transform)
+        self.bbox_root = bbox_root
+        self.bbox_transform = bbox_transform
+        self.bbox_is_xml = bbox_is_xml
 
-        # Load pretrained model and create data loaders
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        if args.pretrain:
-            model = models.__dict__[args.arch](pretrained=True)
+    def __len__(self, ):
+        return super().__len__()
+
+    def __getitem__(self, index):
+        """Returns the image, the target label, and the bounding box mask."""
+        image, target = super().__getitem__(index)
+        image_path, _ = self.imgs[index]
+        image_width, image_height = Image.open(image_path).size
+
+        self.image_name = image_path.strip().split('/')[-1].split('.')[0]
+        if self.bbox_is_xml:
+            n_id, _ = self.image_name.split('_')
+            self.bbox_path = os.path.join(self.bbox_root, n_id, '%s.xml' % (self.image_name))
         else:
-            model = models.__dict__[args.arch]()
-            model.load_state_dict(torch.load(args.model))
-        model.to(device).eval()
-
-        image_to_vector_transform = transforms.Compose([
-            transforms.Resize(256),
-            transforms.CenterCrop(224),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                 std=[0.229, 0.224, 0.225]),
-            ])
-
-        bbox_transform = transforms.Compose([
-            transforms.ToPILImage(),
-            transforms.Resize(256),
-            transforms.CenterCrop(224),
-            transforms.ToTensor()
-        ])
-
-        vector_to_image_transform = transforms.Compose([
-            transforms.Lambda(lambda x: x[0]),
-            transforms.Normalize(mean=[0, 0, 0], std=[4.3668, 4.4643, 4.4444]),
-            transforms.Normalize(mean=[-0.485, -0.456, -0.406], std=[1, 1, 1]),
-        ])
-
-        dataset = ImageBoundingBoxFolder(image_directory,
-                                         args.bboxdir,
-                                         image_to_vector_transform,
-                                         bbox_transform)
-
-        # Get bbox LIME mask, score, and prediction for each image
-        for i, (image, bbox_mask, image_name) in enumerate(tqdm(dataset)):
-            nid = image_name.split('_')[0]
-            label = wordnet.synset_from_pos_and_offset(nid[0], int(nid[1:])).name().split('.')[0]
-            bbox_mask = bbox_mask.numpy().astype('uint8')
-            lime_mask = compute_lime_mask(image.unsqueeze(0), model).astype('uint8')
-            outputs = model(image.unsqueeze(0).to(device))
-            prediction = label_map[str(int(outputs.argmax(dim=1)))][1].lower()
-            image = vector_to_image_transform(image.unsqueeze(0)).numpy()
-
-            bbox_polygons = _mask_to_polygon(cv2.resize(bbox_mask, dsize=(175, 175), interpolation=cv2.INTER_CUBIC))
-            saliency_polygons = _mask_to_polygon(cv2.resize(lime_mask, dsize=(175, 175), interpolation=cv2.INTER_CUBIC))
-            scores = _get_scores(bbox_mask, lime_mask)
-
-            image_group = images_group.create_group(image_name)
-            image_group.create_dataset('image', data=image)
-            image_group.create_dataset('bbox_polygons', data=np.array(bbox_polygons, dtype='S'))
-            image_group.create_dataset('saliency_polygons', data=np.array(saliency_polygons, dtype='S'))
-            image_group.attrs['label'] = label
-            image_group.attrs['prediction'] = prediction
-            for score_key, score in scores.items():
-                image_group.attrs[score_key] = score
+            self.bbox_path = os.path.join(self.bbox_root, '%s_Segmentation.png' % (self.image_name))
+        bbox_mask = self._get_bbox_mask(self.bbox_path, image_height, image_width)
+        bbox_mask = self.bbox_transform(bbox_mask).squeeze(0)
+        return image, bbox_mask, self.image_name
 
 
-def _mask_to_polygon(mask_array):
-    """ Converts boolean array mask to polygon string. """
-    shapes = rasterio.features.shapes(mask_array)
-    polygons = [shapely.geometry.Polygon(shape[0]["coordinates"][0]) for shape in shapes if shape[1] == 1]
-    polygon_strings = [' '.join([','.join([str(c) for c in coord]) for coord in polygon.exterior.coords]) for polygon in polygons]
-    return polygon_strings
+    def _get_bbox_mask(self, bbox_path, img_height, img_width):
+        """Returns a mask the same size as the image with 1s for pixels in
+        bounding boxes and 0 elsewhere."""
+        try:
+            if self.bbox_is_xml:
+                coords = self._parse_bbox_xml(bbox_path)
+                mask = torch.zeros((img_height, img_width))
+                for coord in coords:
+                    mask[coord['ymin']:coord['ymax'], coord['xmin']:coord['xmax']] = 1
+            else:
+                mask = np.array(Image.open(bbox_path))
+        except IOError as e:
+            # Image does not have bounding box data, so return a mask of all ones.
+            # This will not penalize the loss function.
+            mask = torch.ones((img_height, img_width))
+        return mask
 
 
-def _get_scores(bbox, saliency):
-    def saliency_proportion_score(bbox_mask, saliency_mask):
-        """Proportion of saliency that overlaps with the bounding box."""
-        return float(np.sum(bbox_mask & saliency_mask) / np.sum(saliency_mask))
-
-    def bbox_proportion_score(bbox_mask, saliency_mask):
-        """Proportion of bounding box that overlaps with the saliency."""
-        return float(np.sum(bbox_mask & saliency_mask) / np.sum(bbox_mask))
-
-    def iou_score(bbox_mask, saliency_mask):
-        """Intersection over union of bounding box and saliency."""
-        return float(np.sum(bbox_mask & saliency_mask) / np.sum(bbox_mask | saliency_mask))
-
-    return {'saliency_proportion_score': saliency_proportion_score(bbox, saliency),
-            'bbox_proportion_score': bbox_proportion_score(bbox, saliency),
-            'iou_score': iou_score(bbox, saliency)}
-
-
-if __name__ == '__main__':
-    main()
+    def _parse_bbox_xml(self, bbox_path):
+        """Parse ImageNet formated bounding box XML file."""
+        if not os.path.isfile(bbox_path):
+            raise IOError('No bounding box data for %s' % (self.image_name))
+        tree = ET.parse(bbox_path)
+        root = tree.getroot()
+        bboxes = [obj.find('bndbox') for obj in root.findall('object')]
+        coords = [{'xmin': int(bbox.find('xmin').text),
+                   'ymin': int(bbox.find('ymin').text),
+                   'xmax': int(bbox.find('xmax').text),
+                   'ymax': int(bbox.find('ymax').text), } for bbox in bboxes]
+        return coords
