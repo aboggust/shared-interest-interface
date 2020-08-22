@@ -11,5 +11,5 @@ class HashableBaseModel(BaseModel):
         return v
 
 class ImagesPayload(HashableBaseModel):
-    imageIDs: list
+    imageIDs: List[str]
     scoreFn: str
