@@ -6,7 +6,7 @@ import { ConfusionMatrix } from './vis/ConfusionMatrix'
 import { SimpleEventHandler } from './etc/SimpleEventHandler'
 import { API } from './api/mainApi'
 import { State } from './state'
-import { modelOptions, methodOptions, sortByOptions, numPerPageOptions, predictionFnOptions, scoreFnOptions, labelFilterOptions } from './etc/selectionOptions'
+import { modelOptions, methodOptions, sortByOptions, predictionFnOptions, scoreFnOptions, labelFilterOptions } from './etc/selectionOptions'
 import { SaliencyImg } from './types';
 
 /**
@@ -94,6 +94,16 @@ export function main() {
             })
         },
 
+        updateImagesPerPage: (state: State) => {
+            const numImageRows = Math.floor(selectors.imagesPanel.property('clientHeight') / 235));
+            const numImageCols = Math.floor(selectors.imagesPanel.property('clientWidth') / 200));
+            const numPerPage = numImageRows * numImageCols;
+            if (state.numPerPage() != numPerPage) {
+                state.numPerPage(numPerPage);
+                eventHelpers.updateImages(state);
+            }
+        },
+
         updatePageButtons: (state: State) => {
             if (state.page() == 0) {
                 selectors.previousPageButton.classed('disabled', true);
@@ -115,6 +125,11 @@ export function main() {
      * @param state the state of the application
      */
     async function initializeFromState(state: State) {
+        // Initialize state
+        const numImageRows = Math.floor(selectors.imagesPanel.property('clientHeight') / 235));
+        const numImageCols = Math.floor(selectors.imagesPanel.property('clientWidth') / 200));
+        state.numPerPage(numImageRows * numImageCols);
+
         // Fill in label options
         const labelsPromise = api.getLabels();
         labelsPromise.then(labels => {
