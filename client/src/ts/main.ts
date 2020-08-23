@@ -47,8 +47,6 @@ export function main() {
             .join('option')
             .attr('value', option => option.value)
             .text(option => option.name),
-        previousPageButton: d3.select("#previous-page"),
-        nextPageButton: d3.select("#next-page"),
     }
 
     const vizs = {
@@ -62,7 +60,7 @@ export function main() {
             const imageIDs = api.getImages(state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter())
             imageIDs.then(IDs => {
                 state.numImages(IDs.length)
-                eventHelpers.updatePageButtons(state)
+                // eventHelpers.updatePageButtons(state)
                 const startIndex = state.numPerPage() * state.page()
                 const pageIDs = IDs.slice(startIndex, startIndex + state.numPerPage())
                 const imgData = {
@@ -78,7 +76,6 @@ export function main() {
             selectors.body.style('cursor', 'progress')
             imageIDs.then(IDs => {
                 state.numImages(IDs.length)
-                eventHelpers.updatePageButtons(state)
                 vizs.saliencyImages.update({imgIDs: IDs, scoreFn: state.scoreFn()})
 
                 // Update histogram
@@ -105,20 +102,6 @@ export function main() {
                 state.numPerPage(numPerPage);
                 eventHelpers.updateImages(state);
             }
-        },
-
-        updatePageButtons: (state: State) => {
-            if (state.page() == 0) {
-                selectors.previousPageButton.classed('disabled', true);
-            } else {
-                selectors.previousPageButton.classed('disabled', false);
-            };
-
-            if (state.page() < state.maxPage()) {
-                selectors.nextPageButton.classed('disabled', false);
-            } else {
-                selectors.nextPageButton.classed('disabled', true);
-            };
         },
     }
 
@@ -198,22 +181,6 @@ export function main() {
         state.labelFilter(labelFilter)
         state.page(0)
         eventHelpers.updatePage(state)
-    });
-
-    selectors.previousPageButton.on('click', () => {
-        const currentPage = state.page()
-        if (currentPage > 0) {
-            state.page(currentPage - 1)
-            eventHelpers.updateImages(state)
-        };
-    });
-
-    selectors.nextPageButton.on('click', () => {
-        if (!selectors.nextPageButton.classed('disabled')) {
-            const currentPage = state.page()
-            state.page(currentPage + 1)
-            eventHelpers.updateImages(state)
-        }
     });
 
     let numLoaded = 0;
