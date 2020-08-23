@@ -19,6 +19,10 @@ export class State {
     private _url: Partial<URLParameters> = {}
     private _conf: Partial<StateConf> = {}
 
+    imagesPerPage: number
+    imageLength: number
+    maxPageNum: number
+
     constructor() {
         this.fromURL()
         this.toURL(false)
@@ -83,6 +87,7 @@ export class State {
     }
 
     numPerPage(): number
+    numPerPage(val: number): this
     numPerPage(val?) {
         if (val == null) return this.imagesPerPage
         this.imagesPerPage = val
@@ -104,6 +109,7 @@ export class State {
         if (val == null) return this.imageLength
         this.imageLength = val
         this.maxPageNum = Math.ceil(this.imageLength / this.numPerPage()) - 1
+        return this
     }
 
     maxPage(): number

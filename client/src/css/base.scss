@@ -166,6 +166,9 @@ select {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
+    overflow-y: auto;
+    height: 450px; // TODO: How to make a scrollable container across devices?
+    margin-top: 15px;
 }
 
 .saliency-image-card {

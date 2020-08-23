@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
-import { HTMLList, SVGList } from './vis/ExampleComponent'
-import { SaliencyImages } from './vis/SaliencyImages'
+import { LazySaliencyImages } from "./vis/LazySaliencyImages"
+import { SingleSaliencyImage } from "./vis/SingleSaliencyImage"
 import { Histogram } from './vis/Histogram'
 import { ConfusionMatrix } from './vis/ConfusionMatrix'
 import { SimpleEventHandler } from './etc/SimpleEventHandler'
@@ -47,37 +47,35 @@ export function main() {
             .join('option')
             .attr('value', option => option.value)
             .text(option => option.name),
-        previousPageButton: d3.select("#previous-page"),
-        nextPageButton: d3.select("#next-page"),
     }
 
     const vizs = {
         histogram: new Histogram(<HTMLElement>selectors.sidebar.node(), eventHandler),
         confusionMatrix: new ConfusionMatrix(<HTMLElement>selectors.sidebar.node(), eventHandler),
-        saliencyImages: new SaliencyImages(<HTMLElement>selectors.imagesPanel.node(), eventHandler),
+        saliencyImages: new LazySaliencyImages(<HTMLElement>selectors.imagesPanel.node(), eventHandler),
     }
 
     const eventHelpers = {
         updateImages: (state: State) => {
+            vizs.saliencyImages.clear()
             const imageIDs = api.getImages(state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter())
             imageIDs.then(IDs => {
                 state.numImages(IDs.length)
-                eventHelpers.updatePageButtons(state)
-                const startIndex = state.numPerPage() * state.page()
-                const pageIDs = IDs.slice(startIndex, startIndex + state.numPerPage())
-                var imagePromiseArray = api.getSaliencyImages(pageIDs, state.scoreFn());
-                imagePromiseArray.then(images => {
-                    vizs.saliencyImages.update(images)
-                })
+                const imgData = {
+                    imgIDs: IDs,
+                    scoreFn: state.scoreFn()
+                }
+                vizs.saliencyImages.update(imgData)
             })
         },
 
         updatePage: (state: State) => {
+            vizs.saliencyImages.clear()
             const imageIDs = api.getImages(state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter())
             selectors.body.style('cursor', 'progress')
             imageIDs.then(IDs => {
                 state.numImages(IDs.length)
-                eventHelpers.updatePageButtons(state)
+                vizs.saliencyImages.update({imgIDs: IDs, scoreFn: state.scoreFn()})
 
                 // Update histogram
                 api.binScores(IDs, state.scoreFn()).then(bins => {
@@ -89,41 +87,12 @@ export function main() {
                     vizs.confusionMatrix.update(confusionMatrix)
                 })
 
-                // Update images
-                const startIndex = state.numPerPage() * state.page()
-                const pageImageIDs = IDs.slice(startIndex, startIndex + state.numPerPage())
-                api.getSaliencyImages(pageImageIDs, state.scoreFn()).then(pageImages => {
-                    vizs.saliencyImages.update(pageImages)
-                })
-
                 // Finished async calls
                 selectors.body.style('cursor', 'default')
+
             })
         },
 
-        updateImagesPerPage: (state: State) => {
-            const numImageRows = Math.floor(selectors.imagesPanel.property('clientHeight') / 230));
-            const numImageCols = Math.floor(selectors.imagesPanel.property('clientWidth') / 200));
-            const numPerPage = numImageRows * numImageCols;
-            if (state.numPerPage() != numPerPage) {
-                state.numPerPage(numPerPage);
-                eventHelpers.updateImages(state);
-            }
-        },
-
-        updatePageButtons: (state: State) => {
-            if (state.page() == 0) {
-                selectors.previousPageButton.classed('disabled', true);
-            } else {
-                selectors.previousPageButton.classed('disabled', false);
-            };
-
-            if (state.page() < state.maxPage()) {
-                selectors.nextPageButton.classed('disabled', false);
-            } else {
-                selectors.nextPageButton.classed('disabled', true);
-            };
-        },
     }
 
     /**
@@ -133,9 +102,8 @@ export function main() {
      */
     async function initializeFromState(state: State) {
         // Initialize state
-        const numImageRows = Math.floor(selectors.imagesPanel.property('clientHeight') / 230));
-        const numImageCols = Math.floor(selectors.imagesPanel.property('clientWidth') / 200));
-        state.numPerPage(numImageRows * numImageCols);
+        const numImageRows = Math.floor(selectors.imagesPanel.property('clientHeight') / 230);
+        const numImageCols = Math.floor(selectors.imagesPanel.property('clientWidth') / 200);
 
         // Fill in label options
         const labelsPromise = api.getLabels();
@@ -188,7 +156,6 @@ export function main() {
     selectors.predictionFn.on('change', () => {
         const predictionValue = selectors.predictionFn.property('value')
         state.predictionFn(predictionValue)
-        state.page(0)
         eventHelpers.updatePage(state)
     });
 
@@ -201,28 +168,17 @@ export function main() {
     selectors.labelFilter.on('change', () => {
         const labelFilter = selectors.labelFilter.property('value')
         state.labelFilter(labelFilter)
-        state.page(0)
         eventHelpers.updatePage(state)
     });
 
-    selectors.previousPageButton.on('click', () => {
-        const currentPage = state.page()
-        if (currentPage > 0) {
-            state.page(currentPage - 1)
-            eventHelpers.updateImages(state)
-        };
-    });
-
-    selectors.nextPageButton.on('click', () => {
-        if (!selectors.nextPageButton.classed('disabled')) {
-            const currentPage = state.page()
-            state.page(currentPage + 1)
-            eventHelpers.updateImages(state)
-        }
-    });
-
-    selectors.window.on('resize', () => {
-        eventHelpers.updateImagesPerPage(state)
-    });
+    let numLoaded = 0;
+    eventHandler.bind(LazySaliencyImages.events.onScreen, ({el, id, scoreFn, caller}) => {
+        const img = new SingleSaliencyImage(el, eventHandler)
+        api.getSaliencyImage(id, scoreFn).then(salImg => {
+            img.update(salImg)
+            numLoaded += 1;
+            console.log(`I have loaded ${numLoaded} samples`);
+        })
+    })
 
 }
