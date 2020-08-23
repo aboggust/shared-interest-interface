@@ -57,12 +57,13 @@ export function main() {
 
     const eventHelpers = {
         updateImages: (state: State) => {
+            vizs.saliencyImages.clear()
             const imageIDs = api.getImages(state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter())
             imageIDs.then(IDs => {
                 state.numImages(IDs.length)
                 // eventHelpers.updatePageButtons(state)
-                const startIndex = state.numPerPage() * state.page()
-                const pageIDs = IDs.slice(startIndex, startIndex + state.numPerPage())
+                // const startIndex = state.numPerPage() * state.page()
+                // const pageIDs = IDs.slice(startIndex, startIndex + state.numPerPage())
                 const imgData = {
                     imgIDs: IDs,
                     scoreFn: state.scoreFn()
@@ -72,6 +73,7 @@ export function main() {
         },
 
         updatePage: (state: State) => {
+            vizs.saliencyImages.clear()
             const imageIDs = api.getImages(state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter())
             selectors.body.style('cursor', 'progress')
             imageIDs.then(IDs => {
@@ -94,15 +96,15 @@ export function main() {
             })
         },
 
-        updateImagesPerPage: (state: State) => {
-            const numImageRows = Math.floor(selectors.imagesPanel.property('clientHeight') / 230);
-            const numImageCols = Math.floor(selectors.imagesPanel.property('clientWidth') / 200);
-            const numPerPage = numImageRows * numImageCols;
-            if (state.numPerPage() != numPerPage) {
-                state.numPerPage(numPerPage);
-                eventHelpers.updateImages(state);
-            }
-        },
+        // updateImagesPerPage: (state: State) => {
+        //     const numImageRows = Math.floor(selectors.imagesPanel.property('clientHeight') / 230);
+        //     const numImageCols = Math.floor(selectors.imagesPanel.property('clientWidth') / 200);
+        //     const numPerPage = numImageRows * numImageCols;
+        //     if (state.numPerPage() != numPerPage) {
+        //         state.numPerPage(numPerPage);
+        //         eventHelpers.updateImages(state);
+        //     }
+        // },
     }
 
     /**
@@ -114,7 +116,7 @@ export function main() {
         // Initialize state
         const numImageRows = Math.floor(selectors.imagesPanel.property('clientHeight') / 230);
         const numImageCols = Math.floor(selectors.imagesPanel.property('clientWidth') / 200);
-        state.numPerPage(numImageRows * numImageCols);
+        // state.numPerPage(numImageRows * numImageCols);
 
         // Fill in label options
         const labelsPromise = api.getLabels();
@@ -166,7 +168,7 @@ export function main() {
     selectors.predictionFn.on('change', () => {
         const predictionValue = selectors.predictionFn.property('value')
         state.predictionFn(predictionValue)
-        state.page(0)
+        // state.page(0)
         eventHelpers.updatePage(state)
     });
 
@@ -179,7 +181,7 @@ export function main() {
     selectors.labelFilter.on('change', () => {
         const labelFilter = selectors.labelFilter.property('value')
         state.labelFilter(labelFilter)
-        state.page(0)
+        // state.page(0)
         eventHelpers.updatePage(state)
     });
 

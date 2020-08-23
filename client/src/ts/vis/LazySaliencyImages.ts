@@ -57,4 +57,8 @@ export class LazySaliencyImages extends HTMLComponent<DI>{
             observer.observe();
         })
     }
+
+    clear() {
+        this.base.html('')
+    }
 }
