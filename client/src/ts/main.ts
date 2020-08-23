@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
-import { HTMLList, SVGList } from './vis/ExampleComponent'
-import { SaliencyImages } from './vis/SaliencyImages'
+import { LazySaliencyImages } from "./vis/LazySaliencyImages"
+import { SingleSaliencyImage } from "./vis/SingleSaliencyImage"
 import { Histogram } from './vis/Histogram'
 import { ConfusionMatrix } from './vis/ConfusionMatrix'
 import { SimpleEventHandler } from './etc/SimpleEventHandler'
@@ -53,7 +53,7 @@ export function main() {
     const vizs = {
         histogram: new Histogram(<HTMLElement>selectors.sidebar.node(), eventHandler),
         confusionMatrix: new ConfusionMatrix(<HTMLElement>selectors.sidebar.node(), eventHandler),
-        saliencyImages: new SaliencyImages(<HTMLElement>selectors.imagesPanel.node(), eventHandler),
+        saliencyImages: new LazySaliencyImages(<HTMLElement>selectors.imagesPanel.node(), eventHandler),
     }
 
     const eventHelpers = {
@@ -64,10 +64,11 @@ export function main() {
                 eventHelpers.updatePageButtons(state)
                 const startIndex = state.numPerPage() * state.page()
                 const pageIDs = IDs.slice(startIndex, startIndex + state.numPerPage())
-                var imagePromiseArray = api.getSaliencyImages(pageIDs, state.scoreFn());
-                imagePromiseArray.then(images => {
-                    vizs.saliencyImages.update(images)
-                })
+                const imgData = {
+                    imgIDs: IDs,
+                    scoreFn: state.scoreFn()
+                }
+                vizs.saliencyImages.update(imgData)
             })
         },
 
@@ -77,16 +78,12 @@ export function main() {
             imageIDs.then(IDs => {
                 state.numImages(IDs.length)
                 eventHelpers.updatePageButtons(state)
+                vizs.saliencyImages.update({imgIDs: IDs, scoreFn: state.scoreFn()})
                 var imagePromiseArray = api.getSaliencyImages(IDs, state.scoreFn())
                 imagePromiseArray.then(images => {
                     // Update sidebar
                     vizs.histogram.update(images)
                     vizs.confusionMatrix.update(images)
-
-                    // update images
-                    const startIndex = state.numPerPage() * state.page()
-                    const pageImages = images.slice(startIndex, startIndex + state.numPerPage())
-                    vizs.saliencyImages.update(pageImages)
 
                     // Finished async calls
                     selectors.body.style('cursor', 'default')
@@ -198,4 +195,13 @@ export function main() {
         }
     });
 
+    let numLoaded = 0;
+    eventHandler.bind(LazySaliencyImages.events.onScreen, ({el, id, scoreFn, caller}) => {
+        const img = new SingleSaliencyImage(el, eventHandler)
+        api.getSaliencyImage(id, scoreFn).then(salImg => {
+            img.update(salImg)
+            numLoaded += 1;
+            console.log(`I have loaded ${numLoaded} samples`);
+        })
+    })
 }

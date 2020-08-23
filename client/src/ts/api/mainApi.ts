@@ -32,6 +32,21 @@ export class API {
         return d3.json(url, payload)
     }
 
+    /**
+     * Get a saliency image objects for a requested fname
+     *
+     * @imageID: string image id to get saliency image object for
+     * @scoreFn: string score function name
+     */
+    getSaliencyImage(imageID: string, scoreFn: string): Promise<SaliencyImg> {
+        const imagesToSend = {
+            imageID: imageID,
+            scoreFn: scoreFn
+        }
+        const url = makeUrl(this.baseURL + "/get-saliency-image", imagesToSend)
+        return d3.json(url)
+    }
+
 
     /**
      * Get image IDs

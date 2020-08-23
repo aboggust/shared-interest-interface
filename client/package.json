@@ -23,7 +23,8 @@
     "install": "^0.12.1",
     "jquery": "^3.5.1",
     "json": "^9.0.6",
-    "lodash": "^4.17.19"
+    "lodash": "^4.17.19",
+    "lozad": "^1.15.0"
   },
   "devDependencies": {
     "@types/d3": "^5.7.2",

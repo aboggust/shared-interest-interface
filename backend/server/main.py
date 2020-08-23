@@ -61,7 +61,7 @@ class SaliencyImage(BaseModel):
 
 
 # Load in data
-df = pd.read_json("./data/output/data_vehicle.json").set_index('fname')
+df = pd.read_json("./data/output/data_dogs.json").set_index('fname')
 N = len(df)
 
 
@@ -86,6 +86,11 @@ async def get_images(sortBy: int, predictionFn: str, scoreFn: str, labelFilter: 
     fnames = list(filtered_df.index)
     return fnames
 
+@app.get("/api/get-saliency-image", response_model=SaliencyImage)
+async def get_saliency_image(imageID: str, scoreFn: str):
+    filtered_df = df.loc[imageID]
+    filtered_df['score'] = filtered_df[scoreFn]
+    return filtered_df.to_dict()
 
 @app.post("/api/get-saliency-images", response_model=List[SaliencyImage])
 async def get_saliency_images(payload: api.ImagesPayload):
