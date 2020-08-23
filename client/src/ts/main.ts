@@ -18,6 +18,7 @@ export function main() {
     const state = new State()
 
     const selectors = {
+        window: d3.select(window),
         body: d3.select('body'),
         main: d3.select('#mainpage'),
         imagesPanel: d3.select('#images-panel'),
@@ -211,6 +212,10 @@ export function main() {
             state.page(currentPage + 1)
             eventHelpers.updateImages(state)
         }
+    });
+
+    selectors.window.on('resize', () => {
+        eventHelpers.updateImagesPerPage(state)
     });
 
 }
