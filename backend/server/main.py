@@ -60,6 +60,12 @@ class SaliencyImage(BaseModel):
     score: str
 
 
+class BinObject(BaseModel):
+    x0: float
+    x1: float
+    num: int
+
+
 # Load in data
 df = pd.read_json("./data/output/data_vehicle.json").set_index('fname')
 N = len(df)
@@ -103,6 +109,17 @@ async def get_labels():
 @app.get("/api/get-predictions", response_model=List[str])
 async def get_predictions():
     return list(df.prediction.unique())
+
+
+@app.post("/api/bin-scores", response_model=List[BinObject])
+async def bin_scores(payload: api.ImagesPayload):
+    payload = api.ImagesPayload(**payload)
+    filtered_df = df.loc[payload.imageIDs]
+    scores = filtered_df[payload.scoreFn].tolist()
+    bins = np.linspace(0, 1, 11)
+    hist, bin_edges = np.histogram(scores, bins)
+    bin_object = [{'x0': bin_edges[i], 'x1': bin_edges[i+1], 'num': num} for i, num in enumerate(list(hist))]
+    return bin_object
 
 
 if __name__ == "__main__":

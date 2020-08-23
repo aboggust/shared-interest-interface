@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { makeUrl, toPayload } from '../etc/apiHelpers'
 import { URLHandler } from '../etc/URLHandler';
-import { SaliencyImg } from '../types';
+import { SaliencyImg, BinObject } from '../types';
 
 
 const baseurl = URLHandler.basicURL()
@@ -63,6 +63,22 @@ export class API {
         const toSend = {}
         const url = makeUrl(this.baseURL + "/get-labels", toSend)
         return d3.json(url)
+    }
+
+    /**
+     * Get the hisotgram bins for the scoreFn scores of the imageIDs.
+     *
+     * @imageIDs: list of string image ids to get saliency image objects for
+     * @scoreFn: string score function name
+     */
+    binScores(imageIDs: string[], scoreFn: string): Promise<BinObject[]> {
+        const imagesToSend = {
+            imageIDs: imageIDs,
+            scoreFn: scoreFn
+        }
+        const url = makeUrl(this.baseURL + "/bin-scores")
+        const payload = toPayload(imagesToSend)
+        return d3.json(url, payload)
     }
 
 

@@ -2,10 +2,10 @@ import * as d3 from 'd3'
 import { D3Sel } from '../etc/Util'
 import { HTMLComponent, SVGComponent } from './VComponent'
 import { SimpleEventHandler } from '../etc/SimpleEventHandler'
-import { SaliencyImg } from '../types';
+import { BinObject } from '../types';
 
 
-type DI = SaliencyImg[]
+type DI = BinObject[]
 
 export class Histogram extends HTMLComponent<DI>{
     cssName = 'score-histogram'
@@ -23,7 +23,7 @@ export class Histogram extends HTMLComponent<DI>{
             .text('Score Distribution')
     }
 
-    _render(images: SaliencyImg[]) {
+    _render(bins: BinObject[]) {
         const self = this
         // Remove previous histogram
         d3.selectAll('.score-histogram' + ' svg').remove();
@@ -38,17 +38,9 @@ export class Histogram extends HTMLComponent<DI>{
             .domain(domain)
             .range([0, width])
 
-        var histogram = d3.histogram()
-            .domain(domain)
-            .value(d => d3.min([+d.score, 0.99])) // histogram is 0 to 1 inclusive
-            .thresholds(x.ticks())
-
-        var bins = histogram(images)
-
         var y = d3.scaleLinear()
-            .domain([0, d3.max(bins, b => +b.length)])
+            .domain([0, d3.max(bins, b => b.num)])
             .range([height, 0])
-
 
         // Visually display the histogram
         var svg = self.base
@@ -72,12 +64,9 @@ export class Histogram extends HTMLComponent<DI>{
             .data(bins)
             .join('rect')
                 .attr('x', 1)
-                .attr('transform', d => 'translate(' + x(d.x0) + ',' + y(d.length) + ')')
-                .attr('width', function(d) {
-                    if (d.x1 == d.x0) { return 0}
-                    return x(d.x1) - x(d.x0) - 1
-                })
-                .attr('height', d => height - y(d.length))
+                .attr('transform', d => 'translate(' + x(d.x0) + ',' + y(d.num) + ')')
+                .attr('width', d => x(d.x1) - x(d.x0) - 1)
+                .attr('height', d => height - y(d.num))
                 .attr('fill', d => colorScale(d.x0))
     }
 

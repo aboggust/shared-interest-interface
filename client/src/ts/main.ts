@@ -78,10 +78,15 @@ export function main() {
             imageIDs.then(IDs => {
                 state.numImages(IDs.length)
                 eventHelpers.updatePageButtons(state)
+
+                // Update histogram
+                api.binScores(IDs, state.scoreFn()).then(bins => {
+                    vizs.histogram.update(bins)
+                })
+
                 var imagePromiseArray = api.getSaliencyImages(IDs, state.scoreFn())
                 imagePromiseArray.then(images => {
                     // Update sidebar
-                    vizs.histogram.update(images)
                     vizs.confusionMatrix.update(images)
 
                     // update images

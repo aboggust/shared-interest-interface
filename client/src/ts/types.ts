@@ -12,3 +12,9 @@ export interface SaliencyImg {
     x?: number,
     y?: number,
 }
+
+export interface BinObject {
+    x0: number,
+    x1: number,
+    num: number,
+}
