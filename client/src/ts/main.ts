@@ -84,19 +84,20 @@ export function main() {
                     vizs.histogram.update(bins)
                 })
 
-                var imagePromiseArray = api.getSaliencyImages(IDs, state.scoreFn())
-                imagePromiseArray.then(images => {
-                    // Update sidebar
-                    vizs.confusionMatrix.update(images)
-
-                    // update images
-                    const startIndex = state.numPerPage() * state.page()
-                    const pageImages = images.slice(startIndex, startIndex + state.numPerPage())
-                    vizs.saliencyImages.update(pageImages)
-
-                    // Finished async calls
-                    selectors.body.style('cursor', 'default')
+                // Update confusion matrix
+                api.getConfusionMatrix(state.labelFilter(), state.scoreFn()).then(confusionMatrix => {
+                    vizs.confusionMatrix.update(confusionMatrix)
                 })
+
+                // Update images
+                const startIndex = state.numPerPage() * state.page()
+                const pageImageIDs = IDs.slice(startIndex, startIndex + state.numPerPage())
+                api.getSaliencyImages(pageImageIDs, state.scoreFn()).then(pageImages => {
+                    vizs.saliencyImages.update(pageImages)
+                })
+
+                // Finished async calls
+                selectors.body.style('cursor', 'default')
             })
         },
 

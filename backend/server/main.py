@@ -60,10 +60,17 @@ class SaliencyImage(BaseModel):
     score: str
 
 
-class BinObject(BaseModel):
+class Bins(BaseModel):
     x0: float
     x1: float
     num: int
+
+
+class ConfusionMatrix(BaseModel):
+    label: str
+    prediction: str
+    count: int
+    mean: float
 
 
 # Load in data
@@ -111,15 +118,37 @@ async def get_predictions():
     return list(df.prediction.unique())
 
 
-@app.post("/api/bin-scores", response_model=List[BinObject])
-async def bin_scores(payload: api.ImagesPayload):
+@app.post("/api/bin-scores", response_model=List[Bins])
+async def bin_scores(payload: api.ImagesPayload, min_range=0, max_range=1, num_bins=11):
     payload = api.ImagesPayload(**payload)
     filtered_df = df.loc[payload.imageIDs]
     scores = filtered_df[payload.scoreFn].tolist()
-    bins = np.linspace(0, 1, 11)
+    bins = np.linspace(min_range, max_range, num_bins)
     hist, bin_edges = np.histogram(scores, bins)
     bin_object = [{'x0': bin_edges[i], 'x1': bin_edges[i+1], 'num': num} for i, num in enumerate(list(hist))]
     return bin_object
+
+
+@app.get("/api/confusion-matrix", response_model=List[ConfusionMatrix])
+async def get_confusion_matrix_values(labelFilter: str, scoreFn: str):
+    print('LABEL FILTER', labelFilter)
+    if labelFilter == '':
+        filtered_df = df.loc[df.label != df.prediction]
+    else:
+        filtered_df = df.loc[(df.label == labelFilter) & (df.label != df.prediction)]
+    confused_labels = filtered_df.groupby('label').agg('count')\
+        .sort_values('image', ascending=False)\
+        .index.values.tolist()[:10]
+    top_predictions = df.loc[df.label.isin(confused_labels)]\
+        .groupby('prediction').agg('count')\
+        .sort_values('image', ascending=False)\
+        .index.values.tolist()[:10]
+    matrix_labels = list(set(top_predictions + confused_labels))
+    confusion_df = df.loc[(df.label.isin(matrix_labels)) & (df.prediction.isin(matrix_labels))]
+    confusion_matrix = confusion_df.groupby(['label', 'prediction'])\
+        .agg(['count', 'mean'])[scoreFn]\
+        .reset_index().to_dict('records')
+    return confusion_matrix
 
 
 if __name__ == "__main__":

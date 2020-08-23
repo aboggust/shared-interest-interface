@@ -10,6 +10,7 @@ class HashableBaseModel(BaseModel):
     def validate(cls, v: np.ndarray):
         return v
 
+
 class ImagesPayload(HashableBaseModel):
     imageIDs: List[str]
     scoreFn: str

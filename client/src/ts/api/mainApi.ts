@@ -66,7 +66,7 @@ export class API {
     }
 
     /**
-     * Get the hisotgram bins for the scoreFn scores of the imageIDs.
+     * Get the histogram bins for the scoreFn scores of the imageIDs.
      *
      * @imageIDs: list of string image ids to get saliency image objects for
      * @scoreFn: string score function name
@@ -80,6 +80,23 @@ export class API {
         const payload = toPayload(imagesToSend)
         return d3.json(url, payload)
     }
+
+
+    /**
+     * Get the confusion matrix for the imageIDs.
+     *
+     * @imageIDs: list of string image ids to get saliency image objects for
+     */
+    getConfusionMatrix(labelFilter: string, scoreFn: string): Promise<BinObject[]> {
+        const toSend = {
+            labelFilter: labelFilter,
+            scoreFn: scoreFn
+        }
+        const url = makeUrl(this.baseURL + "/confusion-matrix", toSend)
+        return d3.json(url)
+    }
+
+
 
 
 };

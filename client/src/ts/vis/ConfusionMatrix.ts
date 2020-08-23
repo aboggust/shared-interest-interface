@@ -2,10 +2,10 @@ import * as d3 from 'd3'
 import { D3Sel } from '../etc/Util'
 import { HTMLComponent, SVGComponent } from './VComponent'
 import { SimpleEventHandler } from '../etc/SimpleEventHandler'
-import { SaliencyImg } from '../types';
+import { ConfusionMatrix } from '../types';
 
 
-type DI = SaliencyImg[]
+type DI = ConfusionMatrix[]
 
 export class ConfusionMatrix extends HTMLComponent<DI>{
     cssName = 'confusion-matrix'
@@ -23,7 +23,7 @@ export class ConfusionMatrix extends HTMLComponent<DI>{
             .text('Confusion Matrix')
     }
 
-    _render(images: SaliencyImg[]) {
+    _render(confusionMatrix: ConfusionMatrix[]) {
         const self = this
         // Remove previous histogram
         d3.selectAll('.confusion-matrix' + ' svg').remove();
@@ -42,40 +42,13 @@ export class ConfusionMatrix extends HTMLComponent<DI>{
                 .attr('transform',
                       'translate(' + margin.left + ',' + margin.top + ')');
 
-        // Compute confusion matrix counts
-        var counts = {};
-        var labels: Set<string> = new Set();
-        for (let image of images) {
-            labels.add(image.label)
-            labels.add(image.prediction)
-            if (counts[image.label] === undefined) {
-                counts[image.label] = {};
-            };
-            if (counts[image.label][image.prediction] === undefined) {
-                counts[image.label][image.prediction] = {'count': 1, 'score': parseFloat(image.score)};
-            } else {
-                counts[image.label][image.prediction].count += 1;
-                counts[image.label][image.prediction].score += parseFloat(image.score);
-            }
-        }
-
-        var labelsList: string[] = Array.from(labels).sort();
-
-        // Convert confusion matrix counts into NxN data object
-        var data = [];
-        var maxCount = 0;
-        for (let label of labelsList) {
-            for (let prediction of labelsList) {
-                if (counts[label] === undefined || counts[label][prediction] === undefined) {
-                    data.push({'label': label, 'prediction': prediction, 'count': 0, 'score': 0})
-                } else {
-                    data.push({'label': label, 'prediction': prediction,
-                               'count': counts[label][prediction].count,
-                               'score': counts[label][prediction].score / counts[label][prediction].count});
-                    maxCount = d3.max([maxCount, counts[label][prediction].count])
-                }
-            }
-        };
+        const axisLabels = confusionMatrix.reduce((accumulator, item) => {
+            accumulator.push(item.label);
+            accumulator.push(item.prediction);
+            return accumulator
+        }, []);
+        const uniqueAxisLabels = [...new Set(axisLabels)]
+        const maxCount = d3.max(confusionMatrix, item => item.count)
 
         // Build color scale
         var colorScale = d3.scaleSequential()
@@ -84,7 +57,7 @@ export class ConfusionMatrix extends HTMLComponent<DI>{
 
         // Build X scales and axis
         var x = d3.scaleBand()
-            .domain(labelsList)
+            .domain(uniqueAxisLabels)
             .range([0, width]);
 
         svg.append("g")
@@ -99,8 +72,8 @@ export class ConfusionMatrix extends HTMLComponent<DI>{
 
         // Build Y scales and axis
         var y = d3.scaleBand()
-            .range([height, 0])
-            .domain(labelsList);
+            .range([0, height])
+            .domain(uniqueAxisLabels);
 
         svg.append("g")
             .call(d3.axisLeft(y))
@@ -123,10 +96,10 @@ export class ConfusionMatrix extends HTMLComponent<DI>{
         // Create a size scale for square height and width
         var size = d3.scaleSqrt()
             .domain([0, maxCount])
-            .range([3, x.bandwidth()]);
+            .range([2, x.bandwidth() - 1]);
 
         svg.selectAll()
-            .data(data, d => d.prediction+':'+d.label)
+            .data(confusionMatrix, d => d.prediction+':'+d.label)
             .enter()
             .append("rect")
                 .attr("x", d => x(d.prediction) + (x.bandwidth() - size(d.count))/2)
@@ -139,7 +112,7 @@ export class ConfusionMatrix extends HTMLComponent<DI>{
                     if (d.count == 0) { return 0 }
                     return size(d.count)
                 })
-                .style("fill", d => colorScale(d.score))
+                .style("fill", d => colorScale(d.mean))
                 .style("stroke-width", 1)
                 .style("stroke", "none")
         })
