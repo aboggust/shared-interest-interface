@@ -12,5 +12,5 @@ class HashableBaseModel(BaseModel):
 
 
 class ImagesPayload(HashableBaseModel):
-    imageIDs: List[str]
-    scoreFn: str
+    image_ids: List[str]
+    score_fn: str

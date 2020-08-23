@@ -24,8 +24,8 @@ export class API {
      */
     getSaliencyImages(imageIDs: string[], scoreFn: string): Promise<SaliencyImg[]> {
         const imagesToSend = {
-            imageIDs: imageIDs,
-            scoreFn: scoreFn
+            image_ids: imageIDs,
+            score_fn: scoreFn
         }
         const url = makeUrl(this.baseURL + "/get-saliency-images")
         const payload = toPayload(imagesToSend)
@@ -38,10 +38,10 @@ export class API {
      */
     getImages(sortBy: number, predictionFn: string, scoreFn: string, labelFilter: string): Promise<string[]> {
         const toSend = {
-            sortBy: sortBy,
-            predictionFn: predictionFn,
-            scoreFn: scoreFn,
-            labelFilter: labelFilter,
+            sort_by: sortBy,
+            prediction_fn: predictionFn,
+            score_fn: scoreFn,
+            label_filter: labelFilter,
         }
         const url = makeUrl(this.baseURL + "/get-images", toSend)
         return d3.json(url)
@@ -51,8 +51,7 @@ export class API {
      * Get all dataset predictions
      */
     getPredictions(): Promise<string[]> {
-        const toSend = {}
-        const url = makeUrl(this.baseURL + "/get-predictions", toSend)
+        const url = makeUrl(this.baseURL + "/get-predictions")
         return d3.json(url)
     }
 
@@ -60,8 +59,7 @@ export class API {
      * Get all dataset labels
      */
     getLabels(): Promise<string[]> {
-        const toSend = {}
-        const url = makeUrl(this.baseURL + "/get-labels", toSend)
+        const url = makeUrl(this.baseURL + "/get-labels")
         return d3.json(url)
     }
 
@@ -73,8 +71,8 @@ export class API {
      */
     binScores(imageIDs: string[], scoreFn: string): Promise<BinObject[]> {
         const imagesToSend = {
-            imageIDs: imageIDs,
-            scoreFn: scoreFn
+            image_ids: imageIDs,
+            score_fn: scoreFn
         }
         const url = makeUrl(this.baseURL + "/bin-scores")
         const payload = toPayload(imagesToSend)
@@ -89,8 +87,8 @@ export class API {
      */
     getConfusionMatrix(labelFilter: string, scoreFn: string): Promise<BinObject[]> {
         const toSend = {
-            labelFilter: labelFilter,
-            scoreFn: scoreFn
+            label_filter: labelFilter,
+            score_fn: scoreFn
         }
         const url = makeUrl(this.baseURL + "/confusion-matrix", toSend)
         return d3.json(url)
