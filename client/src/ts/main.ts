@@ -148,6 +148,7 @@ export function main() {
                 .join('option')
                 .attr('value', (label, i) => labelValues[i])
                 .text(label => label)
+            selectors.labelFilter.property('value', state.labelFilter())
         })
 
         // Fill in prediction options
@@ -161,13 +162,13 @@ export function main() {
                 .join('option')
                 .attr('value', (prediction, i) => predictionValues[i])
                 .text(prediction => prediction)
+            selectors.predictionFn.property('value', state.predictionFn())
         })
 
         // Set frontend via state parameters
         selectors.sortBy.property('value', state.sortBy())
-        selectors.predictionFn.property('value', state.predictionFn())
         selectors.scoreFn.property('value', state.scoreFn())
-        selectors.labelFilter.property('value', state.labelFilter())
+
 
         // Get data from state parameters
         eventHelpers.updatePage(state)
