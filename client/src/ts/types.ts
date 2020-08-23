@@ -13,8 +13,15 @@ export interface SaliencyImg {
     y?: number,
 }
 
-export interface BinObject {
+export interface Bins {
     x0: number,
     x1: number,
     num: number,
+}
+
+export interface ConfusionMatrix {
+    label: string,
+    prediction: string,
+    count: number,
+    mean: number,
 }

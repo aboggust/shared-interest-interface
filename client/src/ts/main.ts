@@ -82,14 +82,14 @@ export function main() {
                     vizs.histogram.update(bins)
                 })
 
-                var imagePromiseArray = api.getSaliencyImages(IDs, state.scoreFn())
-                imagePromiseArray.then(images => {
-                    // Update sidebar
-                    vizs.confusionMatrix.update(images)
-
-                    // Finished async calls
-                    selectors.body.style('cursor', 'default')
+                // Update confusion matrix
+                api.getConfusionMatrix(state.labelFilter(), state.scoreFn()).then(confusionMatrix => {
+                    vizs.confusionMatrix.update(confusionMatrix)
                 })
+
+                // Finished async calls
+                selectors.body.style('cursor', 'default')
+
             })
         },
 
@@ -116,6 +116,7 @@ export function main() {
                 .join('option')
                 .attr('value', (label, i) => labelValues[i])
                 .text(label => label)
+            selectors.labelFilter.property('value', state.labelFilter())
         })
 
         // Fill in prediction options
@@ -129,13 +130,13 @@ export function main() {
                 .join('option')
                 .attr('value', (prediction, i) => predictionValues[i])
                 .text(prediction => prediction)
+            selectors.predictionFn.property('value', state.predictionFn())
         })
 
         // Set frontend via state parameters
         selectors.sortBy.property('value', state.sortBy())
-        selectors.predictionFn.property('value', state.predictionFn())
         selectors.scoreFn.property('value', state.scoreFn())
-        selectors.labelFilter.property('value', state.labelFilter())
+
 
         // Get data from state parameters
         eventHelpers.updatePage(state)
