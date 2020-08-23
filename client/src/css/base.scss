@@ -171,10 +171,9 @@ select {
 .saliency-image-card {
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
     align-items: center;
     width: 200px;
-    height: 215px;
+    height: 210px;
     margin-bottom: var(--element-gap);
 }
 
@@ -188,6 +187,7 @@ select {
     display: flex;
     flex-direction: row;
     padding-bottom: 2pt;
+    width: 95%;
 }
 
 .image-info .info {

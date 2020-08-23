@@ -96,7 +96,7 @@ export function main() {
         },
 
         updateImagesPerPage: (state: State) => {
-            const numImageRows = Math.floor(selectors.imagesPanel.property('clientHeight') / 235));
+            const numImageRows = Math.floor(selectors.imagesPanel.property('clientHeight') / 230));
             const numImageCols = Math.floor(selectors.imagesPanel.property('clientWidth') / 200));
             const numPerPage = numImageRows * numImageCols;
             if (state.numPerPage() != numPerPage) {
@@ -127,7 +127,7 @@ export function main() {
      */
     async function initializeFromState(state: State) {
         // Initialize state
-        const numImageRows = Math.floor(selectors.imagesPanel.property('clientHeight') / 235));
+        const numImageRows = Math.floor(selectors.imagesPanel.property('clientHeight') / 230));
         const numImageCols = Math.floor(selectors.imagesPanel.property('clientWidth') / 200));
         state.numPerPage(numImageRows * numImageCols);
 
