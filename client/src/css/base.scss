@@ -6,8 +6,7 @@
     --selection-height: 40px;
     --body-height: calc(100vh - var(--navbar-height) - var(--element-gap) * 2);
     --main-height: calc(var(--body-height) - var(--selection-height) - var(--element-gap));
-    --pagination-height: 30px;
-    --image-panel-height: calc(var(--main-height) - var(--pagination-height) - var(--element-gap));
+    --image-panel-height: var(--main-height);
     --image-panel-width: calc(var(--body-width) - var(--sidebar-width) - var(--element-gap));
 }
 
@@ -167,7 +166,7 @@ select {
     flex-wrap: wrap;
     justify-content: space-between;
     overflow-y: auto;
-    height: 450px; // TODO: How to make a scrollable container across devices?
+    height: 100%;
     margin-top: 15px;
 }
 
@@ -191,6 +190,7 @@ select {
     flex-direction: row;
     padding-bottom: 2pt;
     width: 95%;
+    justify-content: center;
 }
 
 .image-info .info {

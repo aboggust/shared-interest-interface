@@ -6,7 +6,6 @@ import { SaliencyImg } from '../types';
 import { SingleSaliencyImage } from "./SingleSaliencyImage"
 import lozad from "lozad"
 
-// type DI = SaliencyImg[]
 interface ImgData {
     imgIDs: string[]
     scoreFn: string

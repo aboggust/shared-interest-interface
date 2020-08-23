@@ -176,8 +176,6 @@ export function main() {
         const img = new SingleSaliencyImage(el, eventHandler)
         api.getSaliencyImage(id, scoreFn).then(salImg => {
             img.update(salImg)
-            numLoaded += 1;
-            console.log(`I have loaded ${numLoaded} samples`);
         })
     })
 

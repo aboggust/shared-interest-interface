@@ -61,12 +61,22 @@ export class SingleSaliencyImage extends HTMLComponent<DI>{
         sels.imgInfo.append('span')
             .classed('info', true)
             .text(img.label)
+            .attr('title', img.label)
             .style('background-color', '#d2d3d4')
+            .style('text-align', 'center')
+            .style('text-overflow', 'ellipsis')
+            .style('white-space', 'nowrap')
+            .style('overflow', 'hidden');
 
         sels.imgInfo.append('span')
             .classed('info', true)
             .text(img.prediction)
             .style('background-color', isCorrect ? '#afc4a5' : '#b08989')
+            .attr('title', img.prediction)
+            .style('text-align', 'center')
+            .style('text-overflow', 'ellipsis')
+            .style('white-space', 'nowrap')
+            .style('overflow', 'hidden');
 
         // Container Logic
         sels.imgContainer.classed("correct", isCorrect)
