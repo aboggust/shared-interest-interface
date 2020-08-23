@@ -1,7 +1,21 @@
+:root {
+    --body-width: 80vw;
+    --sidebar-width: 300px;
+    --element-gap: 20px;
+    --navbar-height: 50px;
+    --selection-height: 40px;
+    --body-height: calc(100vh - var(--navbar-height) - var(--element-gap) * 2);
+    --main-height: calc(var(--body-height) - var(--selection-height) - var(--element-gap));
+    --pagination-height: 30px;
+    --image-panel-height: calc(var(--main-height) - var(--pagination-height) - var(--element-gap));
+    --image-panel-width: calc(var(--body-width) - var(--sidebar-width) - var(--element-gap));
+}
+
 body {
   background-color: rgb(255, 255, 255);
   font-family: 'IBM Plex Sans', sans-serif;
   font-weight: 400;
+  height: var(--body-height);
 }
 
 .sticky {
@@ -93,7 +107,7 @@ select {
   top: 0;
   left: 0;
   width: 100%;
-  height: 50px;
+  height: var(--navbar-height);
 }
 
 .navbarContent {
@@ -139,10 +153,13 @@ select {
 }
 
 .cont-nav {
-  padding-top: 80px;
-  @media (max-width: 575.98px) {
-    padding-top: 160px;
-  };
+  margin-top: calc(var(--navbar-height) + var(--element-gap));
+  height: var(--selection-height);
+}
+
+#images-panel {
+    height: var(--image-panel-height);
+    width: var(--image-panel-width);
 }
 
 .saliency-images {
@@ -156,11 +173,10 @@ select {
 .saliency-image-card {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    width: 180px;
-    margin-bottom: 40px;
-    height: 250px; // TODO: Is there a more device agnostic solution?
+    width: 200px;
+    height: 210px;
+    margin-bottom: var(--element-gap);
 }
 
 .row {
@@ -173,6 +189,7 @@ select {
     display: flex;
     flex-direction: row;
     padding-bottom: 2pt;
+    width: 95%;
 }
 
 .image-info .info {
@@ -187,14 +204,17 @@ select {
 #main {
     display: flex;
     flex-direction: row;
-    margin-top: 20px;
+    margin-top: var(--element-gap);
+    height: var(--main-height);
 }
 
 #sidebar {
-    margin-right: 4vw;
+    width: var(--sidebar-width);
+    height: var(--main-height);
+    margin-right: var(--element-gap);
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: var(--element-gap);
 }
 
 .title {
@@ -212,10 +232,9 @@ select {
     position: relative;
 }
 
-#footer {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
+.pagination-controls {
+    height: var(--pagination-height);
+    margin-top: var(--element-gap);
 }
 
 .axis-grid line {

@@ -18,12 +18,13 @@ interface StateConf {
 export class State {
     private _url: Partial<URLParameters> = {}
     private _conf: Partial<StateConf> = {}
-    imageLength = null
-    maxPageNum = null
 
     constructor() {
         this.fromURL()
         this.toURL(false)
+        this.imagesPerPage = null
+        this.imageLength = null
+        this.maxPageNum = null
     }
 
     /**
@@ -37,7 +38,6 @@ export class State {
             sortBy: params['sortBy'] || 1,
             predictionFn: params['predictionFn'] || 'all_images',
             page: params['page'] || 0,
-            numPerPage: params['numPerPage'] || 8,
             labelFilter: params['labelFilter'] || [],
         }
     }
@@ -83,8 +83,10 @@ export class State {
     }
 
     numPerPage(): number
-    numPerPage() {
-        return this._url.numPerPage
+    numPerPage(val?) {
+        if (val == null) return this.imagesPerPage
+        this.imagesPerPage = val
+        return this
     }
 
     labelFilter(): string

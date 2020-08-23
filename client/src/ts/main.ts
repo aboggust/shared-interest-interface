@@ -6,7 +6,7 @@ import { ConfusionMatrix } from './vis/ConfusionMatrix'
 import { SimpleEventHandler } from './etc/SimpleEventHandler'
 import { API } from './api/mainApi'
 import { State } from './state'
-import { modelOptions, methodOptions, sortByOptions, numPerPageOptions, predictionFnOptions, scoreFnOptions, labelFilterOptions } from './etc/selectionOptions'
+import { modelOptions, methodOptions, sortByOptions, predictionFnOptions, scoreFnOptions, labelFilterOptions } from './etc/selectionOptions'
 import { SaliencyImg } from './types';
 
 /**
@@ -18,6 +18,7 @@ export function main() {
     const state = new State()
 
     const selectors = {
+        window: d3.select(window),
         body: d3.select('body'),
         main: d3.select('#mainpage'),
         imagesPanel: d3.select('#images-panel'),
@@ -79,16 +80,31 @@ export function main() {
                 state.numImages(IDs.length)
                 eventHelpers.updatePageButtons(state)
                 vizs.saliencyImages.update({imgIDs: IDs, scoreFn: state.scoreFn()})
+
+                // Update histogram
+                api.binScores(IDs, state.scoreFn()).then(bins => {
+                    vizs.histogram.update(bins)
+                })
+
                 var imagePromiseArray = api.getSaliencyImages(IDs, state.scoreFn())
                 imagePromiseArray.then(images => {
                     // Update sidebar
-                    vizs.histogram.update(images)
                     vizs.confusionMatrix.update(images)
 
                     // Finished async calls
                     selectors.body.style('cursor', 'default')
                 })
             })
+        },
+
+        updateImagesPerPage: (state: State) => {
+            const numImageRows = Math.floor(selectors.imagesPanel.property('clientHeight') / 230);
+            const numImageCols = Math.floor(selectors.imagesPanel.property('clientWidth') / 200);
+            const numPerPage = numImageRows * numImageCols;
+            if (state.numPerPage() != numPerPage) {
+                state.numPerPage(numPerPage);
+                eventHelpers.updateImages(state);
+            }
         },
 
         updatePageButtons: (state: State) => {
@@ -112,6 +128,11 @@ export function main() {
      * @param state the state of the application
      */
     async function initializeFromState(state: State) {
+        // Initialize state
+        const numImageRows = Math.floor(selectors.imagesPanel.property('clientHeight') / 230);
+        const numImageCols = Math.floor(selectors.imagesPanel.property('clientWidth') / 200);
+        state.numPerPage(numImageRows * numImageCols);
+
         // Fill in label options
         const labelsPromise = api.getLabels();
         labelsPromise.then(labels => {
@@ -204,4 +225,9 @@ export function main() {
             console.log(`I have loaded ${numLoaded} samples`);
         })
     })
+
+    // selectors.window.on('resize', () => {
+    //     eventHelpers.updateImagesPerPage(state)
+    // });
+
 }

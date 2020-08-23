@@ -50,20 +50,32 @@ export class SaliencyImages extends HTMLComponent<DI>{
                 if (+image.score < 0.5) {
                     return '#212529'
                 } else { return '#e3e3e3'};
-            });
+            })
+            .style('text-align', 'center');
 
-        imageInfo.append('span')
+
+        imageInfo.append('div')
             .classed('info', true)
             .text(image => image.label)
+            .attr('title', image => image.label)
             .style('background-color', '#d2d3d4')
+            .style('text-align', 'center')
+            .style('text-overflow', 'ellipsis')
+            .style('white-space', 'nowrap')
+            .style('overflow', 'hidden');
 
-        imageInfo.append('span')
+        imageInfo.append('div')
             .classed('info', true)
             .text(image => image.prediction)
             .style('background-color', function(image) {
                 if (image.prediction == image.label) { return '#afc4a5' }
                 return '#b08989'
             })
+            .attr('title', image => image.prediction)
+            .style('text-align', 'center')
+            .style('text-overflow', 'ellipsis')
+            .style('white-space', 'nowrap')
+            .style('overflow', 'hidden');
 
         // Add image to the saliencyImageCards
         var imageContainers = saliencyImageCards
