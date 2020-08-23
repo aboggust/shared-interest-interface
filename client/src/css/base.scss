@@ -154,9 +154,10 @@ select {
 .saliency-image-card {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-end;
     align-items: center;
-    width: 180px;
+    width: 200px;
+    height: 215px;
     margin-bottom: 40px;
 }
 

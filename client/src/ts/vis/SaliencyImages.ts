@@ -50,12 +50,14 @@ export class SaliencyImages extends HTMLComponent<DI>{
                 if (+image.score < 0.5) {
                     return '#212529'
                 } else { return '#e3e3e3'};
-            });
+            })
+            .style('text-align', 'center');
 
         imageInfo.append('span')
             .classed('info', true)
             .text(image => image.label)
             .style('background-color', '#d2d3d4')
+            .style('text-align', 'center')
 
         imageInfo.append('span')
             .classed('info', true)
@@ -64,6 +66,7 @@ export class SaliencyImages extends HTMLComponent<DI>{
                 if (image.prediction == image.label) { return '#afc4a5' }
                 return '#b08989'
             })
+            .style('text-align', 'center')
 
         // Add image to the saliencyImageCards
         var imageContainers = saliencyImageCards
