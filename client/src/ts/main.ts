@@ -92,7 +92,7 @@ function init(base: D3Sel) {
 /**
  * Main functionality in the below function
  */
-export function main(el: Element, ignoreUrl: boolean = false, stateParams: Partial<URLParameters> = {}, freezeParams: boolean = false) {
+export function main(el: Element, ignoreUrl: boolean = false, stateParams: Partial<URLParameters> = {}, freezeParams: boolean = false, noSidebar: boolean=false) {
     const base = d3.select(el)
 
     const eventHandler = new SimpleEventHandler(el)
@@ -103,9 +103,10 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
 
     const selectors = {
         body: d3.select('body'),
-        main: base.select('.ID_mainpage'),
-        imagesPanel: base.select('.ID_images-panel'),
-        sidebar: base.select('.ID_sidebar'),
+        main: base.select('.ID_main').classed("short-height-main", noSidebar),
+        mainPage: base.select('.ID_mainpage').classed("short-height-main", noSidebar),
+        imagesPanel: base.select('.ID_images-panel').classed("full-width-images", noSidebar),
+        sidebar: base.select('.ID_sidebar').classed("empty-sidebar", noSidebar),
         caseStudy: base.select('.ID_case-study-select'),
         caseStudyListOptions: base.select('.ID_case-study-select').selectAll('option')
             .data(caseStudyOptions)
@@ -144,8 +145,8 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
     }
 
     const vizs = {
-        histogram: new Histogram(<HTMLElement>selectors.sidebar.node(), eventHandler),
-        confusionMatrix: new ConfusionMatrix(<HTMLElement>selectors.sidebar.node(), eventHandler),
+        histogram: noSidebar ? null : new Histogram(<HTMLElement>selectors.sidebar.node(), eventHandler),
+        confusionMatrix: noSidebar ? null : new ConfusionMatrix(<HTMLElement>selectors.sidebar.node(), eventHandler),
         saliencyImages: new LazySaliencyImages(<HTMLElement>selectors.imagesPanel.node(), eventHandler),
     }
 
@@ -174,13 +175,13 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
 
                 // Update histogram
                 api.binScores(state.caseStudy(), IDs, state.scoreFn()).then(bins => {
-                    vizs.histogram.update(bins)
+                    noSidebar || vizs.histogram.update(bins)
                 })
 
                 // Update confusion matrix
                 const confusionMatrix = api.getConfusionMatrix(state.caseStudy(), state.labelFilter(), state.scoreFn())
                 confusionMatrix.then(matrix => {
-                    vizs.confusionMatrix.update(matrix)
+                    noSidebar ||vizs.confusionMatrix.update(matrix)
                 })
 
                 // Finished async calls
