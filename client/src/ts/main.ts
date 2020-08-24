@@ -101,10 +101,6 @@ export function main() {
      * @param state the state of the application
      */
     async function initializeFromState(state: State) {
-        // Initialize state
-        const numImageRows = Math.floor(selectors.imagesPanel.property('clientHeight') / 230);
-        const numImageCols = Math.floor(selectors.imagesPanel.property('clientWidth') / 200);
-
         // Fill in label options
         const labelsPromise = api.getLabels();
         labelsPromise.then(labels => {
@@ -176,6 +172,30 @@ export function main() {
         api.getSaliencyImage(id, scoreFn).then(salImg => {
             img.update(salImg)
         })
+    })
+
+    eventHandler.bind(SingleSaliencyImage.events.onScoreHover, ({score, caller}) => {
+        // Put Logic for showing on histogram here
+    })
+
+    eventHandler.bind(SingleSaliencyImage.events.onPredictionHover, ({prediction, caller}) => {
+        // Put logic for highlighting row on confusion matrix if exists (low prio)
+    })
+
+    eventHandler.bind(SingleSaliencyImage.events.onLabelHover, ({label, caller}) => {
+        // Put logic for highlighting col on confusion matrix if exists (low prio)
+    })
+
+    eventHandler.bind(SingleSaliencyImage.events.onLabelClick, ({label, caller}) => {
+        selectors.labelFilter.property('value', label)
+        state.labelFilter(label)
+        eventHelpers.updatePage(state)
+    })
+
+    eventHandler.bind(SingleSaliencyImage.events.onPredictionClick, ({prediction, caller}) => {
+        selectors.predictionFn.property('value', prediction)
+        state.predictionFn(prediction)
+        eventHelpers.updatePage(state)
     })
 
 }

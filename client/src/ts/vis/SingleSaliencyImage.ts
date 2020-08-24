@@ -7,12 +7,30 @@ import { SaliencyImg } from '../types';
 
 type DI = SaliencyImg
 
+interface EventsI {
+    onScoreClick: string
+    onScoreHover: string
+    onLabelClick: string
+    onLabelHover: string
+    onPredictionClick: string
+    onPredictionHover: string
+}
+
 interface Selections {
     imgInfo: D3Sel
     imgContainer: D3Sel
     mainImg: D3Sel
     bboxMask: D3Sel
     saliencyMask: D3Sel
+}
+
+const Events: EventsI = {
+    onScoreClick: "SingleSaliencyImage_onScoreClick",
+    onScoreHover: "SingleSaliencyImage_onScoreHover",
+    onPredictionClick: "SingleSaliencyImage_onPredictionClick",
+    onPredictionHover: "SingleSaliencyImage_onPredictionHover",
+    onLabelClick: "SingleSaliencyImage_onLabelClick",
+    onLabelHover: "SingleSaliencyImage_onLabelHover",
 }
 
 function toImgStr(img: string) {
@@ -25,13 +43,14 @@ export class SingleSaliencyImage extends HTMLComponent<DI>{
     sels: Partial<Selections> = {}
     colorScale = d3.scaleSequential(d3.interpolateBlues)
         .domain([-0.2, 1]) // start the color scheme from light blue instead of white
+    
+    static events = Events
 
     constructor(parent: HTMLElement, eventHandler?: SimpleEventHandler, options = {}) {
         super(parent, eventHandler, options)
         this._superInit(options);
         this._init()
     }
-
 
     _init() {
         const self = this
@@ -54,29 +73,50 @@ export class SingleSaliencyImage extends HTMLComponent<DI>{
 
         sels.imgInfo.append('span')
             .classed('info', true)
+            // .classed('btn', true) // Add when functionality has been added to score info
             .text(Number(img.score).toFixed(2))
             .style('background-color', self.colorScale(img.score))
             .style('color', img.score < 0.5 ? '#212529' : '#e3e3e3')
+            .on("mouseover", function() {
+                self.trigger(Events.onScoreHover, {score: img.score})
+            })
+            .on("click", function() {
+                self.trigger(Events.onScoreClick, {score: img.score})
+            })
 
         sels.imgInfo.append('span')
             .classed('info', true)
+            .classed('btn', true)
             .text(img.label)
             .attr('title', img.label)
             .style('background-color', '#d2d3d4')
             .style('text-align', 'center')
             .style('text-overflow', 'ellipsis')
             .style('white-space', 'nowrap')
-            .style('overflow', 'hidden');
+            .style('overflow', 'hidden')
+            .on("mouseover", function() {
+                self.trigger(Events.onLabelHover, {label: img.label})
+            })
+            .on("click", function() {
+                self.trigger(Events.onLabelClick, {label: img.label})
+            })
 
         sels.imgInfo.append('span')
             .classed('info', true)
+            .classed('btn', true)
             .text(img.prediction)
             .style('background-color', isCorrect ? '#afc4a5' : '#b08989')
             .attr('title', img.prediction)
             .style('text-align', 'center')
             .style('text-overflow', 'ellipsis')
             .style('white-space', 'nowrap')
-            .style('overflow', 'hidden');
+            .style('overflow', 'hidden')
+            .on("mouseover", function() {
+                self.trigger(Events.onPredictionHover, {prediction: img.prediction})
+            })
+            .on("click", function() {
+                self.trigger(Events.onPredictionClick, {prediction: img.prediction})
+            })
 
         // Container Logic
         sels.imgContainer.classed("correct", isCorrect)
