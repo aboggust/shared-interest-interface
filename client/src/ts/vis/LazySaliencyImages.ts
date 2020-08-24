@@ -7,6 +7,7 @@ import { SingleSaliencyImage } from "./SingleSaliencyImage"
 import lozad from "lozad"
 
 interface ImgData {
+    caseStudy: string
     imgIDs: string[]
     scoreFn: string
 }
@@ -38,6 +39,7 @@ export class LazySaliencyImages extends HTMLComponent<DI>{
         const self = this
 
         const scoreFn = imgData.scoreFn
+        const caseStudy = imgData.caseStudy
 
         // Create divs for each image
         var saliencyImageCards = self.base
@@ -50,7 +52,7 @@ export class LazySaliencyImages extends HTMLComponent<DI>{
         saliencyImageCards.each(function (d, i) {
             const observer = lozad(this, {
                 load: function(el) {
-                    self.trigger(Events.onScreen, {el, id: el.getAttribute("fname-id"), scoreFn})
+                    self.trigger(Events.onScreen, {el, id: el.getAttribute("fname-id"), scoreFn, caseStudy})
                 }
             }); 
             observer.observe();

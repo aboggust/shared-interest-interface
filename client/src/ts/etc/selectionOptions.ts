@@ -1,9 +1,7 @@
-export const modelOptions = [
-    { name: "ResNet50", value: "resnet50" },
-]
-
-export const methodOptions = [
-    { name: "LIME", value: "lime" },
+export const caseStudyOptions = [
+    { name: "Vehicle", value: "data_vehicle" },
+    { name: "Dogs", value: "data_dogs" },
+    { name: "Melanoma", value: "data_melanoma" },
 ]
 
 export const sortByOptions = [

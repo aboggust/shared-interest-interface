@@ -12,5 +12,6 @@ class HashableBaseModel(BaseModel):
 
 
 class ImagesPayload(HashableBaseModel):
+    case_study: str
     image_ids: List[str]
     score_fn: str

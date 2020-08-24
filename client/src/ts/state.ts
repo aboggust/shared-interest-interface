@@ -4,6 +4,7 @@ import { URLHandler } from "./etc/URLHandler"
 // import * as tf from "@tensorflow/tfjs"
 
 interface URLParameters {
+    caseStudy: string,
     scoreFn: string,
     sortBy: number,
     predictionFn: string,
@@ -38,6 +39,7 @@ export class State {
         const params = URLHandler.parameters
 
         this._url = {
+            caseStudy: params['caseStudy'] || 'data_vehicle',
             scoreFn: params['scoreFn'] || 'saliency_proportion_score',
             sortBy: params['sortBy'] || 1,
             predictionFn: params['predictionFn'] || 'all_images',
@@ -48,6 +50,15 @@ export class State {
 
     toURL(updateHistory = false) {
         URLHandler.updateUrl(this._url, updateHistory)
+    }
+
+    caseStudy(): string
+    caseStudy(val): this
+    caseStudy(val?) {
+        if (val == null) return this._url.caseStudy
+        this._url.caseStudy = val
+        this.toURL()
+        return this
     }
 
     scoreFn(): string

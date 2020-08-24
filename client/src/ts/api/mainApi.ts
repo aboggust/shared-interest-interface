@@ -22,8 +22,9 @@ export class API {
      * @imageIDs: list of string image ids to get saliency image objects for
      * @scoreFn: string score function name
      */
-    getSaliencyImages(imageIDs: string[], scoreFn: string): Promise<SaliencyImg[]> {
+    getSaliencyImages(caseStudy: string, imageIDs: string[], scoreFn: string): Promise<SaliencyImg[]> {
         const imagesToSend = {
+            case_study: caseStudy,
             image_ids: imageIDs,
             score_fn: scoreFn
         }
@@ -38,10 +39,11 @@ export class API {
      * @imageID: string image id to get saliency image object for
      * @scoreFn: string score function name
      */
-    getSaliencyImage(imageID: string, scoreFn: string): Promise<SaliencyImg> {
+    getSaliencyImage(caseStudy: string, imageID: string, scoreFn: string): Promise<SaliencyImg> {
         const imagesToSend = {
-            imageID: imageID,
-            scoreFn: scoreFn
+            case_study: caseStudy,
+            image_id: imageID,
+            score_fn: scoreFn
         }
         const url = makeUrl(this.baseURL + "/get-saliency-image", imagesToSend)
         return d3.json(url)
@@ -51,8 +53,9 @@ export class API {
     /**
      * Get image IDs
      */
-    getImages(sortBy: number, predictionFn: string, scoreFn: string, labelFilter: string): Promise<string[]> {
+    getImages(caseStudy: string, sortBy: number, predictionFn: string, scoreFn: string, labelFilter: string): Promise<string[]> {
         const toSend = {
+            case_study: caseStudy,
             sort_by: sortBy,
             prediction_fn: predictionFn,
             score_fn: scoreFn,
@@ -65,16 +68,22 @@ export class API {
     /**
      * Get all dataset predictions
      */
-    getPredictions(): Promise<string[]> {
-        const url = makeUrl(this.baseURL + "/get-predictions")
+    getPredictions(caseStudy: string): Promise<string[]> {
+        const toSend = {
+            case_study: caseStudy
+        }
+        const url = makeUrl(this.baseURL + "/get-predictions", toSend)
         return d3.json(url)
     }
 
     /**
      * Get all dataset labels
      */
-    getLabels(): Promise<string[]> {
-        const url = makeUrl(this.baseURL + "/get-labels")
+    getLabels(caseStudy: string): Promise<string[]> {
+        const toSend = {
+            case_study: caseStudy
+        }
+        const url = makeUrl(this.baseURL + "/get-labels", toSend)
         return d3.json(url)
     }
 
@@ -84,8 +93,9 @@ export class API {
      * @imageIDs: list of string image ids to get saliency image objects for
      * @scoreFn: string score function name
      */
-    binScores(imageIDs: string[], scoreFn: string): Promise<Bins[]> {
+    binScores(caseStudy: string, imageIDs: string[], scoreFn: string): Promise<Bins[]> {
         const imagesToSend = {
+            case_study: caseStudy,
             image_ids: imageIDs,
             score_fn: scoreFn
         }
@@ -100,8 +110,9 @@ export class API {
      *
      * @imageIDs: list of string image ids to get saliency image objects for
      */
-    getConfusionMatrix(labelFilter: string, scoreFn: string): Promise<ConfusionMatrixI[]> {
+    getConfusionMatrix(caseStudy: string, labelFilter: string, scoreFn: string): Promise<ConfusionMatrixI[]> {
         const toSend = {
+            case_study: caseStudy,
             label_filter: labelFilter,
             score_fn: scoreFn
         }

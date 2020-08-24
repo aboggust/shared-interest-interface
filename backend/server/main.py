@@ -75,14 +75,15 @@ class ConfusionMatrix(BaseModel):
 
 # Load in data
 # df = pd.read_json("./data/output/data_vehicle.json").set_index('fname')
-df = pd.read_json("./data/output/data_dogs.json").set_index('fname')
-N = len(df)
+datasets = ['data_dogs', 'data_vehicle', 'data_melanoma']
+dataframes = {dataset: pd.read_json("./data/output/%s.json" %dataset).set_index('fname') for dataset in datasets}
 
 
 @app.get("/api/get-images", response_model=List[str])
-async def get_images(sort_by: int, prediction_fn: str, score_fn: str, label_filter: str):
+async def get_images(case_study: str, sort_by: int, prediction_fn: str, score_fn: str, label_filter: str):
+    df = dataframes[case_study]
     if prediction_fn == "all_images":
-        pred_inds = np.ones(N)
+        pred_inds = np.ones(len(df))
     elif prediction_fn == "correct_only":
         pred_inds = df.label == df.prediction
     elif prediction_fn == "incorrect_only":
@@ -91,7 +92,7 @@ async def get_images(sort_by: int, prediction_fn: str, score_fn: str, label_filt
         pred_inds = df.prediction == prediction_fn
 
     if label_filter == '':
-        label_inds = np.ones(N)
+        label_inds = np.ones(len(df))
     else:
         label_inds = df.label == label_filter
 
@@ -100,33 +101,40 @@ async def get_images(sort_by: int, prediction_fn: str, score_fn: str, label_filt
     fnames = list(filtered_df.index)
     return fnames
 
+
 @app.get("/api/get-saliency-image", response_model=SaliencyImage)
-async def get_saliency_image(imageID: str, scoreFn: str):
-    filtered_df = df.loc[imageID]
-    filtered_df['score'] = filtered_df[scoreFn]
+async def get_saliency_image(case_study: str, image_id: str, score_fn: str):
+    df = dataframes[case_study]
+    filtered_df = df.loc[image_id]
+    filtered_df['score'] = filtered_df[score_fn]
     return filtered_df.to_dict()
+
 
 @app.post("/api/get-saliency-images", response_model=List[SaliencyImage])
 async def get_saliency_images(payload: api.ImagesPayload):
     payload = api.ImagesPayload(**payload)
+    df = dataframes[payload.case_study]
     filtered_df = df.loc[payload.image_ids]
     filtered_df['score'] = filtered_df[payload.score_fn]
     return filtered_df.to_dict('records')
 
 
 @app.get("/api/get-labels", response_model=List[str])
-async def get_labels():
+async def get_labels(case_study: str):
+    df = dataframes[case_study]
     return list(df.label.unique())
 
 
 @app.get("/api/get-predictions", response_model=List[str])
-async def get_predictions():
+async def get_predictions(case_study: str):
+    df = dataframes[case_study]
     return list(df.prediction.unique())
 
 
 @app.post("/api/bin-scores", response_model=List[Bins])
 async def bin_scores(payload: api.ImagesPayload, min_range: int = 0, max_range: int = 1, num_bins:int = 11):
     payload = api.ImagesPayload(**payload)
+    df = dataframes[payload.case_study]
     filtered_df = df.loc[payload.image_ids]
     scores = filtered_df[payload.score_fn].tolist()
     bins = np.linspace(min_range, max_range, num_bins)
@@ -136,7 +144,8 @@ async def bin_scores(payload: api.ImagesPayload, min_range: int = 0, max_range: 
 
 
 @app.get("/api/confusion-matrix", response_model=List[ConfusionMatrix])
-async def get_confusion_matrix_values(label_filter: str, score_fn: str, n: int = 10):
+async def get_confusion_matrix_values(case_study: str, label_filter: str, score_fn: str, n: int = 10):
+    df = dataframes[case_study]
     if label_filter == '':
         filtered_df = df.loc[df.label != df.prediction]
     else:

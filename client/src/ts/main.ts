@@ -6,7 +6,7 @@ import { Histogram } from './vis/Histogram'
 import { SimpleEventHandler } from './etc/SimpleEventHandler'
 import { API } from './api/mainApi'
 import { State } from './state'
-import { modelOptions, methodOptions, sortByOptions, predictionFnOptions, scoreFnOptions, labelFilterOptions } from './etc/selectionOptions'
+import { caseStudyOptions, sortByOptions, predictionFnOptions, scoreFnOptions, labelFilterOptions } from './etc/selectionOptions'
 import { SaliencyImg } from './types';
 
 /**
@@ -23,6 +23,12 @@ export function main() {
         main: d3.select('#mainpage'),
         imagesPanel: d3.select('#images-panel'),
         sidebar: d3.select('#sidebar'),
+        caseStudy: d3.select('#case-study-select'),
+        caseStudyListOptions: d3.select('#case-study-select').selectAll('option')
+            .data(caseStudyOptions)
+            .join('option')
+            .attr('value', option => option.value)
+            .text(option => option.name),
         scoreFn: d3.select('#scorefn-select'),
         scoreFnListOptions: d3.select('#scorefn-select').selectAll('option')
             .data(scoreFnOptions)
@@ -58,10 +64,12 @@ export function main() {
     const eventHelpers = {
         updateImages: (state: State) => {
             vizs.saliencyImages.clear()
-            const imageIDs = api.getImages(state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter())
+            const imageIDs = api.getImages(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(),
+                                           state.labelFilter())
             imageIDs.then(IDs => {
                 state.numImages(IDs.length)
                 const imgData = {
+                    caseStudy: state.caseStudy(),
                     imgIDs: IDs,
                     scoreFn: state.scoreFn()
                 }
@@ -71,20 +79,22 @@ export function main() {
 
         updatePage: (state: State) => {
             vizs.saliencyImages.clear()
-            const imageIDs = api.getImages(state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter())
+            const imageIDs = api.getImages(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(),
+                                           state.labelFilter())
             selectors.body.style('cursor', 'progress')
             imageIDs.then(IDs => {
                 state.numImages(IDs.length)
-                vizs.saliencyImages.update({ imgIDs: IDs, scoreFn: state.scoreFn() })
+                vizs.saliencyImages.update({ caseStudy: state.caseStudy(), imgIDs: IDs, scoreFn: state.scoreFn() })
 
                 // Update histogram
-                api.binScores(IDs, state.scoreFn()).then(bins => {
+                api.binScores(state.caseStudy(), IDs, state.scoreFn()).then(bins => {
                     vizs.histogram.update(bins)
                 })
 
                 // Update confusion matrix
-                api.getConfusionMatrix(state.labelFilter(), state.scoreFn()).then(confusionMatrix => {
-                    vizs.confusionMatrix.update(confusionMatrix)
+                const confusionMatrix = api.getConfusionMatrix(state.caseStudy(), state.labelFilter(), state.scoreFn())
+                confusionMatrix.then(matrix => {
+                    vizs.confusionMatrix.update(matrix)
                 })
 
                 // Finished async calls
@@ -102,7 +112,7 @@ export function main() {
      */
     async function initializeFromState(state: State) {
         // Fill in label options
-        const labelsPromise = api.getLabels();
+        const labelsPromise = api.getLabels(state.caseStudy());
         labelsPromise.then(labels => {
             const labelValues = labels.slice();
             labels.splice.apply(labels, [0, 0 as string | number].concat(labelFilterOptions.map(option => option.name)));
@@ -116,7 +126,7 @@ export function main() {
         })
 
         // Fill in prediction options
-        const predictionsPromise = api.getPredictions();
+        const predictionsPromise = api.getPredictions(state.caseStudy();
         predictionsPromise.then(predictions => {
             const predictionValues = predictions.slice();
             predictions.splice.apply(predictions, [0, 0 as string | number].concat(predictionFnOptions.map(option => option.name)));
@@ -130,9 +140,9 @@ export function main() {
         })
 
         // Set frontend via state parameters
+        selectors.caseStudy.property('value', state.caseStudy())
         selectors.sortBy.property('value', state.sortBy())
         selectors.scoreFn.property('value', state.scoreFn())
-
 
         // Get data from state parameters
         eventHelpers.updatePage(state)
@@ -143,6 +153,12 @@ export function main() {
     /**
      * Binding the event handler
     */
+    selectors.caseStudy.on('change', () => {
+        const caseStudy = selectors.caseStudy.property('value')
+        state.caseStudy(caseStudy)
+        eventHelpers.updatePage(state)
+    });
+
     selectors.sortBy.on('change', () => {
         const sortByValue = selectors.sortBy.property('value')
         state.sortBy(sortByValue)
@@ -167,9 +183,9 @@ export function main() {
         eventHelpers.updatePage(state)
     });
 
-    eventHandler.bind(LazySaliencyImages.events.onScreen, ({ el, id, scoreFn, caller }) => {
+    eventHandler.bind(LazySaliencyImages.events.onScreen, ({ el, id, scoreFn, caseStudy, caller }) => {
         const img = new SingleSaliencyImage(el, eventHandler)
-        api.getSaliencyImage(id, scoreFn).then(salImg => {
+        api.getSaliencyImage(caseStudy, id, scoreFn).then(salImg => {
             img.update(salImg)
         })
     })
