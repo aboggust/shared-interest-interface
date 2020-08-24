@@ -103,6 +103,34 @@ export function main() {
             })
         },
 
+        updateLabels: (state: State) => {
+            api.getLabels(state.caseStudy()).then(labels => {
+                const labelValues = labels.slice();
+                labels.splice.apply(labels, [0, 0 as string | number].concat(labelFilterOptions.map(option => option.name)));
+                labelValues.splice.apply(labelValues, [0, 0 as string | number].concat(labelFilterOptions.map(option => option.value)));
+                selectors.labelFilter.selectAll('option')
+                    .data(labels)
+                    .join('option')
+                    .attr('value', (label, i) => labelValues[i])
+                    .text(label => label)
+                selectors.labelFilter.property('value', state.labelFilter())
+            })
+        },
+
+        updatePredictions: (state: State) => {
+            api.getPredictions(state.caseStudy()).then(predictions => {
+                const predictionValues = predictions.slice();
+                predictions.splice.apply(predictions, [0, 0 as string | number].concat(predictionFnOptions.map(option => option.name)));
+                predictionValues.splice.apply(predictionValues, [0, 0 as string | number].concat(predictionFnOptions.map(option => option.value)));
+                selectors.predictionFn.selectAll('option')
+                    .data(predictions)
+                    .join('option')
+                    .attr('value', (prediction, i) => predictionValues[i])
+                    .text(prediction => prediction)
+                selectors.predictionFn.property('value', state.predictionFn())
+            })
+        }
+
     }
 
     /**
@@ -111,33 +139,9 @@ export function main() {
      * @param state the state of the application
      */
     async function initializeFromState(state: State) {
-        // Fill in label options
-        const labelsPromise = api.getLabels(state.caseStudy());
-        labelsPromise.then(labels => {
-            const labelValues = labels.slice();
-            labels.splice.apply(labels, [0, 0 as string | number].concat(labelFilterOptions.map(option => option.name)));
-            labelValues.splice.apply(labelValues, [0, 0 as string | number].concat(labelFilterOptions.map(option => option.value)));
-            selectors.labelFilter.selectAll('option')
-                .data(labels)
-                .join('option')
-                .attr('value', (label, i) => labelValues[i])
-                .text(label => label)
-            selectors.labelFilter.property('value', state.labelFilter())
-        })
-
-        // Fill in prediction options
-        const predictionsPromise = api.getPredictions(state.caseStudy();
-        predictionsPromise.then(predictions => {
-            const predictionValues = predictions.slice();
-            predictions.splice.apply(predictions, [0, 0 as string | number].concat(predictionFnOptions.map(option => option.name)));
-            predictionValues.splice.apply(predictionValues, [0, 0 as string | number].concat(predictionFnOptions.map(option => option.value)));
-            selectors.predictionFn.selectAll('option')
-                .data(predictions)
-                .join('option')
-                .attr('value', (prediction, i) => predictionValues[i])
-                .text(prediction => prediction)
-            selectors.predictionFn.property('value', state.predictionFn())
-        })
+        // Fill in label and prediction options
+        eventHelpers.updateLabels(state)
+        eventHelpers.updatePredictions(state)
 
         // Set frontend via state parameters
         selectors.caseStudy.property('value', state.caseStudy())
@@ -156,6 +160,10 @@ export function main() {
     selectors.caseStudy.on('change', () => {
         const caseStudy = selectors.caseStudy.property('value')
         state.caseStudy(caseStudy)
+        state.labelFilter('')
+        eventHelpers.updateLabels(state)
+        state.predictionFn('all_images')
+        eventHelpers.updatePredictions(state)
         eventHelpers.updatePage(state)
     });
 
