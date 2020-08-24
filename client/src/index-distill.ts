@@ -73,13 +73,13 @@ window.onload = () => {
     fig1.forEach((p, i) => {
         const appId = `fig1-${i}`
         const app = document.getElementById(appId)
-        main(app, true, p, true)
+        main(app, true, p, true, true)
     })
 
     fig2.forEach((p, i) => {
         const appId = `fig2-${i}`
         const app = document.getElementById(appId)
-        main(app, true, p, true)
+        main(app, true, p, true, true)
     })
 
     console.log("Done loading window");
