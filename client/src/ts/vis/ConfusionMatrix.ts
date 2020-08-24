@@ -26,7 +26,7 @@ export class ConfusionMatrix extends HTMLComponent<DI>{
     _render(confusionMatrix: ConfusionMatrixI[]) {
         const self = this
         // Remove previous histogram
-        d3.selectAll('.confusion-matrix' + ' svg').remove();
+        this.base.selectAll('.confusion-matrix' + ' svg').remove();
 
         // Compute the histogram data from the images
         const domain: [number, number] = [0, 1]
