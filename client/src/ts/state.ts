@@ -64,8 +64,9 @@ export class State {
      * @param k URL parameter to check if frozen
      */
     isFrozen(k: string) {
+        console.log(`Checking for ${k}`);
         if (this.frozenParams.has(k)) return true
-        return false
+        return null // Allows `sel.attr("disabled", state.isFrozen(k))`
     }
 
     caseStudy(): string
