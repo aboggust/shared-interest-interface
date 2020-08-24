@@ -15,10 +15,6 @@ export const scoreFnOptions = [
     { name: "IOU", value: 'iou_score' },
 ]
 
-export const numPerPageOptions = [
-    { name: "10", value: 10 },
-]
-
 export const predictionFnOptions = [
     { name: "All", value: 'all_images' },
     { name: "Correct", value: 'correct_only' },

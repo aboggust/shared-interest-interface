@@ -6,7 +6,7 @@ import { ConfusionMatrix } from "./vis/ConfusionMatrix"
 import { Histogram } from './vis/Histogram'
 import { SimpleEventHandler } from './etc/SimpleEventHandler'
 import { API } from './api/mainApi'
-import { State } from './state'
+import { State, URLParameters } from './state'
 import { caseStudyOptions, sortByOptions, predictionFnOptions, scoreFnOptions, labelFilterOptions } from './etc/selectionOptions'
 import { SaliencyImg } from './types';
 
@@ -92,7 +92,7 @@ function init(base: D3Sel) {
 /**
  * Main functionality in the below function
  */
-export function main(el: Element) {
+export function main(el: Element, ignoreUrl:boolean=false, stateParams:Partial<URLParameters>={}) {
     const base = d3.select(el)
 
     init(base)
@@ -136,7 +136,7 @@ export function main(el: Element) {
 
     const eventHandler = new SimpleEventHandler(el)
     const api = new API()
-    const state = new State()
+    const state = new State(ignoreUrl, stateParams)
 
     const vizs = {
         histogram: new Histogram(<HTMLElement>selectors.sidebar.node(), eventHandler),
@@ -150,7 +150,6 @@ export function main(el: Element) {
             const imageIDs = api.getImages(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(),
                                            state.labelFilter())
             imageIDs.then(IDs => {
-                state.numImages(IDs.length)
                 const imgData = {
                     caseStudy: state.caseStudy(),
                     imgIDs: IDs,
@@ -166,7 +165,6 @@ export function main(el: Element) {
                                            state.labelFilter())
             selectors.body.style('cursor', 'progress')
             imageIDs.then(IDs => {
-                state.numImages(IDs.length)
                 vizs.saliencyImages.update({ caseStudy: state.caseStudy(), imgIDs: IDs, scoreFn: state.scoreFn() })
 
                 // Update histogram

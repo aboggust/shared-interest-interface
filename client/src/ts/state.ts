@@ -1,15 +1,10 @@
 import { URLHandler } from "./etc/URLHandler"
-// import * as _ from "lodash"
-// import * as tp from './types'
-// import * as tf from "@tensorflow/tfjs"
 
-interface URLParameters {
+export interface URLParameters {
     caseStudy: string,
     scoreFn: string,
     sortBy: number,
     predictionFn: string,
-    page: number,
-    numPerPage: number,
     labelFilter: string,
 }
 
@@ -20,36 +15,38 @@ export class State {
     private _url: Partial<URLParameters> = {}
     private _conf: Partial<StateConf> = {}
 
-    imagesPerPage: number
-    imageLength: number
-    maxPageNum: number
+    ignoreUrl: boolean
 
-    constructor() {
+    constructor(ignoreUrl=false, params:Partial<URLParameters>={}) {
+        this.ignoreUrl = ignoreUrl
         this.fromURL()
+        this.fromOptions(params)
         this.toURL(false)
-        this.imagesPerPage = null
-        this.imageLength = null
-        this.maxPageNum = null
     }
 
     /**
      * Reads app state from the URL, setting default values as necessary
      */
     fromURL() {
-        const params = URLHandler.parameters
+        const params = this.ignoreUrl ? {} : URLHandler.parameters
 
         this._url = {
             caseStudy: params['caseStudy'] || 'data_vehicle',
             scoreFn: params['scoreFn'] || 'saliency_proportion_score',
             sortBy: params['sortBy'] || 1,
             predictionFn: params['predictionFn'] || 'all_images',
-            page: params['page'] || 0,
             labelFilter: params['labelFilter'] || '',
         }
     }
 
+    fromOptions(params: Partial<URLParameters>) {
+        Object.keys(params).forEach(k => {
+            this._url[k] = params[k]
+        })
+    }
+
     toURL(updateHistory = false) {
-        URLHandler.updateUrl(this._url, updateHistory)
+        this.ignoreUrl || URLHandler.updateUrl(this._url, updateHistory)
     }
 
     caseStudy(): string
@@ -88,23 +85,6 @@ export class State {
         return this
     }
 
-    page(): number
-    page(val: number): this
-    page(val?) {
-        if (val == null) return this._url.page
-        this._url.page = val
-        this.toURL()
-        return this
-    }
-
-    numPerPage(): number
-    numPerPage(val: number): this
-    numPerPage(val?) {
-        if (val == null) return this.imagesPerPage
-        this.imagesPerPage = val
-        return this
-    }
-
     labelFilter(): string
     labelFilter(filter: string): this
     labelFilter(filter?) {
@@ -112,19 +92,5 @@ export class State {
         this._url.labelFilter = filter
         this.toURL()
         return this
-    }
-
-    numImages(): number
-    numImages(val: number): this
-    numImages(val?) {
-        if (val == null) return this.imageLength
-        this.imageLength = val
-        this.maxPageNum = Math.ceil(this.imageLength / this.numPerPage()) - 1
-        return this
-    }
-
-    maxPage(): number
-    maxPage() {
-        return this.maxPageNum
     }
 }
