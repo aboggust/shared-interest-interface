@@ -2,10 +2,10 @@ import * as d3 from 'd3'
 import { D3Sel } from '../etc/Util'
 import { HTMLComponent, SVGComponent } from './VComponent'
 import { SimpleEventHandler } from '../etc/SimpleEventHandler'
-import { BinObject } from '../types';
+import { Bins } from '../types';
 
 
-type DI = BinObject[]
+type DI = Bins[]
 
 export class Histogram extends HTMLComponent<DI>{
     cssName = 'score-histogram'
@@ -23,7 +23,7 @@ export class Histogram extends HTMLComponent<DI>{
             .text('Score Distribution')
     }
 
-    _render(bins: BinObject[]) {
+    _render(bins: Bins[]) {
         const self = this
         // Remove previous histogram
         d3.selectAll('.score-histogram' + ' svg').remove();
@@ -57,9 +57,8 @@ export class Histogram extends HTMLComponent<DI>{
             .call(d3.axisBottom(x));
 
         // Build color scale
-        var colorScale = d3.scaleSequential()
+        var colorScale = d3.scaleSequential(d3.interpolateBlues)
             .domain([-0.2, 1]) // start the color scheme from light blue instead of white
-            .interpolator(d3.interpolateBlues);
 
         // Fill in bars
         svg.selectAll('rect')
