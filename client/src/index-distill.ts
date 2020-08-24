@@ -2,6 +2,9 @@ import { main } from './ts/main'
 
 window.onload = () => {
 
+    const fullApp = document.getElementById("full-app")
+    main(fullApp, true)
+
     // For Distill article
     const fig1 = [
         // a
