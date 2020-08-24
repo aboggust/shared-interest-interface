@@ -1,13 +1,14 @@
 :root {
     --body-width: 80vw;
     --sidebar-width: 300px;
-    --element-gap: 20px;
+    --vertical-element-gap: 20px;
+    --horizontal-element-gap: 40px;
     --navbar-height: 50px;
     --selection-height: 40px;
-    --body-height: calc(100vh - var(--navbar-height) - var(--element-gap) * 2);
-    --main-height: calc(var(--body-height) - var(--selection-height) - var(--element-gap));
+    --body-height: calc(100vh - var(--navbar-height) - var(--vertical-element-gap) * 2);
+    --main-height: calc(var(--body-height) - var(--selection-height) - var(--vertical-element-gap));
     --image-panel-height: var(--main-height);
-    --image-panel-width: calc(var(--body-width) - var(--sidebar-width) - var(--element-gap));
+    --image-panel-width: calc(var(--body-width) - var(--sidebar-width) - var(--horizontal-element-gap));
 }
 
 body {
@@ -152,7 +153,7 @@ select {
 }
 
 .cont-nav {
-  margin-top: calc(var(--navbar-height) + var(--element-gap));
+  margin-top: calc(var(--navbar-height) + var(--vertical-element-gap));
   height: var(--selection-height);
 }
 
@@ -176,7 +177,7 @@ select {
     align-items: center;
     width: 200px;
     height: 210px;
-    margin-bottom: var(--element-gap);
+    margin-bottom: var(--vertical-element-gap);
 }
 
 .row {
@@ -205,17 +206,17 @@ select {
 #main {
     display: flex;
     flex-direction: row;
-    margin-top: var(--element-gap);
+    margin-top: var(--vertical-element-gap);
     height: var(--main-height);
 }
 
 #sidebar {
     width: var(--sidebar-width);
     height: var(--main-height);
-    margin-right: var(--element-gap);
+    margin-right: var(--horizontal-element-gap);
     display: flex;
     flex-direction: column;
-    gap: var(--element-gap);
+    gap: var(--vertical-element-gap);
 }
 
 .title {
@@ -235,7 +236,7 @@ select {
 
 .pagination-controls {
     height: var(--pagination-height);
-    margin-top: var(--element-gap);
+    margin-top: var(--vertical-element-gap);
 }
 
 .axis-grid line {

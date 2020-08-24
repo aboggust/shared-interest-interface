@@ -38,8 +38,9 @@ export class Histogram extends HTMLComponent<DI>{
             .domain(domain)
             .range([0, width])
 
+        const maxCount = d3.max(bins, b => b.num)
         var y = d3.scaleLinear()
-            .domain([0, d3.max(bins, b => b.num)])
+            .domain([0, maxCount])
             .range([height, 0])
 
         // Visually display the histogram
@@ -51,7 +52,7 @@ export class Histogram extends HTMLComponent<DI>{
                 .attr('transform',
                       'translate(' + margin.left + ',' + margin.top + ')');
 
-        svg.append('g')
+        var group = svg.append('g')
             .attr('transform', 'translate(0,' + height + ')')
             .call(d3.axisBottom(x));
 
@@ -60,6 +61,7 @@ export class Histogram extends HTMLComponent<DI>{
             .domain([-0.2, 1]) // start the color scheme from light blue instead of white
             .interpolator(d3.interpolateBlues);
 
+        // Fill in bars
         svg.selectAll('rect')
             .data(bins)
             .join('rect')

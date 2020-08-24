@@ -171,7 +171,6 @@ export function main() {
         eventHelpers.updatePage(state)
     });
 
-    let numLoaded = 0;
     eventHandler.bind(LazySaliencyImages.events.onScreen, ({el, id, scoreFn, caller}) => {
         const img = new SingleSaliencyImage(el, eventHandler)
         api.getSaliencyImage(id, scoreFn).then(salImg => {
