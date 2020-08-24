@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=UA-149275901-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'UA-149275901-2');
+    </script> -->
+    <meta charset="UTF-8">
+    <meta name="title" content="SaliencyIOU" />
+    <meta name="description" content="DESCRIPTION" />
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+        integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans:300,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+
+    <title>Distill Saliency Explorer</title>
+    <link href="main.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <!--  Navigation bar  -->
+    <!-- <div class="navbar navbar-expand-sm fixed-top navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">
+            <b>Saliency Explorer</b>
+        </a>
+        <div class="navbar-text">
+            Explore model reasoning across images using ground truth annotations.
+        </div>
+    </div> -->
+
+    <div id="fig1-0"></div>
+    <div id="fig1-1"></div>
+    <div id="fig1-2"></div>
+
+    <div id="fig2-0"></div>
+    <div id="fig2-1"></div>
+    <div id="fig2-2"></div>
+
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+        integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+        integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+        crossorigin="anonymous"></script>
+    <script type="text/javascript" src="vendor.js"></script>
+    <script type="text/javascript" src="distillMain.js"></script>
+</body>
+
+</html>

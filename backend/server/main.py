@@ -33,6 +33,11 @@ def index():
     """For local development, serve the index.html in the dist folder"""
     return RedirectResponse(url="client/index.html")
 
+# Main routes
+@app.get("/article")
+def index():
+    """For local development, serve the index.html in the dist folder"""
+    return RedirectResponse(url="client/index-distill.html")
 
 # the `file_path:path` says to accept any path as a string here.
 # Otherwise, `file_paths` containing `/` will not be served properly
