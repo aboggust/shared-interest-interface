@@ -3,6 +3,7 @@ import pandas as pd
 from typing import *
 import h5py
 import numpy as np
+import os
 
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, RedirectResponse
@@ -26,18 +27,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+prefix = os.environ.get('CLIENT_PREFIX','client')
+
+
 
 # Main routes
 @app.get("/")
 def index():
     """For local development, serve the index.html in the dist folder"""
-    return RedirectResponse(url="client/index.html")
+    return RedirectResponse(url=f"{prefix}/index.html")
 
 # Main routes
 @app.get("/article")
 def index():
     """For local development, serve the index.html in the dist folder"""
-    return RedirectResponse(url="client/index-distill.html")
+    return RedirectResponse(url=f"{prefix}/index-distill.html")
 
 # the `file_path:path` says to accept any path as a string here.
 # Otherwise, `file_paths` containing `/` will not be served properly
