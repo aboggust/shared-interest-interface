@@ -1,19 +1,19 @@
 :root {
-    --body-width: 80vw;
-    --sidebar-width: 300px;
-    --vertical-element-gap: 20px;
-    --horizontal-element-gap: 40px;
-    --navbar-height: 50px;
-    --selection-height: 40px;
-    --body-height: calc(100vh - var(--navbar-height) - var(--vertical-element-gap) * 2);
-    --main-height: calc(var(--body-height) - var(--selection-height) - var(--vertical-element-gap));
-    --image-panel-height: var(--main-height);
-    --image-panel-width: calc(var(--body-width) - var(--sidebar-width) - var(--horizontal-element-gap));
+  --body-width: 80vw;
+  --sidebar-width: 300px;
+  --vertical-element-gap: 20px;
+  --horizontal-element-gap: 40px;
+  --navbar-height: 50px;
+  --selection-height: 40px;
+  --body-height: calc(100vh - var(--navbar-height) - var(--vertical-element-gap) * 2);
+  --main-height: calc(var(--body-height) - var(--selection-height) - var(--vertical-element-gap));
+  --image-panel-height: var(--main-height);
+  --image-panel-width: calc(var(--body-width) - var(--sidebar-width) - var(--horizontal-element-gap));
 }
 
 body {
   background-color: rgb(255, 255, 255);
-  font-family: 'IBM Plex Sans', sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
   font-weight: 400;
   height: var(--body-height);
 }
@@ -157,96 +157,96 @@ select {
   height: var(--selection-height);
 }
 
-#mainpage {
-    height: var(--main-height);
+#mainpage, .ID_mainpage {
+  height: var(--main-height);
 }
 
-#images-panel {
-    height: var(--main-height);
-    width: var(--image-panel-width);
+#images-panel, .ID_images-panel {
+  height: var(--main-height);
+  width: var(--image-panel-width);
 }
 
 .saliency-images {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    overflow-y: auto;
-    height: inherit;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  overflow-y: auto;
+  height: inherit;
 }
 
 .saliency-image-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 200px;
-    height: 210px;
-    margin-bottom: var(--vertical-element-gap);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 200px;
+  height: 210px;
+  margin-bottom: var(--vertical-element-gap);
 }
 
 .row {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
 .image-info {
-    display: flex;
-    flex-direction: row;
-    padding-bottom: 2pt;
-    width: 95%;
-    justify-content: center;
+  display: flex;
+  flex-direction: row;
+  padding-bottom: 2pt;
+  width: 95%;
+  justify-content: center;
 }
 
 .image-info .info {
-    font-size: 8pt;
-    font-weight: 600;
-    padding: 2pt;
-    border-radius: 2pt;
-    margin-left: 1pt;
-    margin-right: 1pt;
+  font-size: 8pt;
+  font-weight: 600;
+  padding: 2pt;
+  border-radius: 2pt;
+  margin-left: 1pt;
+  margin-right: 1pt;
 
-    &:hover {
-      border-width: thin;
-      border-color: rgba($color: #000000, $alpha: 0.3);
-    }
+  &:hover {
+    border-width: thin;
+    border-color: rgba($color: #000000, $alpha: 0.3);
+  }
 }
 
-#main {
-    display: flex;
-    flex-direction: row;
-    margin-top: var(--vertical-element-gap);
-    height: var(--main-height);
+#main, .ID_main {
+  display: flex;
+  flex-direction: row;
+  margin-top: var(--vertical-element-gap);
+  height: var(--main-height);
 }
 
-#sidebar {
-    width: var(--sidebar-width);
-    height: var(--main-height);
-    margin-right: var(--horizontal-element-gap);
-    display: flex;
-    flex-direction: column;
-    gap: var(--vertical-element-gap);
+#sidebar, .ID_sidebar {
+  width: var(--sidebar-width);
+  height: var(--main-height);
+  margin-right: var(--horizontal-element-gap);
+  display: flex;
+  flex-direction: column;
+  gap: var(--vertical-element-gap);
 }
 
 .title {
-    font-size: 10pt;
-    font-weight: 600;
+  font-size: 10pt;
+  font-weight: 600;
 }
 
 .mask {
-    position: absolute;
-    top: 0;
-    left: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 .image-container {
-    position: relative;
+  position: relative;
 }
 
 .pagination-controls {
-    height: var(--pagination-height);
-    margin-top: var(--vertical-element-gap);
+  height: var(--pagination-height);
+  margin-top: var(--vertical-element-gap);
 }
 
 .axis-grid line {
-    stroke: #e6e6e6;
+  stroke: #e6e6e6;
 }

@@ -5,6 +5,7 @@ import "./css/main.scss"
 
 
 window.onload = () => {
-    main()
+    const app = document.getElementById("app")
+    main(app)
     console.log("Done loading window");
 }
