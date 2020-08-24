@@ -8,17 +8,25 @@ export interface URLParameters {
     labelFilter: string,
 }
 
-interface StateConf {
-}
+interface StateConf { }
 
 export class State {
     private _url: Partial<URLParameters> = {}
     private _conf: Partial<StateConf> = {}
 
     ignoreUrl: boolean
+    freeze: boolean
+    frozenParams: Set<string> = new Set([])
 
-    constructor(ignoreUrl=false, params:Partial<URLParameters>={}) {
+    /**
+     * 
+     * @param ignoreUrl If provided, do not update URL parameters when state changes or initialize state from URL
+     * @param params Preset state to desired configuration
+     * @param freeze If true, any provided state in 'params' will be recorded as a 'frozen' state that cannot be modified by the user
+     */
+    constructor(ignoreUrl = false, params: Partial<URLParameters> = {}, freeze: boolean = false) {
         this.ignoreUrl = ignoreUrl
+        this.freeze = freeze
         this.fromURL()
         this.fromOptions(params)
         this.toURL(false)
@@ -42,11 +50,22 @@ export class State {
     fromOptions(params: Partial<URLParameters>) {
         Object.keys(params).forEach(k => {
             this._url[k] = params[k]
+            this.freeze && this.frozenParams.add(k)
         })
     }
 
     toURL(updateHistory = false) {
         this.ignoreUrl || URLHandler.updateUrl(this._url, updateHistory)
+    }
+
+    /**
+     * Check if `k` is supposed to be a frozen view
+     * 
+     * @param k URL parameter to check if frozen
+     */
+    isFrozen(k: string) {
+        if (this.frozenParams.has(k)) return true
+        return false
     }
 
     caseStudy(): string

@@ -1,5 +1,5 @@
 import * as d3 from 'd3'
-import {D3Sel} from "./etc/Util"
+import { D3Sel } from "./etc/Util"
 import { LazySaliencyImages } from "./vis/LazySaliencyImages"
 import { SingleSaliencyImage } from "./vis/SingleSaliencyImage"
 import { ConfusionMatrix } from "./vis/ConfusionMatrix"
@@ -92,8 +92,12 @@ function init(base: D3Sel) {
 /**
  * Main functionality in the below function
  */
-export function main(el: Element, ignoreUrl:boolean=false, stateParams:Partial<URLParameters>={}) {
+export function main(el: Element, ignoreUrl: boolean = false, stateParams: Partial<URLParameters> = {}, freezeParams: boolean = false) {
     const base = d3.select(el)
+
+    const eventHandler = new SimpleEventHandler(el)
+    const api = new API()
+    const state = new State(ignoreUrl, stateParams, freezeParams)
 
     init(base)
 
@@ -107,36 +111,37 @@ export function main(el: Element, ignoreUrl:boolean=false, stateParams:Partial<U
             .data(caseStudyOptions)
             .join('option')
             .attr('value', option => option.value)
+            .attr('disabled', state.isFrozen('caseStudy'))
             .text(option => option.name),
         scoreFn: base.select('.ID_scorefn-select'),
         scoreFnListOptions: base.select('.ID_scorefn-select').selectAll('option')
             .data(scoreFnOptions)
             .join('option')
             .attr('value', option => option.value)
+            .attr('disabled', state.isFrozen('scoreFn'))
             .text(option => option.name),
         sortBy: base.select('.ID_sort-by-select'),
         sortByListOptions: base.select('.ID_sort-by-select').selectAll('option')
             .data(sortByOptions)
             .join('option')
             .attr('value', option => option.value)
+            .attr('disabled', state.isFrozen('sortBy'))
             .text(option => option.name),
         predictionFn: base.select('.ID_prediction-filter'),
         predictionFnListOptions: base.select('.ID_prediction-filter').selectAll('option')
             .data(predictionFnOptions)
             .join('option')
             .attr('value', option => option.value)
+            .attr('disabled', state.isFrozen('predictionFn'))
             .text(option => option.name),
         labelFilter: base.select('.ID_label-filter'),
         labelFilterListOptions: base.select('.ID_label-filter').selectAll('option')
             .data(labelFilterOptions)
             .join('option')
             .attr('value', option => option.value)
+            .attr('disabled', state.isFrozen('labelFilter'))
             .text(option => option.name),
     }
-
-    const eventHandler = new SimpleEventHandler(el)
-    const api = new API()
-    const state = new State(ignoreUrl, stateParams)
 
     const vizs = {
         histogram: new Histogram(<HTMLElement>selectors.sidebar.node(), eventHandler),
@@ -148,7 +153,7 @@ export function main(el: Element, ignoreUrl:boolean=false, stateParams:Partial<U
         updateImages: (state: State) => {
             vizs.saliencyImages.clear()
             const imageIDs = api.getImages(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(),
-                                           state.labelFilter())
+                state.labelFilter())
             imageIDs.then(IDs => {
                 const imgData = {
                     caseStudy: state.caseStudy(),
@@ -162,7 +167,7 @@ export function main(el: Element, ignoreUrl:boolean=false, stateParams:Partial<U
         updatePage: (state: State) => {
             vizs.saliencyImages.clear()
             const imageIDs = api.getImages(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(),
-                                           state.labelFilter())
+                state.labelFilter())
             selectors.body.style('cursor', 'progress')
             imageIDs.then(IDs => {
                 vizs.saliencyImages.update({ caseStudy: state.caseStudy(), imgIDs: IDs, scoreFn: state.scoreFn() })
@@ -193,6 +198,7 @@ export function main(el: Element, ignoreUrl:boolean=false, stateParams:Partial<U
                     .data(labels)
                     .join('option')
                     .attr('value', (label, i) => labelValues[i])
+                    .attr('disabled', state.isFrozen('labelFilter'))
                     .text(label => label)
                 selectors.labelFilter.property('value', state.labelFilter())
             })
@@ -207,6 +213,7 @@ export function main(el: Element, ignoreUrl:boolean=false, stateParams:Partial<U
                     .data(predictions)
                     .join('option')
                     .attr('value', (prediction, i) => predictionValues[i])
+                    .attr('disabled', state.isFrozen('predictionFn'))
                     .text(prediction => prediction)
                 selectors.predictionFn.property('value', state.predictionFn())
             })
@@ -279,28 +286,32 @@ export function main(el: Element, ignoreUrl:boolean=false, stateParams:Partial<U
         })
     })
 
-    eventHandler.bind(SingleSaliencyImage.events.onScoreHover, ({score, caller}) => {
+    eventHandler.bind(SingleSaliencyImage.events.onScoreHover, ({ score, caller }) => {
         // Put Logic for showing on histogram here
     })
 
-    eventHandler.bind(SingleSaliencyImage.events.onPredictionHover, ({prediction, caller}) => {
+    eventHandler.bind(SingleSaliencyImage.events.onPredictionHover, ({ prediction, caller }) => {
         // Put logic for highlighting row on confusion matrix if exists (low prio)
     })
 
-    eventHandler.bind(SingleSaliencyImage.events.onLabelHover, ({label, caller}) => {
+    eventHandler.bind(SingleSaliencyImage.events.onLabelHover, ({ label, caller }) => {
         // Put logic for highlighting col on confusion matrix if exists (low prio)
     })
 
-    eventHandler.bind(SingleSaliencyImage.events.onLabelClick, ({label, caller}) => {
-        selectors.labelFilter.property('value', label)
-        state.labelFilter(label)
-        eventHelpers.updatePage(state)
+    eventHandler.bind(SingleSaliencyImage.events.onLabelClick, ({ label, caller }) => {
+        if (!state.isFrozen('labelFilter')) {
+            selectors.labelFilter.property('value', label)
+            state.labelFilter(label)
+            eventHelpers.updatePage(state)
+        }
     })
 
-    eventHandler.bind(SingleSaliencyImage.events.onPredictionClick, ({prediction, caller}) => {
-        selectors.predictionFn.property('value', prediction)
-        state.predictionFn(prediction)
-        eventHelpers.updatePage(state)
+    eventHandler.bind(SingleSaliencyImage.events.onPredictionClick, ({ prediction, caller }) => {
+        if (!state.isFrozen('predictionFn')) {
+            selectors.predictionFn.property('value', prediction)
+            state.predictionFn(prediction)
+            eventHelpers.updatePage(state)
+        }
     })
 
 }
