@@ -10,9 +10,9 @@ export const sortByOptions = [
 ]
 
 export const scoreFnOptions = [
-    { name: "Saliency Coverage", value: 'saliency_proportion_score'},
-    { name: "Bbox Coverage", value: 'bbox_proportion_score' },
-    { name: "IOU", value: 'iou_score' },
+    { name: "Explanation Coverage", value: 'saliency_proportion_score'},
+    { name: "Ground Truth Coverage", value: 'bbox_proportion_score' },
+    { name: "IoU", value: 'iou_score' },
 ]
 
 export const numPerPageOptions = [
