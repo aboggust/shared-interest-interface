@@ -7,6 +7,7 @@
   --selection-height: 40px;
   --body-height: calc(100vh - var(--navbar-height) - var(--vertical-element-gap) * 2);
   --main-height: calc(var(--body-height) - var(--selection-height) - var(--vertical-element-gap));
+  --small-height: 400px;
   --image-panel-height: var(--main-height);
   --image-panel-width: calc(var(--body-width) - var(--sidebar-width) - var(--horizontal-element-gap));
 }
@@ -161,9 +162,33 @@ select {
   height: var(--main-height);
 }
 
+.short-height-main {
+  height: calc(var(--small-height) + var(--selection-height)) !important;
+}
+
+#sidebar, .ID_sidebar {
+  width: var(--sidebar-width);
+  height: var(--main-height);
+  margin-right: var(--horizontal-element-gap);
+  display: flex;
+  flex-direction: column;
+  gap: var(--vertical-element-gap);
+}
+
+.empty-sidebar {
+  --sidebar-width: 0px;
+  --image-panel-height: var(--small-height);
+  --image-panel-width: calc(var(--body-width) - var(--sidebar-width) - var(--horizontal-element-gap));
+}
+
 #images-panel, .ID_images-panel {
   height: var(--main-height);
   width: var(--image-panel-width);
+}
+
+.full-width-images {
+  width: var(--body-width) !important;
+  height: var(--small-height) !important;
 }
 
 .saliency-images {
@@ -215,16 +240,7 @@ select {
   display: flex;
   flex-direction: row;
   margin-top: var(--vertical-element-gap);
-  height: var(--main-height);
-}
-
-#sidebar, .ID_sidebar {
-  width: var(--sidebar-width);
-  height: var(--main-height);
-  margin-right: var(--horizontal-element-gap);
-  display: flex;
-  flex-direction: column;
-  gap: var(--vertical-element-gap);
+  // height: var(--main-height);
 }
 
 .title {
