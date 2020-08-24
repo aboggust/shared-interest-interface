@@ -19,7 +19,7 @@ export interface Bins {
     num: number,
 }
 
-export interface ConfusionMatrix {
+export interface ConfusionMatrixI {
     label: string,
     prediction: string,
     count: number,

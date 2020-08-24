@@ -2,10 +2,10 @@ import * as d3 from 'd3'
 import { D3Sel } from '../etc/Util'
 import { HTMLComponent, SVGComponent } from './VComponent'
 import { SimpleEventHandler } from '../etc/SimpleEventHandler'
-import { ConfusionMatrix } from '../types';
+import { ConfusionMatrixI } from '../types';
 
 
-type DI = ConfusionMatrix[]
+type DI = ConfusionMatrixI[]
 
 export class ConfusionMatrix extends HTMLComponent<DI>{
     cssName = 'confusion-matrix'
@@ -23,7 +23,7 @@ export class ConfusionMatrix extends HTMLComponent<DI>{
             .text('Confusion Matrix')
     }
 
-    _render(confusionMatrix: ConfusionMatrix[]) {
+    _render(confusionMatrix: ConfusionMatrixI[]) {
         const self = this
         // Remove previous histogram
         d3.selectAll('.confusion-matrix' + ' svg').remove();
@@ -51,9 +51,8 @@ export class ConfusionMatrix extends HTMLComponent<DI>{
         const maxCount = d3.max(confusionMatrix, item => item.count)
 
         // Build color scale
-        var colorScale = d3.scaleSequential()
+        var colorScale = d3.scaleSequential(d3.interpolateBlues)
             .domain([-0.2, 1]) // start the color scheme from light blue instead of white
-            .interpolator(d3.interpolateBlues);
 
         // Build X scales and axis
         var x = d3.scaleBand()
@@ -81,8 +80,8 @@ export class ConfusionMatrix extends HTMLComponent<DI>{
                 .style('font-size', '6pt');
 
         // Build the grid
-        const xAxisGrid = d3.axisBottom(x).tickSize(-height).tickFormat('');
-        const yAxisGrid = d3.axisLeft(y).tickSize(-width).tickFormat('');
+        const xAxisGrid = d3.axisBottom(x).tickSize(-height).tickFormat((d, i) => "");
+        const yAxisGrid = d3.axisLeft(y).tickSize(-width).tickFormat((d, i) => "");
 
         svg.append('g')
             .attr('class', 'axis-grid')
@@ -99,7 +98,7 @@ export class ConfusionMatrix extends HTMLComponent<DI>{
             .range([2, x.bandwidth() - 1]);
 
         svg.selectAll()
-            .data(confusionMatrix, d => d.prediction+':'+d.label)
+            .data(confusionMatrix, (d:ConfusionMatrixI) => d.prediction+':'+d.label)
             .enter()
             .append("rect")
                 .attr("x", d => x(d.prediction) + (x.bandwidth() - size(d.count))/2)
@@ -115,6 +114,6 @@ export class ConfusionMatrix extends HTMLComponent<DI>{
                 .style("fill", d => colorScale(d.mean))
                 .style("stroke-width", 1)
                 .style("stroke", "none")
-        })
+        }
 
 }

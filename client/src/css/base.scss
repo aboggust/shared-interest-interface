@@ -157,8 +157,12 @@ select {
   height: var(--selection-height);
 }
 
+#mainpage {
+    height: var(--main-height);
+}
+
 #images-panel {
-    height: var(--image-panel-height);
+    height: var(--main-height);
     width: var(--image-panel-width);
 }
 
@@ -167,8 +171,7 @@ select {
     flex-wrap: wrap;
     justify-content: space-between;
     overflow-y: auto;
-    height: 100%;
-    margin-top: 15px;
+    height: inherit;
 }
 
 .saliency-image-card {
