@@ -201,6 +201,11 @@ select {
     border-radius: 2pt;
     margin-left: 1pt;
     margin-right: 1pt;
+
+    &:hover {
+      border-width: thin;
+      border-color: rgba($color: #000000, $alpha: 0.3);
+    }
 }
 
 #main {

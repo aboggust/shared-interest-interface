@@ -74,7 +74,8 @@ class ConfusionMatrix(BaseModel):
 
 
 # Load in data
-df = pd.read_json("./data/output/data_vehicle.json").set_index('fname')
+# df = pd.read_json("./data/output/data_vehicle.json").set_index('fname')
+df = pd.read_json("./data/output/data_dogs.json").set_index('fname')
 N = len(df)
 
 
