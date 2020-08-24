@@ -15,7 +15,7 @@ import backend.server.path_fixes as pf
 
 
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("--port", default=8000, type=int, help="Port to run the app. ")
+parser.add_argument("--port", default=5050, type=int, help="Port to run the app. ")
 
 app = FastAPI()
 app.add_middleware(
