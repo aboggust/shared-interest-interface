@@ -1,0 +1,47 @@
+{
+	"title": "Saliency Explorer",
+	"description": "Explore model reasoning across images using ground truth annotations.",
+	"authors": [
+		{
+			"author": "Angie Boggust",
+			"authorURL": "",
+			"affiliation": "MIT",
+			"affiliationURL": ""
+        },
+
+		{
+			"author": "Benjamin Hoover",
+			"authorURL": "",
+			"affiliation": "IBM Research AI",
+			"affiliationURL": ""
+        },
+
+		{
+			"author": "Arvind Satyanarayan",
+			"authorURL": "",
+			"affiliation": "MIT",
+			"affiliationURL": ""
+        },
+
+		{
+			"author": "Hendrik Strobelt",
+			"authorURL": "",
+			"affiliation": "MIT-IBM Watson AI Lab",
+			"affiliationURL": ""
+		}
+	],
+	"katex": {
+		"delimiters": [
+			{
+				"left": "$",
+				"right": "$",
+				"display": false
+			},
+			{
+				"left": "$$",
+				"right": "$$",
+				"display": true
+			}
+		]
+	}
+}
