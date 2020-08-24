@@ -1,8 +1,8 @@
 import * as d3 from 'd3'
 import { LazySaliencyImages } from "./vis/LazySaliencyImages"
 import { SingleSaliencyImage } from "./vis/SingleSaliencyImage"
+import { ConfusionMatrix } from "./vis/ConfusionMatrix"
 import { Histogram } from './vis/Histogram'
-import { ConfusionMatrix } from './vis/ConfusionMatrix'
 import { SimpleEventHandler } from './etc/SimpleEventHandler'
 import { API } from './api/mainApi'
 import { State } from './state'
@@ -75,7 +75,7 @@ export function main() {
             selectors.body.style('cursor', 'progress')
             imageIDs.then(IDs => {
                 state.numImages(IDs.length)
-                vizs.saliencyImages.update({imgIDs: IDs, scoreFn: state.scoreFn()})
+                vizs.saliencyImages.update({ imgIDs: IDs, scoreFn: state.scoreFn() })
 
                 // Update histogram
                 api.binScores(IDs, state.scoreFn()).then(bins => {
@@ -171,7 +171,7 @@ export function main() {
         eventHelpers.updatePage(state)
     });
 
-    eventHandler.bind(LazySaliencyImages.events.onScreen, ({el, id, scoreFn, caller}) => {
+    eventHandler.bind(LazySaliencyImages.events.onScreen, ({ el, id, scoreFn, caller }) => {
         const img = new SingleSaliencyImage(el, eventHandler)
         api.getSaliencyImage(id, scoreFn).then(salImg => {
             img.update(salImg)

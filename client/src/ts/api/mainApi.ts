@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { makeUrl, toPayload } from '../etc/apiHelpers'
 import { URLHandler } from '../etc/URLHandler';
-import { SaliencyImg, BinObject } from '../types';
+import { SaliencyImg, Bins, ConfusionMatrixI } from '../types';
 
 
 const baseurl = URLHandler.basicURL()
@@ -84,7 +84,7 @@ export class API {
      * @imageIDs: list of string image ids to get saliency image objects for
      * @scoreFn: string score function name
      */
-    binScores(imageIDs: string[], scoreFn: string): Promise<BinObject[]> {
+    binScores(imageIDs: string[], scoreFn: string): Promise<Bins[]> {
         const imagesToSend = {
             image_ids: imageIDs,
             score_fn: scoreFn
@@ -100,7 +100,7 @@ export class API {
      *
      * @imageIDs: list of string image ids to get saliency image objects for
      */
-    getConfusionMatrix(labelFilter: string, scoreFn: string): Promise<BinObject[]> {
+    getConfusionMatrix(labelFilter: string, scoreFn: string): Promise<ConfusionMatrixI[]> {
         const toSend = {
             label_filter: labelFilter,
             score_fn: scoreFn
