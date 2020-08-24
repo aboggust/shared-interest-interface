@@ -26,7 +26,7 @@ export class Histogram extends HTMLComponent<DI>{
     _render(bins: Bins[]) {
         const self = this
         // Remove previous histogram
-        d3.selectAll('.score-histogram' + ' svg').remove();
+        this.base.selectAll('.score-histogram' + ' svg').remove();
 
         // Compute the histogram data from the images
         const domain: [number, number] = [0, 1]

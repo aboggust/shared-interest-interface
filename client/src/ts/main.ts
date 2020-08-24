@@ -1,57 +1,145 @@
 import * as d3 from 'd3'
+import { D3Sel } from "./etc/Util"
 import { LazySaliencyImages } from "./vis/LazySaliencyImages"
 import { SingleSaliencyImage } from "./vis/SingleSaliencyImage"
 import { ConfusionMatrix } from "./vis/ConfusionMatrix"
 import { Histogram } from './vis/Histogram'
 import { SimpleEventHandler } from './etc/SimpleEventHandler'
 import { API } from './api/mainApi'
-import { State } from './state'
+import { State, URLParameters } from './state'
 import { caseStudyOptions, sortByOptions, predictionFnOptions, scoreFnOptions, labelFilterOptions } from './etc/selectionOptions'
 import { SaliencyImg } from './types';
 
 /**
+ * Render static elements needed for interface
+ */
+function init(base: D3Sel) {
+    const html = `
+    <!--  Search Controls  -->
+    <div class="container-md cont-nav">
+        <div class="row">
+            <div class="col-sm-2">
+                <div class="input-group input-group-sm mb-3">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="case-study-select">Case Study</label>
+                    </div>
+                    <select class="custom-select custom-select-sm ID_case-study-select">
+                        <!-- Fill in from data in TS now -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-sm-2">
+                <div class="input-group input-group-sm mb-3">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="scorefn-select">Score</label>
+                    </div>
+                    <select class="custom-select custom-select-sm ID_scorefn-select">
+                        <!-- Fill in from data in TS now -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-sm-2">
+                <div class="input-group input-group-sm mb-3">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="sort-by-select">Sort</label>
+                    </div>
+                    <select class="custom-select custom-select-sm ID_sort-by-select">
+                        <!-- Fill in from data in TS now -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-sm-3">
+                <div class="input-group input-group-sm mb-3">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="prediction-filter">Prediction</label>
+                    </div>
+                    <select class="custom-select custom-select-sm ID_prediction-filter">
+                        <!-- Fill in from data in TS now -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-sm-3">
+                <div class="input-group input-group-sm mb-3">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="label-filter">Label</label>
+                    </div>
+                    <select class="custom-select custom-select-sm ID_label-filter">
+                        <!-- Fill in from data in TS now -->
+                    </select>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!--  Saliency Image Grid  -->
+    <div class="ID_main">
+        <div class="ID_sidebar"></div>
+        <div class="ID_mainpage">
+            <div class="ID_images-panel"></div>
+        </div>
+
+    </div>
+    `
+
+    base.html(html)
+}
+
+/**
  * Main functionality in the below function
  */
-export function main() {
-    const eventHandler = new SimpleEventHandler(<Element>d3.select('body').node())
+export function main(el: Element, ignoreUrl: boolean = false, stateParams: Partial<URLParameters> = {}, freezeParams: boolean = false) {
+    const base = d3.select(el)
+
+    const eventHandler = new SimpleEventHandler(el)
     const api = new API()
-    const state = new State()
+    const state = new State(ignoreUrl, stateParams, freezeParams)
+
+    init(base)
 
     const selectors = {
-        window: d3.select(window),
         body: d3.select('body'),
-        main: d3.select('#mainpage'),
-        imagesPanel: d3.select('#images-panel'),
-        sidebar: d3.select('#sidebar'),
-        caseStudy: d3.select('#case-study-select'),
-        caseStudyListOptions: d3.select('#case-study-select').selectAll('option')
+        main: base.select('.ID_mainpage'),
+        imagesPanel: base.select('.ID_images-panel'),
+        sidebar: base.select('.ID_sidebar'),
+        caseStudy: base.select('.ID_case-study-select'),
+        caseStudyListOptions: base.select('.ID_case-study-select').selectAll('option')
             .data(caseStudyOptions)
             .join('option')
             .attr('value', option => option.value)
+            .attr('disabled', state.isFrozen('caseStudy'))
             .text(option => option.name),
-        scoreFn: d3.select('#scorefn-select'),
-        scoreFnListOptions: d3.select('#scorefn-select').selectAll('option')
+        scoreFn: base.select('.ID_scorefn-select'),
+        scoreFnListOptions: base.select('.ID_scorefn-select').selectAll('option')
             .data(scoreFnOptions)
             .join('option')
             .attr('value', option => option.value)
+            .attr('disabled', state.isFrozen('scoreFn'))
             .text(option => option.name),
-        sortBy: d3.select('#sort-by-select'),
-        sortByListOptions: d3.select('#sort-by-select').selectAll('option')
+        sortBy: base.select('.ID_sort-by-select'),
+        sortByListOptions: base.select('.ID_sort-by-select').selectAll('option')
             .data(sortByOptions)
             .join('option')
             .attr('value', option => option.value)
+            .attr('disabled', state.isFrozen('sortBy'))
             .text(option => option.name),
-        predictionFn: d3.select('#prediction-filter'),
-        predictionFnListOptions: d3.select('#prediction-filter').selectAll('option')
+        predictionFn: base.select('.ID_prediction-filter'),
+        predictionFnListOptions: base.select('.ID_prediction-filter').selectAll('option')
             .data(predictionFnOptions)
             .join('option')
             .attr('value', option => option.value)
+            .attr('disabled', state.isFrozen('predictionFn'))
             .text(option => option.name),
-        labelFilter: d3.select('#label-filter'),
-        labelFilterListOptions: d3.select('#label-filter').selectAll('option')
+        labelFilter: base.select('.ID_label-filter'),
+        labelFilterListOptions: base.select('.ID_label-filter').selectAll('option')
             .data(labelFilterOptions)
             .join('option')
             .attr('value', option => option.value)
+            .attr('disabled', state.isFrozen('labelFilter'))
             .text(option => option.name),
     }
 
@@ -65,9 +153,8 @@ export function main() {
         updateImages: (state: State) => {
             vizs.saliencyImages.clear()
             const imageIDs = api.getImages(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(),
-                                           state.labelFilter())
+                state.labelFilter())
             imageIDs.then(IDs => {
-                state.numImages(IDs.length)
                 const imgData = {
                     caseStudy: state.caseStudy(),
                     imgIDs: IDs,
@@ -80,10 +167,9 @@ export function main() {
         updatePage: (state: State) => {
             vizs.saliencyImages.clear()
             const imageIDs = api.getImages(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(),
-                                           state.labelFilter())
+                state.labelFilter())
             selectors.body.style('cursor', 'progress')
             imageIDs.then(IDs => {
-                state.numImages(IDs.length)
                 vizs.saliencyImages.update({ caseStudy: state.caseStudy(), imgIDs: IDs, scoreFn: state.scoreFn() })
 
                 // Update histogram
@@ -112,6 +198,7 @@ export function main() {
                     .data(labels)
                     .join('option')
                     .attr('value', (label, i) => labelValues[i])
+                    .attr('disabled', state.isFrozen('labelFilter'))
                     .text(label => label)
                 selectors.labelFilter.property('value', state.labelFilter())
             })
@@ -126,6 +213,7 @@ export function main() {
                     .data(predictions)
                     .join('option')
                     .attr('value', (prediction, i) => predictionValues[i])
+                    .attr('disabled', state.isFrozen('predictionFn'))
                     .text(prediction => prediction)
                 selectors.predictionFn.property('value', state.predictionFn())
             })
@@ -198,28 +286,32 @@ export function main() {
         })
     })
 
-    eventHandler.bind(SingleSaliencyImage.events.onScoreHover, ({score, caller}) => {
+    eventHandler.bind(SingleSaliencyImage.events.onScoreHover, ({ score, caller }) => {
         // Put Logic for showing on histogram here
     })
 
-    eventHandler.bind(SingleSaliencyImage.events.onPredictionHover, ({prediction, caller}) => {
+    eventHandler.bind(SingleSaliencyImage.events.onPredictionHover, ({ prediction, caller }) => {
         // Put logic for highlighting row on confusion matrix if exists (low prio)
     })
 
-    eventHandler.bind(SingleSaliencyImage.events.onLabelHover, ({label, caller}) => {
+    eventHandler.bind(SingleSaliencyImage.events.onLabelHover, ({ label, caller }) => {
         // Put logic for highlighting col on confusion matrix if exists (low prio)
     })
 
-    eventHandler.bind(SingleSaliencyImage.events.onLabelClick, ({label, caller}) => {
-        selectors.labelFilter.property('value', label)
-        state.labelFilter(label)
-        eventHelpers.updatePage(state)
+    eventHandler.bind(SingleSaliencyImage.events.onLabelClick, ({ label, caller }) => {
+        if (!state.isFrozen('labelFilter')) {
+            selectors.labelFilter.property('value', label)
+            state.labelFilter(label)
+            eventHelpers.updatePage(state)
+        }
     })
 
-    eventHandler.bind(SingleSaliencyImage.events.onPredictionClick, ({prediction, caller}) => {
-        selectors.predictionFn.property('value', prediction)
-        state.predictionFn(prediction)
-        eventHelpers.updatePage(state)
+    eventHandler.bind(SingleSaliencyImage.events.onPredictionClick, ({ prediction, caller }) => {
+        if (!state.isFrozen('predictionFn')) {
+            selectors.predictionFn.property('value', prediction)
+            state.predictionFn(prediction)
+            eventHelpers.updatePage(state)
+        }
     })
 
 }

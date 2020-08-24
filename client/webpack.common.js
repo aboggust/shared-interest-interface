@@ -6,6 +6,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 module.exports = {
     entry: {
         main: './src/index.ts',
+        distillMain: "./src/index-distill.ts"
     },
     module: {
         rules: [
@@ -106,6 +107,8 @@ module.exports = {
         }),
         new CopyWebpackPlugin([
             {from: 'img', to: 'img'},
+            {from: 'src/*.html', to: '', flatten: true},
+            {from: 'src/assets', to: 'assets'},
             // {from: "demo", to:"demo"}
         ]),
     ],

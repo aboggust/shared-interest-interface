@@ -1,10 +1,16 @@
-import {main} from './ts/main'
+import { main } from './ts/main'
 
-import "!file-loader?name=index.html!./index.html";
 import "./css/main.scss"
 
+function loadDeployApp() {
+    const app = document.getElementById("app")
+    main(app)
+    console.log("Done loading window");
+}
 
 window.onload = () => {
-    main()
+    loadDeployApp()
+    // loadArticle()
+
     console.log("Done loading window");
 }
