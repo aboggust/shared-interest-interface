@@ -198,7 +198,7 @@ select {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-//   overflow-y: auto;
+  overflow-y: auto;
   height: inherit;
 }
 
@@ -252,6 +252,7 @@ select {
   margin-top: var(--vertical-element-gap);
   // height: var(--main-height);
   overflow-x: hidden;
+  overflow-y: hidden;
 }
 
 .title {
