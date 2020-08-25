@@ -17,11 +17,11 @@ function init(base: D3Sel) {
     const html = `
     <!--  Search Controls  -->
     <div class="controls container-md cont-nav">
-        <div class="row">
+        <div class="form-row">
             <div class="col-sm-2">
                 <div class="input-group input-group-sm mb-3">
                     <div class="input-group-prepend">
-                        <label class="input-group-text" for="case-study-select">Case Study</label>
+                        <label class="input-group-text" for="case-study-select">Demo</label>
                     </div>
                     <select class="custom-select custom-select-sm ID_case-study-select">
                         <!-- Fill in from data in TS now -->
@@ -29,7 +29,7 @@ function init(base: D3Sel) {
                 </div>
             </div>
 
-            <div class="col-sm-2">
+            <div class="col-sm-3">
                 <div class="input-group input-group-sm mb-3">
                     <div class="input-group-prepend">
                         <label class="input-group-text" for="scorefn-select">Score</label>
@@ -51,7 +51,7 @@ function init(base: D3Sel) {
                 </div>
             </div>
 
-            <div class="col-sm-3">
+            <div class="col-sm-2">
                 <div class="input-group input-group-sm mb-3">
                     <div class="input-group-prepend">
                         <label class="input-group-text" for="label-filter">Label</label>

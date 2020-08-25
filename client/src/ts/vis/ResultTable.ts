@@ -45,7 +45,6 @@ export class ResultTable extends HTMLComponent<null>{
 
         const intoRowInfo = (fnames: string[], sets: string[], scoreFn: string) => {
             return d3.zip(fnames, sets).map(v => {
-                console.log("FORMING: ", v);
                 return {
                     fname: v[0],
                     caseStudy: v[1],
@@ -140,10 +139,8 @@ export class ResultTable extends HTMLComponent<null>{
                     const scoreFn = me.attr('score')
                     const imgDiv = me.append("div")
 
-                    console.log("THING REQUESTTED: ", `${caseStudy} - ${fname} - ${scoreFn}`);
                     const img = new SingleSaliencyImage(imgDiv.node(), self.eventHandler)
                     self.api.getSaliencyImage(caseStudy, fname, scoreFn).then(r => {
-                        console.log("THING RENDERED: ", `${caseStudy} - ${fname} - ${scoreFn}`);
                         img.update(r)
                     })
                 }

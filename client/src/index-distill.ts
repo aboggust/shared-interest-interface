@@ -30,7 +30,7 @@ window.onload = () => {
 
     const fig4 = {
         caseStudy: "data_vehicle",
-        scoreFn: 'iou_score',
+        scoreFn: 'saliency_proportion_score',
         sortBy: 1,
         predictionFn: "incorrect_only",
         labelFilter: ""

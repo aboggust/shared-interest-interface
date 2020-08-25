@@ -5,8 +5,8 @@ export const caseStudyOptions = [
 ]
 
 export const sortByOptions = [
-    { name: "Score Increasing", value: 1 },
-    { name: "Score Decreasing", value: -1 },
+    { name: "Increasing", value: 1 },
+    { name: "Decreasing", value: -1 },
 ]
 
 export const scoreFnOptions = [
