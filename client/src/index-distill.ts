@@ -1,9 +1,14 @@
 import { main } from './ts/main'
+import { ResultTable } from "./ts/vis/ResultTable"
 
 window.onload = () => {
 
     const fullApp = document.getElementById("full-app")
     main(fullApp, true)
+
+    const resultTable = document.getElementById("result-table")
+    const resultTableViz = new ResultTable(resultTable)
+    resultTableViz.update(null)
 
     // For Distill article
     const fig1 = [
