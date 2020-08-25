@@ -72,12 +72,12 @@
             making accurate decisions, but doing so for the right reasons. Common explainability methods provide pixel
             attributions as an explanation for a model's decision on a single image. However, using these input-level
             explanations to understand patterns in model behavior is challenging for large datasets as it requires
-            selecting and analyzing an interesting subset of inputs. By utilizing the human-generated bounding boxes
-            that represent ground-truth object locations, we introduce metrics for scoring and ranking inputs based on
-            the correspondence between the input’s ground-truth object location and the explainability method’s
+            selecting and analyzing an interesting subset of inputs. By utilizing the human generated bounding boxes
+            that represent ground truth object locations, we introduce metrics for scoring and ranking inputs based on
+            the correspondence between the input’s ground truth object location and the explainability method’s
             explanation region. Our methodology is agnostic to model architecture, explanation method, and image dataset
             allowing it to be applied to many tasks and domains. We apply our method to two high profile scenarios: an
-            open source ImageNet model widely used in the community and a melanoma prediction model, showing it surfaces
+            open source image classification model widely used in the community and a melanoma prediction model, showing it surfaces
             patterns in model behavior by aligning model explanations with human annotations.</p>
     </d-title>
 
@@ -96,8 +96,8 @@
             <d-cite key="xiao2020noise"></d-cite>
             .
             Explanation methods help identify these
-            pitfalls by providing model explanations, enabling humans to identify the features on which a model decision
-            is based. However, these methods provide explanations on the image-level making it challenging to understand
+            pitfalls by providing explanations for model predictions, enabling humans to identify the features on which a model decision
+            is based. However, these methods provide explanations on the image level making it challenging to understand
             global model behavior or dataset limitations.
         </p>
         <p>In this work, we explore model decisions using saliency methods in conjunction with the ground truth object
@@ -105,7 +105,7 @@
             many computer vision datasets. We introduce three scoring functions &mdash; explanation
             coverage, ground truth coverage, and IoU &mdash; to sort images based on the overlap between the explanation
             and
-            the ground-truth object location. By sorting images in this way, we discover insights into when and why the
+            the ground truth object location. By sorting images in this way, we discover insights into when and why the
             model was “right for the right reasons”, “wrong for the wrong reasons”, or perhaps most interestingly “right
             for the wrong reasons”. We show our methodology is applicable to various model architectures, explanatory
             methods, and input datasets by evaluating on two representative tasks:
@@ -140,7 +140,7 @@
             <d-cite key="wang2017chestx"></d-cite>
             <d-cite key="yan2018deeplesion"></d-cite>
             often contain ground truth object segmentations. In our method, we utilize these ground truth annotations to
-            help humans understand model behavior. Additionally, we evaluate our model on two image datasets with ground
+            help humans understand model behavior. We evaluate our model on two image datasets with ground
             truth annotations: ImageNet
             <d-cite key="deng2009imagenet"></d-cite>
             which contains human generated bounding boxes and the ISIC lesions dataset
@@ -154,8 +154,7 @@
              LIME<d-cite key="lime"></d-cite>,
              SmoothGrad<d-cite key="smilkov2017smoothgrad"></d-cite>,
              and SIS<d-cite key="carter2019made"></d-cite>)
-             that provide pixel
-            level explanations for model behavior. While these methods successfully expose explanations for a single
+             that provide pixel-level explanations for model behavior. While these methods successfully expose explanations for a single
             input, our method enables users to sort and rank explanations over all images as a way to gain insight into
             global model behavior.
             Our methodology is agnostic to the explanation method allowing for flexibility across use cases.
@@ -163,16 +162,16 @@
         <p></p>
         <p>Aside from explainability methods, a growing number of techniques have been developed to help users interpret
             image models <d-cite key="hohman2018visual"></d-cite>.
-             However, these previous methods often focus on
+             However, these methods often focus on
             understanding patterns learned by intermediate nodes
             <d-cite key="netdissect2017"></d-cite>
             <d-cite key="zeiler2014visualizing"></d-cite>
             <d-cite key="hohman2019s"></d-cite>,
              require additional datasets<d-cite key="netdissect2017"></d-cite>,
             or demand architecture specific algorithms<d-cite key="hohman2019s"></d-cite>.
-            On the other hand, our method is agnostic to model architecture, saliency method, or data type allowing
+            On the other hand, our method is agnostic to model architecture, saliency method, and dataset enabling
             users across domains to understand global patterns in model behavior by aligning
-            model explanations and ground-truth annotations.
+            model explanations and ground truth annotations.
         </p>
 
         <a class="marker" href="#section-3" id="section-3"><span>3</span></a>
@@ -180,7 +179,7 @@
         <p>In our method, we leverage the ground truth annotations along with instance-level explanations to compute
             coverage scores for each image. By sorting the images using these scores, we are able to query for instances
             that give us insight into model behavior. Our methodology is agnostic to model architecture, dataset, and
-            saliency technique, giving it the flexibility to be used across tasks and domains.</p>
+            explanation technique, giving it the flexibility to be used across tasks and domains.</p>
         <p>We compute three coverage metrics to allow a breadth of exploration: explanation coverage, ground
             truth coverage, and IoU. Each score takes as input a set of pixels $$GT$$
             corresponding to the known ground truth region and a set of pixels $$E$$ corresponding to
@@ -207,7 +206,7 @@
                 <figcaption>Figure 1. A visual representation of all three coverage metrics. Ground truth coverage
                     represents the proportion of the ground truth region covered by the explanation region, explanation
                     coverage represents the proportion of the explanation region covered by the ground truth, and IoU
-                    represents the how similar the two regions are.
+                    represents how similar the two regions are.
                 </figcaption>
             </figure>
         </d-figure>
@@ -217,13 +216,13 @@
             classified inputs with high explanation coverage can surface instances where a subset of the object, such as
             the dog’s face, was sufficient to make a correct prediction. Looking at incorrectly classified images with
             high explanation coverage can help us find instances where the model uses an insufficient portion of the
-            object to make a prediction (e.g., using a small region of black and white spots to predict dalmation).</p>
+            object to make a prediction (e.g., using a small region of black and white spots to predict dalmatian).</p>
         <p>Ground truth coverage represents the proportion of the ground truth region covered by the explanation region.
             High ground truth coverage indicates that the model is using the entire object to make its decision. In
             Table 1, we see filtering for correctly classified images with high ground truth coverage
             uncovers instances where the model relies on the object and relevant background pixels (e.g., the cab and
             the street), to make a correct prediction. Looking at incorrectly classified instances with high ground truth coverage
-            shows examples where the model over relies on contextual information such as using the keyboard and person’s
+            shows examples where the model overrelies on contextual information such as using the keyboard and person’s
             lap to predict laptop.
         </p>
         <p>IoU is the strictest metric. A high IoU score indicates the explanation and ground truth are very similar and
@@ -290,8 +289,8 @@
         <d-figure class="l-body-outset">
             <figure>
                 <div id="fig4" class="distill-figure"></div>
-                <figcaption>Figure 4. Incorrectly classified images with low explanation coverage identify unexpected
-                dataset features: images with only one ground truth annotation may contain multiple objects.</figcaption>
+                <figcaption>Figure 4. Incorrectly classified images with low explanation coverage identify an unexpected
+                dataset feature: images with only one ground truth annotation may contain multiple objects.</figcaption>
             </figure>
         </d-figure>
         <p>Our method gives insight into the pretrained PyTorch model predictions on vehicle images from ImageNet,
@@ -307,13 +306,13 @@
             exist online for at-home risk assessments. Since this is a high-stakes task with impact to patient health,
             it is critical the models rely on salient features when making a prediction.</p>
         <p>In this case study, we use dermoscopic image data from the ISIC Skin Lesion Analysis Towards Melanoma
-            Detection 2016 Challenge<d-cite key="gutman2016skin"></d-cite>. Each image in the dataset is an upclose image of a skin lesion labeled as either
+            Detection 2016 Challenge<d-cite key="gutman2016skin"></d-cite>. Each image in the dataset is an up close image of a skin lesion labeled as either
             benign or malignant and is annotated with a lesion segmentation created by an expert clinician. We train a
             VGG11<d-cite key="simonyan2014very"></d-cite> pretrained on ImageNet<d-cite key="deng2009imagenet"></d-cite> to learn a
             binary benign/malignant classification from the original images and
             achieve accuracy on par with 2016 challenge winners. From the trained model, we extract LIME
             explanations<d-cite key="lime"></d-cite>.
-            We evaluate the model by applying our coverage metrics to the ground-truth lesion segmentations and LIME
+            We evaluate the model by applying our coverage metrics to the ground truth lesion segmentations and LIME
             explanations.</p>
         <p>We begin our exploration by analyzing correctly classified images with the highest IoU scores. These examples
             show the instances where the lesion segmentation and explanation region are most similar. We see there are a
