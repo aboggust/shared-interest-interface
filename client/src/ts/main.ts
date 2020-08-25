@@ -54,9 +54,9 @@ function init(base: D3Sel) {
             <div class="col-sm-3">
                 <div class="input-group input-group-sm mb-3">
                     <div class="input-group-prepend">
-                        <label class="input-group-text" for="prediction-filter">Prediction</label>
+                        <label class="input-group-text" for="label-filter">Label</label>
                     </div>
-                    <select class="custom-select custom-select-sm ID_prediction-filter">
+                    <select class="custom-select custom-select-sm ID_label-filter">
                         <!-- Fill in from data in TS now -->
                     </select>
                 </div>
@@ -65,9 +65,9 @@ function init(base: D3Sel) {
             <div class="col-sm-3">
                 <div class="input-group input-group-sm mb-3">
                     <div class="input-group-prepend">
-                        <label class="input-group-text" for="label-filter">Label</label>
+                        <label class="input-group-text" for="prediction-filter">Prediction</label>
                     </div>
-                    <select class="custom-select custom-select-sm ID_label-filter">
+                    <select class="custom-select custom-select-sm ID_prediction-filter">
                         <!-- Fill in from data in TS now -->
                     </select>
                 </div>
