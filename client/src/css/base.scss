@@ -7,6 +7,7 @@
   --selection-height: 40px;
   --body-height: calc(100vh - var(--navbar-height) - var(--vertical-element-gap) * 2);
   --main-height: calc(var(--body-height) - var(--selection-height) - var(--vertical-element-gap));
+  --main-width: calc(var(--body-widht) - var(--sidebar-width) - var(--horizontal-element-gap));
   --small-height: 400px;
   --image-panel-height: var(--main-height);
   --image-panel-width: calc(var(--body-width) - var(--sidebar-width) - var(--horizontal-element-gap));
@@ -160,6 +161,7 @@ select {
 
 #mainpage, .ID_mainpage {
   height: var(--main-height);
+  width: var(--main-width);
 }
 
 .short-height-main {
@@ -182,8 +184,8 @@ select {
 }
 
 #images-panel, .ID_images-panel {
-  height: var(--main-height);
-  width: var(--image-panel-width);
+  height: inherit;
+  width: inherit;
 }
 
 .full-width-images {
