@@ -3,84 +3,71 @@ import { ResultTable } from "./ts/vis/ResultTable"
 
 window.onload = () => {
 
-    const fullApp = document.getElementById("full-app")
-    main(fullApp, true)
-
     const resultTable = document.getElementById("result-table")
     const resultTableViz = new ResultTable(resultTable)
     resultTableViz.update(null)
 
     // For Distill article
-    const fig1 = [
-        // a
-        {
-            caseStudy: "data_vehicle",
-            scoreFn: 'iou_score',
-            sortBy: -1,
-            predictionFn: "correct_only",
-            labelFilter: "jeep"
-        },
+    const fig2 = {
+        caseStudy: "data_vehicle",
+        scoreFn: 'iou_score',
+        sortBy: -1,
+        predictionFn: "correct_only",
+        labelFilter: "jeep"
+    }
+    const app2 = document.getElementById('fig2')
+    main(app2, true, fig2, true, true)
 
-        // b
-        {
-            caseStudy: "data_vehicle",
-            scoreFn: 'iou_score',
-            sortBy: 1,
-            predictionFn: "correct_only",
-            labelFilter: "jeep"
-        },
+    const fig3 = {
+        caseStudy: "data_vehicle",
+        scoreFn: 'iou_score',
+        sortBy: 1,
+        predictionFn: "correct_only",
+        labelFilter: "jeep"
+    }
+    const app3 = document.getElementById('fig3')
+    main(app3, true, fig3, true, true)
 
-        // c
-        {
-            caseStudy: "data_vehicle",
-            scoreFn: 'iou_score',
-            sortBy: 1,
-            predictionFn: "incorrect_only",
-            labelFilter: ""
-        }
+    const fig4 = {
+        caseStudy: "data_vehicle",
+        scoreFn: 'iou_score',
+        sortBy: 1,
+        predictionFn: "incorrect_only",
+        labelFilter: ""
+    }
+    const app4 = document.getElementById('fig4')
+    main(app4, true, fig4, true, true)
 
-    ]
+    const fig5 = {
+        caseStudy: "data_melanoma",
+        scoreFn: 'iou_score',
+        sortBy: -1,
+        predictionFn: "correct_only",
+        labelFilter: ""
+    }
+    const app5 = document.getElementById('fig5')
+    main(app5, true, fig5, true, true)
 
-    const fig2 = [
-        // a
-        {
-            caseStudy: "data_melanoma",
-            scoreFn: 'iou_score',
-            sortBy: -1,
-            predictionFn: "correct_only",
-            labelFilter: ""
-        },
+    const fig6 = {
+        caseStudy: "data_melanoma",
+        scoreFn: "bbox_proportion_score",
+        sortBy: 1,
+        predictionFn: "incorrect_only",
+        labelFilter: "malignant"
+    }
+    const app6 = document.getElementById('fig6')
+    main(app6, true, fig6, true, true)
 
-        // b
-        {
-            caseStudy: "data_melanoma",
-            scoreFn: "bbox_proportion_score",
-            sortBy: 1,
-            predictionFn: "incorrect_only",
-            labelFilter: "malignant"
-        },
+    const fig7 = {
+        caseStudy: "data_melanoma",
+        scoreFn: 'saliency_proportion_score',
+        sortBy: 1,
+        predictionFn: "correct_only",
+        labelFilter: "benign"
+    }
+    const app7 = document.getElementById('fig7')
+    main(app7, true, fig7, true, true)
 
-        // c
-        {
-            caseStudy: "data_melanoma",
-            scoreFn: 'saliency_proportion_score',
-            sortBy: 1,
-            predictionFn: "correct_only",
-            labelFilter: "benign"
-        }
-    ]
-
-    fig1.forEach((p, i) => {
-        const appId = `fig1-${i}`
-        const app = document.getElementById(appId)
-        main(app, true, p, true, true)
-    })
-
-    fig2.forEach((p, i) => {
-        const appId = `fig2-${i}`
-        const app = document.getElementById(appId)
-        main(app, true, p, true, true)
-    })
 
     console.log("Done loading window");
 }

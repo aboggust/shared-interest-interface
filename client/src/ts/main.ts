@@ -16,7 +16,7 @@ import { SaliencyImg } from './types';
 function init(base: D3Sel) {
     const html = `
     <!--  Search Controls  -->
-    <div class="container-md cont-nav">
+    <div class="controls container-md cont-nav">
         <div class="row">
             <div class="col-sm-2">
                 <div class="input-group input-group-sm mb-3">
@@ -100,47 +100,43 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
     const state = new State(ignoreUrl, stateParams, freezeParams)
 
     init(base)
-
+    const disableSelection = noSidebar ? 'disabled' : null;
     const selectors = {
         body: d3.select('body'),
         main: base.select('.ID_main').classed("short-height-main", noSidebar),
+        navBar: base.select('.controls').classed("remove-margin-top", noSidebar),
         mainPage: base.select('.ID_mainpage').classed("short-height-main", noSidebar),
-        imagesPanel: base.select('.ID_images-panel').classed("full-width-images", noSidebar),
+        imagesPanel: base.select('.ID_images-panel').classed("full-width-images", false),
         sidebar: base.select('.ID_sidebar').classed("empty-sidebar", noSidebar),
-        caseStudy: base.select('.ID_case-study-select'),
+        caseStudy: base.select('.ID_case-study-select').attr('disabled', disableSelection),
         caseStudyListOptions: base.select('.ID_case-study-select').selectAll('option')
             .data(caseStudyOptions)
             .join('option')
             .attr('value', option => option.value)
-            .attr('disabled', state.isFrozen('caseStudy'))
             .text(option => option.name),
-        scoreFn: base.select('.ID_scorefn-select'),
+        scoreFn: base.select('.ID_scorefn-select').attr('disabled', disableSelection),
         scoreFnListOptions: base.select('.ID_scorefn-select').selectAll('option')
             .data(scoreFnOptions)
             .join('option')
             .attr('value', option => option.value)
-            .attr('disabled', state.isFrozen('scoreFn'))
             .text(option => option.name),
-        sortBy: base.select('.ID_sort-by-select'),
+        sortBy: base.select('.ID_sort-by-select').attr('disabled', disableSelection),
         sortByListOptions: base.select('.ID_sort-by-select').selectAll('option')
             .data(sortByOptions)
             .join('option')
             .attr('value', option => option.value)
-            .attr('disabled', state.isFrozen('sortBy'))
             .text(option => option.name),
-        predictionFn: base.select('.ID_prediction-filter'),
+        predictionFn: base.select('.ID_prediction-filter').attr('disabled', disableSelection),
         predictionFnListOptions: base.select('.ID_prediction-filter').selectAll('option')
             .data(predictionFnOptions)
             .join('option')
             .attr('value', option => option.value)
-            .attr('disabled', state.isFrozen('predictionFn'))
             .text(option => option.name),
-        labelFilter: base.select('.ID_label-filter'),
+        labelFilter: base.select('.ID_label-filter').attr('disabled', disableSelection),
         labelFilterListOptions: base.select('.ID_label-filter').selectAll('option')
             .data(labelFilterOptions)
             .join('option')
             .attr('value', option => option.value)
-            .attr('disabled', state.isFrozen('labelFilter'))
             .text(option => option.name),
     }
 

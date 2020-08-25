@@ -69,30 +69,30 @@ export class ResultTable extends HTMLComponent<null>{
 
         const self = this;
         const html = `
-        <table class="table table-bordered">
+        <table class="table table-sm table-borderless">
   <thead>
     <tr>
       <th scope="col"></th>
-      <th scope="col" colspan="2">Low Score</th>
-      <th scope="col" colspan="2">High Score</th>
+      <th scope="col" colspan="2" class="text-center">Low Score</th>
+      <th scope="col" colspan="2" class="text-center">High Score</th>
     </tr>
     <tr>
       <th scope="col"></th>
-      <th scope="col">Correct</th>
-      <th scope="col">Incorrect</th>
-      <th scope="col">Correct</th>
-      <th scope="col">Incorrect</th>
+      <th scope="col" class="text-center">Correct</th>
+      <th scope="col" class="text-center">Incorrect</th>
+      <th scope="col" class="text-center">Correct</th>
+      <th scope="col" class="text-center">Incorrect</th>
     </tr>
   </thead>
   <tbody>
     <tr id="row1">
-      <th scope="row">Explanation Coverage</th>
+      <th scope="row" class="align-middle">Explanation Coverage</th>
     </tr>
     <tr id="row2">
-      <th scope="row">Ground Truth Coverage</th>
+      <th scope="row" class="align-middle">Ground Truth Coverage</th>
     </tr>
     <tr id="row3">
-      <th scope="row">IoU</th>
+      <th scope="row" class="align-middle">IoU</th>
     </tr>
   </tbody>
 </table>

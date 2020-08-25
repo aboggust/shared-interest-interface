@@ -181,6 +181,7 @@ select {
   --sidebar-width: 0px;
   --image-panel-height: var(--small-height);
   --image-panel-width: calc(var(--body-width) - var(--sidebar-width) - var(--horizontal-element-gap));
+  --horizontal-element-gap: 0px;
 }
 
 #images-panel, .ID_images-panel {
@@ -197,7 +198,7 @@ select {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  overflow-y: auto;
+//   overflow-y: auto;
   height: inherit;
 }
 
@@ -206,8 +207,14 @@ select {
   flex-direction: column;
   align-items: center;
   width: 200px;
-  height: 210px;
-  margin-bottom: var(--vertical-element-gap);
+  height: 200px;
+  margin-bottom: calc(var(--vertical-element-gap) / 2);
+  margin-top: calc(var(--vertical-element-gap) / 2);
+}
+
+.saliency-image {
+    height: 175px;
+    width: 175px;
 }
 
 .row {
@@ -222,6 +229,7 @@ select {
   padding-bottom: 2pt;
   width: 95%;
   justify-content: center;
+  line-height: 1.5;
 }
 
 .image-info .info {
@@ -243,6 +251,7 @@ select {
   flex-direction: row;
   margin-top: var(--vertical-element-gap);
   // height: var(--main-height);
+  overflow-x: hidden;
 }
 
 .title {
@@ -267,4 +276,13 @@ select {
 
 .axis-grid line {
   stroke: #e6e6e6;
+}
+
+.remove-margin-top {
+    margin-top: 0px;
+}
+
+.distill-figure {
+    margin-top: 10px;
+    margin-bottom: 20px;
 }
