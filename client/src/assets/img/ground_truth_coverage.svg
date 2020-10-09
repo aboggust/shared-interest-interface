@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 24.3.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 650 768" style="enable-background:new 0 0 650 768;" xml:space="preserve">
+<style type="text/css">
+	.st0{opacity:0.5;fill:#1A1A1A;}
+	.st1{fill:none;}
+	.st2{fill:#4D4D4D;}
+	.st3{font-family:'Helvetica';}
+	.st4{font-size:60px;}
+	.st5{opacity:0.5;fill:#B3B3B3;}
+	.st6{stroke:#000000;stroke-width:9;stroke-miterlimit:10;}
+</style>
+<g>
+	<path class="st0" d="M376.35,164.53c0,44.55-18.73,84.72-48.74,113.07h-95.02V57.76h101.32
+		C360.22,85.61,376.35,123.19,376.35,164.53z"/>
+</g>
+<rect x="232.59" y="57.76" class="st1" width="351.41" height="219.84"/>
+<ellipse class="st1" cx="221.03" cy="164.53" rx="155.32" ry="155.53"/>
+<text transform="matrix(1 0 0 1 12.1478 750.4278)" class="st2 st3 st4">Ground Truth Coverage</text>
+<g>
+	<path class="st5" d="M585.98,410.33v219.84h-256.4c30.01-28.35,48.74-68.53,48.74-113.07c0-41.34-16.13-78.92-42.44-106.77H585.98z
+		"/>
+</g>
+<g>
+	<path class="st0" d="M378.33,517.1c0,44.55-18.73,84.72-48.74,113.07h-95.02V410.33h101.32
+		C362.2,438.18,378.33,475.76,378.33,517.1z"/>
+</g>
+<rect x="234.57" y="410.33" class="st1" width="351.41" height="219.84"/>
+<ellipse class="st1" cx="223.01" cy="517.1" rx="155.32" ry="155.53"/>
+<line class="st6" x1="47" y1="340.5" x2="603" y2="340.5"/>
+</svg>

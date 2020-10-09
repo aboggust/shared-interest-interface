@@ -1,5 +1,5 @@
 # Saliency Explorer
-A tool to explore the 
+A tool to explore model behavior by comparing ground truth regions and model explanations.
 
 ## Getting Started
 

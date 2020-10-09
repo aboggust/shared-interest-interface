@@ -12,7 +12,7 @@
         gtag('config', 'UA-149275901-2');
     </script> -->
     <meta charset="UTF-8">
-    <meta name="title" content="SaliencyIOU" />
+    <meta name="title" content="Shared Interest" />
     <meta name="description" content="DESCRIPTION" />
 
     <script src="https://distill.pub/template.v2.js"></script>
@@ -75,10 +75,11 @@
             selecting and analyzing an interesting subset of inputs. By utilizing the human generated bounding boxes
             that represent ground truth object locations, we introduce metrics for scoring and ranking inputs based on
             the correspondence between the input’s ground truth object location and the explainability method’s
-            explanation region. Our methodology is agnostic to model architecture, explanation method, and image dataset
-            allowing it to be applied to many tasks and domains. We apply our method to two high profile scenarios: an
-            open source image classification model widely used in the community and a melanoma prediction model, showing it surfaces
-            patterns in model behavior by aligning model explanations with human annotations.</p>
+            explanation region. Our methodology is agnostic to model architecture, explanation method, and modality
+            allowing it to be applied to many tasks and domains. By aligning model explanations with human annotations,
+            our method surfaces patterns in model behavior when applied to two high profile case studies: a
+            widely used image classification model and a cancer prediction model.</p>
+        <p>Try the demo <a href="../">here!</a></p>
     </d-title>
 
     <d-byline></d-byline>
@@ -93,8 +94,7 @@
             regions
             <d-cite key="carter2020overinterpretation"></d-cite>
             or on background information only
-            <d-cite key="xiao2020noise"></d-cite>
-            .
+            <d-cite key="xiao2020noise"></d-cite>.
             Explanation methods help identify these
             pitfalls by providing explanations for model predictions, enabling humans to identify the features on which a model decision
             is based. However, these methods provide explanations on the image level making it challenging to understand
@@ -102,13 +102,13 @@
         </p>
         <p>In this work, we explore model decisions using saliency methods in conjunction with the ground truth object
             bounding boxes provided in
-            many computer vision datasets. We introduce three scoring functions &mdash; explanation
-            coverage, ground truth coverage, and IoU &mdash; to sort images based on the overlap between the explanation
+            many computer vision datasets. We apply three scoring functions &mdash; explanation
+            coverage, ground truth coverage, and intersection over union &mdash; to sort images based on the overlap between the explanation
             and
             the ground truth object location. By sorting images in this way, we discover insights into when and why the
             model was “right for the right reasons”, “wrong for the wrong reasons”, or perhaps most interestingly “right
             for the wrong reasons”. We show our methodology is applicable to various model architectures, explanatory
-            methods, and input datasets by evaluating on two representative tasks:
+            methods, and input data by evaluating on two representative tasks:
             ImageNet
             <d-cite key="deng2009imagenet"></d-cite>
             vehicle classification using a pretrained
@@ -146,7 +146,7 @@
             which contains human generated bounding boxes and the ISIC lesions dataset
             <d-cite key="gutman2016skin"></d-cite>
             which
-            contains clinician defined object segmenations.
+            contains clinician defined object segmentations.
         </p>
         <p>In conjunction with ground truth annotations, our method relies on explanation methods (e.g.,
             vanilla gradients<d-cite key="simonyan2013deep"></d-cite>,
@@ -178,31 +178,44 @@
         <h2>Method</h2>
         <p>In our method, we leverage the ground truth annotations along with instance-level explanations to compute
             coverage scores for each image. By sorting the images using these scores, we are able to query for instances
-            that give us insight into model behavior. Our methodology is agnostic to model architecture, dataset, and
-            explanation technique, giving it the flexibility to be used across tasks and domains.</p>
+            that give us insight into model behavior. Our method only assumes a set of inputs with ground truth regions
+            and explanations regions, making it agnostic to model architecture, dataset, and explanation technique. </p>
         <p>We compute three coverage metrics to allow a breadth of exploration: explanation coverage, ground
-            truth coverage, and IoU. Each score takes as input a set of pixels $$GT$$
+            truth coverage, and intersection over union (IoU). Each score takes as input a set of pixels $$GT$$
             corresponding to the known ground truth region and a set of pixels $$E$$ corresponding to
             the explanation region.</p>
-        <d-math block>
+
+        <d-math>
             \begin{aligned}
                 \text{Explanation Coverage} &= \frac{|GT \cap E|}{|E|} \\\\
                 \text{Ground Truth Coverage} &= \frac{|GT \cap E|}{|GT|} \\\\
                 \text{IoU} &= \frac{|GT \cap E|}{|GT \cup E|}
             \end{aligned}
         </d-math>
+
         <p>As shown in Figure 1, a low score under all three metrics indicates that an image’s explanation region and
-            ground truth region are disjoint. In Table 1, we show example scenarios using an image classification task.
+            ground truth region are disjoint. In Figure 2, we show example scenarios using an image classification task.
             When a correctly classified image has a low score, it often indicates the model was relying on background
             information such as a snowmobile helmet to make the prediction of snowmobile or train tracks to make the
             prediction of electric locomotive. When an image has a low score and is incorrectly classified, it can
             indicate the model is focusing on a secondary object in the image or incorrectly relying on background
             context (e.g., using snow to predict arctic fox).</p>
+
         <d-figure>
-            <figure style="margin-top: 10px">
-                <img src="./assets/img/explain_01.png" alt="Explaining ground truth pt1"
-                    style="margin-top: 20px; margin-bottom: 20px;">
-                <img src="./assets/img/explain_02a.png" alt="Explaining ground truth pt2" style="margin-bottom: 20px;">
+            <figure style="margin-top: 10px; margin-bottom:20px;">
+                <div style="display: flex; flex-direction: row; justify-content: space-between; margin-bottom:50px;">
+                    <img src="./assets/img/explanation_groundtruth_overlap.svg"
+                         alt="Visual summary of the overlap between the model explanation and human annotation."
+                    style="width: 38%;">
+                    <img src="./assets/img/explanation_coverage.svg" alt="Visual summary of explanation coverage."
+                        style="width: 18%">
+                    <img src="./assets/img/ground_truth_coverage.svg" alt="Visual summary of explanation coverage."
+                        style="width: 18%">
+                    <img src="./assets/img/IoU.svg" alt="Visual summary of intersection over union."
+                        style="width: 18%">
+                </div>
+                <img src="./assets/img/metrics.svg" alt="Examples where each of the metrics is maximized and minimized."
+                        style="">
                 <figcaption>Figure 1. A visual representation of all three coverage metrics. Ground truth coverage
                     represents the proportion of the ground truth region covered by the explanation region, explanation
                     coverage represents the proportion of the explanation region covered by the ground truth, and IoU
@@ -210,6 +223,7 @@
                 </figcaption>
             </figure>
         </d-figure>
+
         <p>Explanation coverage represents the proportion of the explanation region covered by the ground truth region.
             High explanation coverage indicates the entire explanation region lies within the ground truth region,
             meaning the model is relying on a subset of salient features to make its prediction. Filtering for correctly
@@ -219,7 +233,7 @@
             object to make a prediction (e.g., using a small region of black and white spots to predict dalmatian).</p>
         <p>Ground truth coverage represents the proportion of the ground truth region covered by the explanation region.
             High ground truth coverage indicates that the model is using the entire object to make its decision. In
-            Table 1, we see filtering for correctly classified images with high ground truth coverage
+            Figure 2, we see filtering for correctly classified images with high ground truth coverage
             uncovers instances where the model relies on the object and relevant background pixels (e.g., the cab and
             the street), to make a correct prediction. Looking at incorrectly classified instances with high ground truth coverage
             shows examples where the model overrelies on contextual information such as using the keyboard and person’s
@@ -230,30 +244,30 @@
             with high IoU scores can help identify instances where the model was right for the exactly the right reasons.
             Incorrectly classified images with high IoU scores can surface examples where the image labels are ambiguous
             such as moped and motor scooter.</p>
-        <div class="l-page">
-            <div id="result-table"></div>
-            <figcaption>Table 1. Real world examples for low and high values of all three coverage metrics. Looking at
+        <figure class="l-page" >
+            <div id="result-table" style="overflow-x:auto;"></div>
+            <figcaption>Figure 2. Examples of low and high values of all three coverage metrics. Looking at
                 correctly and incorrectly classified images at each of the score extremes enables users to find patterns
                 in model behavior.
                 </figcaption>
-        </div>
+        </figure>
 
 
         <a class="marker" href="#section-4" id="section-4"><span>4</span></a>
         <h2>Case Study: Image Classification</h2>
-        <p>We apply our methodology to an image classification task using a ResNet50<d-cite key="he2016deep"></d-cite>
-            model pretrained on ImageNet<d-cite key="deng2009imagenet"></d-cite> and
-            released publicly by PyTorch<d-cite key="NEURIPS2019_9015"></d-cite>. Since the pretrained model is publicly available, it is widely used in the
-            PyTorch community for out of the box classification as well as finetuning and transfer learning tasks. Due
-            to the model's popularity and the community’s reliance on it, it is crucial its decisions are grounded in
-            salient features.</p>
+        <p>In our first case study, we apply our methodology to an image classification task using a publicly
+            available PyTorch<d-cite key="NEURIPS2019_9015"></d-cite> ResNet50<d-cite key="he2016deep"></d-cite>
+            model pretrained on ImageNet<d-cite key="deng2009imagenet"></d-cite>. Since the pretrained model
+            is publicly available and ImageNet is a standard benchmark in the computer vision community, the model is widely
+            used for out of the box classification as well as fine-tuning and transfer learning tasks.
+        </p>
         <p>In this case study, we apply the model to an ImageNet<d-cite key="deng2009imagenet"></d-cite> classification
             task on a subset of ImageNet9<d-cite key="xiao2020noise"></d-cite> images
-            containing vehicles. Each image in the subset contains a single ground truth bounding box annotation for its
+            containing vehicles. Each image in the subset contains a single ground truth bounding box annotation as its
             label. For each image we compute a LIME explanation<d-cite key="lime"></d-cite>. Using the overlap metrics
             between the explanation and
-            the ground truth bounding box, our methodology allows us to gain insight into model behavior and the
-            characteristics of the underlying dataset. </p>
+            the ground truth bounding box, our methodology allows us to gain insight into model behavior and identify
+            known flaws in ImageNet<d-cite key="beyer2020imagenet"></d-cite>. </p>
         <p>We begin our exploration by looking at instances where the model performs well. In particular, we choose to
             look at images labeled as Jeep that are classified correctly. To see if the explanations correspond to the
             ground truth regions, we look at images with high IoU scores. We see the model explanations have high
@@ -262,12 +276,12 @@
         <d-figure class="l-body-outset">
             <figure>
                 <div id="fig2" class="distill-figure"></div>
-                <figcaption>Figure 2. Filtering to correctly classified Jeep images with high IoU scores reveals
+                <figcaption>Figure 3. Filtering to correctly classified Jeep images with high IoU scores reveals
                     instances with high agreement between the ground truth object region and the explanation.</figcaption>
             </figure>
         </d-figure>
         <p>Looking at the other end of the score distribution, we filter for correctly classified Jeep images with low
-            IOU scores. Many of the images still have explanations focused on salient features of Jeeps such as their
+            IoU scores. Many of the images still have explanations focused on salient features of Jeeps such as their
             wheels and distinct body shape; however, we notice an example where the explanation region for the class
             Jeep is focused on a black dog. This may indicate that the model has memorized the existence of the black
             dog in the image, raising the question of whether the pixels of the dog contain adversarial properties that
@@ -275,7 +289,7 @@
         <d-figure class="l-body-outset">
             <figure>
                 <div id="fig3" class="distill-figure"></div>
-                <figcaption>Figure 3. Looking at correctly classified Jeep images with low IoU scores confirms the model
+                <figcaption>Figure 4. Looking at correctly classified Jeep images with low IoU scores confirms the model
                     is latching onto salient features except in the first image where the explanation corresponds to the
                     image of a dog.</figcaption>
             </figure>
@@ -289,7 +303,7 @@
         <d-figure class="l-body-outset">
             <figure>
                 <div id="fig4" class="distill-figure"></div>
-                <figcaption>Figure 4. Incorrectly classified images with low explanation coverage identify an unexpected
+                <figcaption>Figure 5. Incorrectly classified images with low explanation coverage identify an unexpected
                 dataset feature: images with only one ground truth annotation may contain multiple objects.</figcaption>
             </figure>
         </d-figure>
@@ -321,7 +335,7 @@
         <d-figure class="l-body-outset">
             <figure>
                 <div id="fig5" class="distill-figure"></div>
-                <figcaption>Figure 5. Filtering to correctly classified malignant tumors with high IoU shows images
+                <figcaption>Figure 6. Filtering to correctly classified malignant tumors with high IoU shows images
                 where the explanation corresponds with the ground truth lesion.</figcaption>
             </figure>
         </d-figure>
@@ -333,7 +347,7 @@
         <d-figure class="l-body-outset">
             <figure>
                 <div id="fig6" class="distill-figure"></div>
-                <figcaption>Figure 6. Looking at images with low ground truth coverage that have been incorrectly classified as
+                <figcaption>Figure 7. Looking at images with low ground truth coverage that have been incorrectly classified as
                 benign, shows examples where the explanation is disjoint from the lesion.</figcaption>
             </figure>
         </d-figure>
@@ -346,7 +360,7 @@
         <d-figure class="l-body-outset">
             <figure>
                 <div id="fig7" class="distill-figure"></div>
-                <figcaption>Figure 7. Searching for correctly classified benign images with low explanation coverage
+                <figcaption>Figure 8. Searching for correctly classified benign images with low explanation coverage
                 uncovers cases where the explanation corresponds to dermatological tools within the image.</figcaption>
             </figure>
         </d-figure>
