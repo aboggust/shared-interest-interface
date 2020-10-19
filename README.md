@@ -6,7 +6,7 @@ A tool to explore model behavior by comparing ground truth regions and model exp
 From the root:
 
 1. `conda env create -f environment.yml`
-2. `conda activate SaliencyIOU`
+2. `conda activate shared-interest`
 3. `pip install -e .`
 2. `cd client; npm run build`
 

@@ -1,4 +1,4 @@
-name: SaliencyIOU
+name: shared-interest
 channels:
   - conda-forge
   - anaconda
