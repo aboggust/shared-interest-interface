@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 requires = []
 
 setup(
-    name="SaliencyIOU",
+    name="shared-interest",
     description="",
     package_dir={"":"backend"},
     packages=find_packages("backend"),
