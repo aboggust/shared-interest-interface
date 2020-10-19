@@ -83,7 +83,6 @@ class ConfusionMatrix(BaseModel):
 
 
 # Load in data
-# df = pd.read_json("./data/output/data_vehicle.json").set_index('fname')
 datasets = ['data_dogs', 'data_vehicle', 'data_melanoma']
 dataframes = {dataset: pd.read_json("./data/output/%s.json" %dataset).set_index('fname') for dataset in datasets}
 
