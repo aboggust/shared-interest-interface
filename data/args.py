@@ -12,7 +12,7 @@ def get_args():
     parser.add_argument('-b', '--bboxdir', default='./imagenet9/annotations', type=str, help='path to bbox annotations')
     parser.add_argument('-s', '--imagesplit', default='example', type=str, help='dataset split to get from imagedir')
     parser.add_argument('-l', '--labelmap', default='./imagenet9/label_map.json', type=str, help='path to label map')
-    parser.add_argument('-o', '--outputdir', default='./output', type=str, help='directory to store output files')
+    parser.add_argument('-o', '--outputdir', default='./examples', type=str, help='directory to store examples files')
     parser.add_argument('-p', '--pretrain', action='store_true')
     parser.add_argument('-m', '--model', default='/home/aboggust/melanoma_classification/vgg11_melanoma_model.pth', type=str, help='model state dict')
     parser.add_argument('-x', '--bboxxml', action='store_true')

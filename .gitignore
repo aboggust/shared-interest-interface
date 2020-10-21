@@ -1,10 +1,6 @@
 # Personal choices
 _archive
 
-# Data
-data/imagenet9/
-data/output/*
-
 # Projects
 .idea
 .vscode

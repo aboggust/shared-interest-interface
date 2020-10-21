@@ -84,7 +84,7 @@ class ConfusionMatrix(BaseModel):
 
 # Load in data
 datasets = ['data_dogs', 'data_vehicle', 'data_melanoma']
-dataframes = {dataset: pd.read_json("./data/output/%s.json" %dataset).set_index('fname') for dataset in datasets}
+dataframes = {dataset: pd.read_json("./data/examples/%s.json" %dataset).set_index('fname') for dataset in datasets}
 
 
 @app.get("/api/get-images", response_model=List[str])
