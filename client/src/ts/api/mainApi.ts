@@ -19,8 +19,10 @@ export class API {
     /**
      * Get the saliency image objects for all imageIDs.
      *
-     * @imageIDs: list of string image ids to get saliency image objects for
-     * @scoreFn: string score function name
+     * @param {string} caseStudy - the name of the case study
+     * @param {string[]} imageIDs - a list of string image ids
+     * @param {string} scoreFn - the score function name
+     * @return {Promise<SaliencyImg[]>} a list of SaliencyImg for the imageIDs in the caseStudy
      */
     getSaliencyImages(caseStudy: string, imageIDs: string[], scoreFn: string): Promise<SaliencyImg[]> {
         const imagesToSend = {
@@ -34,10 +36,12 @@ export class API {
     }
 
     /**
-     * Get a saliency image objects for a requested fname
+     * Get a saliency image objects for a requested imageID.
      *
-     * @imageID: string image id to get saliency image object for
-     * @scoreFn: string score function name
+     * @param {string} caseStudy - the name of the case study
+     * @param {string[]} imageID - a list of string image ids
+     * @param {string} scoreFn - the score function name
+     * @return {Promise<SaliencyImg>} a SaliencyImg object for the imageID in the caseStudy.
      */
     getSaliencyImage(caseStudy: string, imageID: string, scoreFn: string): Promise<SaliencyImg> {
         const imagesToSend = {
@@ -51,7 +55,14 @@ export class API {
 
 
     /**
-     * Get image IDs
+     * Get the imageIDs for the images fitting the filter parameters.
+     *
+     * @param {string} caseStudy - the name of the case study
+     * @param {number} sortBy - 1 if sort ascending, -1 if sort descending
+     * @param {string} predictionFn - the name of the prediction filter
+     * @param {string} scoreFn - the score function name
+     * @param {string} labelFilter - the name of the label filter
+     * @return {Promise<string[]>} a list of imageIDs
      */
     getImages(caseStudy: string, sortBy: number, predictionFn: string, scoreFn: string, labelFilter: string): Promise<string[]> {
         const toSend = {
@@ -66,7 +77,10 @@ export class API {
     }
 
     /**
-     * Get all dataset predictions
+     * Get all dataset predictions.
+     *
+     * @param {string} caseStudy - the name of the case study
+     * @return {Promise<string[]>} a list of all model predictions for caseStudy
      */
     getPredictions(caseStudy: string): Promise<string[]> {
         const toSend = {
@@ -77,7 +91,10 @@ export class API {
     }
 
     /**
-     * Get all dataset labels
+     * Get all dataset labels.
+     *
+     * @param {string} caseStudy - the name of the case study
+     * @return {Promise<string[]>} a list of all image labels for caseStudy
      */
     getLabels(caseStudy: string): Promise<string[]> {
         const toSend = {
@@ -90,8 +107,10 @@ export class API {
     /**
      * Get the histogram bins for the scoreFn scores of the imageIDs.
      *
-     * @imageIDs: list of string image ids to get saliency image objects for
-     * @scoreFn: string score function name
+     * @param {string} caseStudy - the name of the case study
+     * @param {string[]} imageIDs - a list of string image ids
+     * @param {string} scoreFn - the score function name
+     * @return {Promise<Bins[]>} a list of Bins for the binned scores of the image IDs
      */
     binScores(caseStudy: string, imageIDs: string[], scoreFn: string): Promise<Bins[]> {
         const imagesToSend = {
@@ -108,7 +127,10 @@ export class API {
     /**
      * Get the confusion matrix for the imageIDs.
      *
-     * @imageIDs: list of string image ids to get saliency image objects for
+     * @param {string} caseStudy - the name of the case study
+     * @param {string} labelFilter - the name of the label filter
+     * @param {string} scoreFn - the score function name
+     * @return {Promise<ConfusionMatrixI[]>} a list of ConfusionMatrixI for the imageIDs in the caseStudy with the label
      */
     getConfusionMatrix(caseStudy: string, labelFilter: string, scoreFn: string): Promise<ConfusionMatrixI[]> {
         const toSend = {
@@ -119,8 +141,6 @@ export class API {
         const url = makeUrl(this.baseURL + "/confusion-matrix", toSend)
         return d3.json(url)
     }
-
-
 
 
 };

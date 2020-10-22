@@ -1,5 +1,6 @@
-# Saliency Explorer
+# Shared Interest
 A tool to explore model behavior by comparing ground truth regions and model explanations.
+Read the [article](http://shared-interest.csail.mit.edu:8000) and explore the [demo](http://shared-interest.csail.mit.edu:8000/demo).
 
 ## Getting Started
 

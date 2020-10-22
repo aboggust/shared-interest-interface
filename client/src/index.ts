@@ -10,7 +10,5 @@ function loadDeployApp() {
 
 window.onload = () => {
     loadDeployApp()
-    // loadArticle()
-
     console.log("Done loading window");
 }

@@ -20,9 +20,10 @@ export class State {
 
     /**
      * 
-     * @param ignoreUrl If provided, do not update URL parameters when state changes or initialize state from URL
-     * @param params Preset state to desired configuration
-     * @param freeze If true, any provided state in 'params' will be recorded as a 'frozen' state that cannot be modified by the user
+     * @param ignoreUrl - if provided, do not update URL parameters when state changes or initialize state from URL
+     * @param params - preset state to desired configuration
+     * @param freeze - if true, any provided state in 'params' will be recorded as a 'frozen' state that cannot be
+     *                 modified by the user
      */
     constructor(ignoreUrl = false, params: Partial<URLParameters> = {}, freeze: boolean = false) {
         this.ignoreUrl = ignoreUrl
@@ -33,7 +34,7 @@ export class State {
     }
 
     /**
-     * Reads app state from the URL, setting default values as necessary
+     * Reads app state from the URL, setting default values as necessary.
      */
     fromURL() {
         const params = this.ignoreUrl ? {} : URLHandler.parameters
@@ -61,7 +62,7 @@ export class State {
     /**
      * Check if `k` is supposed to be a frozen view
      * 
-     * @param k URL parameter to check if frozen
+     * @param k - URL parameter to check if frozen
      */
     isFrozen(k: string) {
         if (this.frozenParams.has(k)) return true

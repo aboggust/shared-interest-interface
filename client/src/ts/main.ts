@@ -15,7 +15,7 @@ import { SaliencyImg } from './types';
  */
 function init(base: D3Sel) {
     const html = `
-    <!--  Search Controls  -->
+    <!--  Filter Controls  -->
     <div class="controls container-md cont-nav">
         <div class="form-row">
             <div class="col-sm-2">
@@ -147,6 +147,10 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
     }
 
     const eventHelpers = {
+        /**
+        * Update the image panel.
+        * @param {State} state - the current state of the application.
+        */
         updateImages: (state: State) => {
             vizs.saliencyImages.clear()
             const imageIDs = api.getImages(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(),
@@ -161,12 +165,17 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             })
         },
 
+        /**
+        * Update the image panel, histogram, and confusion matrix.
+        * @param {State} state - the current state of the application.
+        */
         updatePage: (state: State) => {
             vizs.saliencyImages.clear()
             const imageIDs = api.getImages(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(),
                 state.labelFilter())
             selectors.body.style('cursor', 'progress')
             imageIDs.then(IDs => {
+                // Update image panel
                 vizs.saliencyImages.update({ caseStudy: state.caseStudy(), imgIDs: IDs, scoreFn: state.scoreFn() })
 
                 // Update histogram
@@ -186,6 +195,10 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             })
         },
 
+        /**
+        * Update the label drop down values.
+        * @param {State} state - the current state of the application.
+        */
         updateLabels: (state: State) => {
             api.getLabels(state.caseStudy()).then(labels => {
                 const labelValues = labels.slice();
@@ -201,6 +214,10 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             })
         },
 
+        /**
+        * Update the prediction drop down values.
+        * @param {State} state - the current state of the application.
+        */
         updatePredictions: (state: State) => {
             api.getPredictions(state.caseStudy()).then(predictions => {
                 const predictionValues = predictions.slice();
@@ -215,13 +232,11 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
                 selectors.predictionFn.property('value', state.predictionFn())
             })
         }
-
     }
 
     /**
-     * Initialize the application from the state
-     *
-     * @param state the state of the application
+     * Initialize the application from the state.
+     * @param {State} state - the state of the application.
      */
     async function initializeFromState(state: State) {
         // Fill in label and prediction options
@@ -239,10 +254,8 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
 
     initializeFromState(state)
 
-    /**
-     * Binding the event handler
-    */
     selectors.caseStudy.on('change', () => {
+        /* When the case study changes, update the page with the new data. */
         const caseStudy = selectors.caseStudy.property('value')
         state.caseStudy(caseStudy)
         state.labelFilter('')
@@ -253,49 +266,43 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
     });
 
     selectors.sortBy.on('change', () => {
+        /* When the sort by value changes, update the image panel. */
         const sortByValue = selectors.sortBy.property('value')
         state.sortBy(sortByValue)
         eventHelpers.updateImages(state)
     });
 
     selectors.predictionFn.on('change', () => {
+        /* When the prediction function changes, update the page. */
         const predictionValue = selectors.predictionFn.property('value')
         state.predictionFn(predictionValue)
         eventHelpers.updatePage(state)
     });
 
     selectors.scoreFn.on('change', () => {
+        /* When the score function changes, update the page. */
         const scoreValue = selectors.scoreFn.property('value')
         state.scoreFn(scoreValue)
         eventHelpers.updatePage(state)
     });
 
     selectors.labelFilter.on('change', () => {
+        /* When the label filter changes, update the page. */
         const labelFilter = selectors.labelFilter.property('value')
         state.labelFilter(labelFilter)
         eventHelpers.updatePage(state)
     });
 
     eventHandler.bind(LazySaliencyImages.events.onScreen, ({ el, id, scoreFn, caseStudy, caller }) => {
+        /* Lazy load the saliency images. */
         const img = new SingleSaliencyImage(el, eventHandler)
         api.getSaliencyImage(caseStudy, id, scoreFn).then(salImg => {
             img.update(salImg)
         })
     })
 
-    eventHandler.bind(SingleSaliencyImage.events.onScoreHover, ({ score, caller }) => {
-        // Put Logic for showing on histogram here
-    })
-
-    eventHandler.bind(SingleSaliencyImage.events.onPredictionHover, ({ prediction, caller }) => {
-        // Put logic for highlighting row on confusion matrix if exists (low prio)
-    })
-
-    eventHandler.bind(SingleSaliencyImage.events.onLabelHover, ({ label, caller }) => {
-        // Put logic for highlighting col on confusion matrix if exists (low prio)
-    })
-
     eventHandler.bind(SingleSaliencyImage.events.onLabelClick, ({ label, caller }) => {
+        /* Update label filter on label tag click. */
         if (!state.isFrozen('labelFilter')) {
             selectors.labelFilter.property('value', label)
             state.labelFilter(label)
@@ -304,6 +311,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
     })
 
     eventHandler.bind(SingleSaliencyImage.events.onPredictionClick, ({ prediction, caller }) => {
+        /* Update prediction function on label tag click. */
         if (!state.isFrozen('predictionFn')) {
             selectors.predictionFn.property('value', prediction)
             state.predictionFn(prediction)

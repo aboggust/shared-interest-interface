@@ -1,33 +1,33 @@
 {
-	"title": "Saliency Explorer",
+	"title": "Shared Interest: Human Annotations vs. AI Saliency",
 	"description": "Explore model reasoning across images using ground truth annotations.",
 	"authors": [
 		{
 			"author": "Angie Boggust",
-			"authorURL": "",
-			"affiliation": "MIT",
-			"affiliationURL": ""
+			"authorURL": "http://angieboggust.com/",
+			"affiliation": "MIT CSAIL",
+			"affiliationURL": "https://www.csail.mit.edu/"
         },
 
 		{
 			"author": "Benjamin Hoover",
 			"authorURL": "",
-			"affiliation": "IBM Research AI",
-			"affiliationURL": ""
+			"affiliation": "IBM Research",
+			"affiliationURL": "https://www.draco.res.ibm.com/"
         },
 
 		{
 			"author": "Arvind Satyanarayan",
-			"authorURL": "",
-			"affiliation": "MIT",
-			"affiliationURL": ""
+			"authorURL": "https://arvindsatya.com/",
+			"affiliation": "MIT CSAIL",
+			"affiliationURL": "https://www.csail.mit.edu/"
         },
 
 		{
 			"author": "Hendrik Strobelt",
-			"authorURL": "",
-			"affiliation": "MIT-IBM Watson AI Lab",
-			"affiliationURL": ""
+			"authorURL": "http://hendrik.strobelt.com/",
+			"affiliation": "IBM Research",
+			"affiliationURL": "https://www.draco.res.ibm.com/"
 		}
 	],
 	"katex": {

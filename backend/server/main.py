@@ -1,14 +1,12 @@
 import argparse
 import pandas as pd
 from typing import *
-import h5py
 import numpy as np
 import os
 
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import uvicorn
 import backend.server.api as api
@@ -30,24 +28,22 @@ app.add_middleware(
 prefix = os.environ.get('CLIENT_PREFIX','client')
 
 
-
 # Main routes
 @app.get("/demo")
 def index():
     """For local development, serve the index.html in the dist folder"""
     return RedirectResponse(url=f"{prefix}/index.html")
 
-# Main routes
 @app.get("/")
 def index():
-    """For local development, serve the index.html in the dist folder"""
     return RedirectResponse(url=f"{prefix}/index-distill.html")
 
 # the `file_path:path` says to accept any path as a string here.
 # Otherwise, `file_paths` containing `/` will not be served properly
 @app.get("/client/{file_path:path}")
 def send_static_client(file_path: str):
-    """ Serves (makes accessible) all files from ./client/ to ``/client/{path}``. Used primarily for development. NGINX handles production.
+    """ Serves (makes accessible) all files from ./client/ to ``/client/{path}``.
+    Used primarily for development. NGINX handles production.
 
     Args:
         path: Name of file in the client directory
@@ -82,13 +78,26 @@ class ConfusionMatrix(BaseModel):
     mean: float
 
 
-# Load in data
+# Load case study datasets
 datasets = ['data_dogs', 'data_vehicle', 'data_melanoma']
 dataframes = {dataset: pd.read_json("./data/examples/%s.json" %dataset).set_index('fname') for dataset in datasets}
 
 
 @app.get("/api/get-images", response_model=List[str])
 async def get_images(case_study: str, sort_by: int, prediction_fn: str, score_fn: str, label_filter: str):
+    """ Get images from dataset given the current filters.
+
+    Args:
+        case_study: The name of the case study dataset.
+        sort_by: 1 if ascending, -1 if descending.
+        prediction_fn: The prediction function. It can be 'all_images', 'correct_only', 'incorrect_only', or any label.
+        score_fn: The score function name to apply.
+        label_filter: The label filter to apply. It can be any label name or '' for all labels.
+
+    Returns:
+        A list of image IDs from case_study filtered given the prediction_fn and label_filter and sorted by the
+        score_fn in sort_by order.
+    """
     df = dataframes[case_study]
     if prediction_fn == "all_images":
         pred_inds = np.ones(len(df))
@@ -106,12 +115,22 @@ async def get_images(case_study: str, sort_by: int, prediction_fn: str, score_fn
 
     mask = np.logical_and(pred_inds, label_inds)
     filtered_df = df.loc[mask].sort_values(score_fn, kind="mergesort", ascending=sort_by==1)
-    fnames = list(filtered_df.index)
-    return fnames
+    image_ids = list(filtered_df.index)
+    return image_ids
 
 
 @app.get("/api/get-saliency-image", response_model=SaliencyImage)
 async def get_saliency_image(case_study: str, image_id: str, score_fn: str):
+    """Gets a single saliency image.
+
+    Args:
+        case_study: The name of the case study dataset.
+        image_id: The id of the image to return.
+        score_fn: The score function to return.
+
+    Returns:
+        A dictionary of the image data for image_id from case_study. The 'score' key is set to the score_fn value.
+    """
     df = dataframes[case_study]
     filtered_df = df.loc[image_id]
     filtered_df['score'] = filtered_df[score_fn]
@@ -120,6 +139,15 @@ async def get_saliency_image(case_study: str, image_id: str, score_fn: str):
 
 @app.post("/api/get-saliency-images", response_model=List[SaliencyImage])
 async def get_saliency_images(payload: api.ImagesPayload):
+    """Gets saliency images.
+
+        Args:
+            payload: The payload containing the name of the case study, image IDs, and the score function.
+
+        Returns:
+            A dictionary of the image data for the image IDs and case study in the payload. The 'score' key is the
+            value of the score function in the payload.
+        """
     payload = api.ImagesPayload(**payload)
     df = dataframes[payload.case_study]
     filtered_df = df.loc[payload.image_ids]
@@ -129,18 +157,31 @@ async def get_saliency_images(payload: api.ImagesPayload):
 
 @app.get("/api/get-labels", response_model=List[str])
 async def get_labels(case_study: str):
+    """Gets the label values given the case study."""
     df = dataframes[case_study]
     return list(df.label.unique())
 
 
 @app.get("/api/get-predictions", response_model=List[str])
 async def get_predictions(case_study: str):
+    """Gets the possible prediction values given the case study."""
     df = dataframes[case_study]
     return list(df.prediction.unique())
 
 
 @app.post("/api/bin-scores", response_model=List[Bins])
-async def bin_scores(payload: api.ImagesPayload, min_range: int = 0, max_range: int = 1, num_bins:int = 11):
+async def bin_scores(payload: api.ImagesPayload, min_range: int = 0, max_range: int = 1, num_bins: int = 11):
+    """Bins the scores of the images.
+
+    Args:
+        payload: The payload containing the name of the case study, image IDs, and the score function.
+        min_range: The start of the bin range, inclusive. Defaults to 0.
+        max_range: The end of the bin range, inclusive. Defaults to 1.
+        num_bins: The number of bins to create. Defaults to 11.
+
+    Returns:
+        A list of dictionary objects containing the start, end, and number of scores in each bin.
+    """
     payload = api.ImagesPayload(**payload)
     df = dataframes[payload.case_study]
     filtered_df = df.loc[payload.image_ids]
@@ -153,6 +194,17 @@ async def bin_scores(payload: api.ImagesPayload, min_range: int = 0, max_range: 
 
 @app.get("/api/confusion-matrix", response_model=List[ConfusionMatrix])
 async def get_confusion_matrix_values(case_study: str, label_filter: str, score_fn: str, n: int = 10):
+    """Gets the values of the confuction matrix.
+
+    Args:
+        case_study: The name of the case study dataset.
+        label_filter: The label filter to apply. It can be any label name or '' for all labels.
+        score_fn: The score function to return.
+        n: The nxn size of the confusion matrix.
+
+    Returns:
+        The confusion matrix of the top n confused labels.
+    """
     df = dataframes[case_study]
     if label_filter == '':
         filtered_df = df.loc[df.label != df.prediction]

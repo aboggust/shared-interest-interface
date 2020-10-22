@@ -7,7 +7,7 @@ window.onload = () => {
     const resultTableViz = new ResultTable(resultTable)
     resultTableViz.update(null)
 
-    // For Distill article
+    // Distill article figure data
     const fig2 = {
         caseStudy: "data_vehicle",
         scoreFn: 'iou_score',
@@ -68,6 +68,4 @@ window.onload = () => {
     const app7 = document.getElementById('fig7')
     main(app7, true, fig7, true, true)
 
-
-    console.log("Done loading window");
 }
