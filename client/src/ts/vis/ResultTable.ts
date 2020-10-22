@@ -56,15 +56,15 @@ export class ResultTable extends HTMLComponent<null>{
         const row1ImageIDs = ["n04252077_5244", "n02093754_4378", "n02085936_4713", "n02100735_9861"]
         const row1set = ["data_vehicle", "data_dogs", "data_dogs", "data_dogs"]
 
-        const row1info = intoRowInfo(row1ImageIDs, row1set, "saliency_proportion_score")
+        const row1info = intoRowInfo(row1ImageIDs, row1set, "explanation_coverage")
 
         const row2ImageIDs = ["n03272562_4288", "n03770679_13012", "n02930766_35425", "n02085620_3360"]
         const row2set = ["data_vehicle", "data_vehicle", "data_vehicle", "data_dogs"]
-        const row2info = intoRowInfo(row2ImageIDs, row2set, "bbox_proportion_score")
+        const row2info = intoRowInfo(row2ImageIDs, row2set, "ground_truth_coverage")
 
         const row3ImageIDs = ["n03538406_1959", "n02111889_6826", "n04467665_70844", "n03785016_25768"]
         const row3set = ["data_vehicle", "data_dogs", "data_vehicle", "data_vehicle"]
-        const row3info = intoRowInfo(row3ImageIDs, row3set, "iou_score")
+        const row3info = intoRowInfo(row3ImageIDs, row3set, "iou")
 
         const self = this;
         const html = `

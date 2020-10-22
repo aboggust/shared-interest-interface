@@ -1,5 +1,5 @@
-from pathlib import Path
 import os
+from pathlib import Path
 
 # SERVING STATIC FILES
 ROOT = Path(

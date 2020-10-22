@@ -1,6 +1,8 @@
-from pydantic import BaseModel
-import numpy as np
 from typing import *
+
+import numpy as np
+from pydantic import BaseModel
+
 
 class HashableBaseModel(BaseModel):
     def __hash__(self):

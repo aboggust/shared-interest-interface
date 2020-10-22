@@ -41,7 +41,7 @@ export class State {
 
         this._url = {
             caseStudy: params['caseStudy'] || 'data_vehicle',
-            scoreFn: params['scoreFn'] || 'saliency_proportion_score',
+            scoreFn: params['scoreFn'] || 'explanation_coverage',
             sortBy: params['sortBy'] || 1,
             predictionFn: params['predictionFn'] || 'all_images',
             labelFilter: params['labelFilter'] || '',

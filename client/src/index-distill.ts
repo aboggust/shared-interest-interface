@@ -10,7 +10,7 @@ window.onload = () => {
     // Distill article figure data
     const fig2 = {
         caseStudy: "data_vehicle",
-        scoreFn: 'iou_score',
+        scoreFn: 'iou',
         sortBy: -1,
         predictionFn: "correct_only",
         labelFilter: "jeep"
@@ -20,7 +20,7 @@ window.onload = () => {
 
     const fig3 = {
         caseStudy: "data_vehicle",
-        scoreFn: 'iou_score',
+        scoreFn: 'iou',
         sortBy: 1,
         predictionFn: "correct_only",
         labelFilter: "jeep"
@@ -30,7 +30,7 @@ window.onload = () => {
 
     const fig4 = {
         caseStudy: "data_vehicle",
-        scoreFn: 'saliency_proportion_score',
+        scoreFn: 'explanation_coverage',
         sortBy: 1,
         predictionFn: "incorrect_only",
         labelFilter: ""
@@ -40,7 +40,7 @@ window.onload = () => {
 
     const fig5 = {
         caseStudy: "data_melanoma",
-        scoreFn: 'iou_score',
+        scoreFn: 'iou',
         sortBy: -1,
         predictionFn: "correct_only",
         labelFilter: ""
@@ -50,7 +50,7 @@ window.onload = () => {
 
     const fig6 = {
         caseStudy: "data_melanoma",
-        scoreFn: "bbox_proportion_score",
+        scoreFn: "ground_truth_coverage",
         sortBy: 1,
         predictionFn: "incorrect_only",
         labelFilter: "malignant"
@@ -60,7 +60,7 @@ window.onload = () => {
 
     const fig7 = {
         caseStudy: "data_melanoma",
-        scoreFn: 'saliency_proportion_score',
+        scoreFn: 'explanation_coverage',
         sortBy: 1,
         predictionFn: "correct_only",
         labelFilter: "benign"
