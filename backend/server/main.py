@@ -32,13 +32,13 @@ prefix = os.environ.get('CLIENT_PREFIX','client')
 
 
 # Main routes
-@app.get("/")
+@app.get("/demo")
 def index():
     """For local development, serve the index.html in the dist folder"""
     return RedirectResponse(url=f"{prefix}/index.html")
 
 # Main routes
-@app.get("/article")
+@app.get("/")
 def index():
     """For local development, serve the index.html in the dist folder"""
     return RedirectResponse(url=f"{prefix}/index-distill.html")
