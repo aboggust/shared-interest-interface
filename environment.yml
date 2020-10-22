@@ -11,7 +11,6 @@ dependencies:
   - boto3
   - regex
   - numpy
-  - h5py
   - rasterio
   - cachetools
   - gunicorn
@@ -21,11 +20,13 @@ dependencies:
   - shapely
   - opencv
   - pillow
-  - tqdm
   - pytorch
   - torchvision
   - lime
   - tqdm
+  - scikit-learn
+  - scikit-image
+  - nltk
   - pip:
     - fastapi[all]==0.54.1
     - pydantic>=1.2.0,<2.0.0
