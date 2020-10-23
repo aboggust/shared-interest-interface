@@ -15,7 +15,7 @@ From the root:
 
 The distill article is available at `/` while the main demo is available at `/demo`.
 
-## Running
+## Running Locally
 To start the server for development, run:
 
 `uvicorn backend.server:app --reload`
@@ -25,4 +25,14 @@ For production, run:
 `uvicorn backend.server:app`
 
 This will run on a single worker, which should be sufficient for this.
+By default this will run on `127.0.0.1:8000`.
+To change the host or the port, run:
 
+`uvicorn backend.server:app --host <host> --port <port>`
+
+## Creating Data Files
+The code in `data/` is used to create the data files consumed by Shared Interest.
+To apply it to your own data, models, and explanation methods, modify `data/generate_datasets.py` and `data/explanation_methods.py`.
+
+Once you have created your own data file, you can incorporate it into the interface, by adding it to `backend/server/api/main.py`
+and to the case study selection bar in `client/src/ts/etc/selectionOptions.ts`.
