@@ -1,6 +1,10 @@
-# Shared Interest
+# Shared Interest ([Article](http://shared-interest.csail.mit.edu) | [Demo](http://shared-interest.csail.mit.edu/demo))
+![Shared interest teaser](./client/src/assets/img/teaser.svg)
+
 A tool to explore model behavior by comparing ground truth regions and model explanations.
-Read the [article](http://shared-interest.csail.mit.edu:8000) and explore the [demo](http://shared-interest.csail.mit.edu:8000/demo).
+Check out the [demo](http://shared-interest.csail.mit.edu/demo) to see shared interest applied to 
+ImageNet classification and melanoma prediction tasks.
+Read the [article](http://shared-interest.csail.mit.edu:8000) presented at VISxAI 2020.
 
 ## Getting Started
 
