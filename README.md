@@ -4,7 +4,7 @@
 A tool to explore model behavior by comparing ground truth regions and model explanations.
 Check out the [demo](http://shared-interest.csail.mit.edu/demo) to see shared interest applied to 
 ImageNet classification and melanoma prediction tasks.
-Read the [article](http://shared-interest.csail.mit.edu:8000) presented at VISxAI 2020.
+Read the [article](http://shared-interest.csail.mit.edu) presented at VISxAI 2020.
 
 ## Getting Started
 
