@@ -206,7 +206,7 @@ select {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 200px;
+  width: 600px;
   margin-bottom: calc(var(--vertical-element-gap) / 2);
   margin-top: calc(var(--vertical-element-gap) / 2);
 }
@@ -265,8 +265,17 @@ select {
   left: 0;
 }
 
+.mask.vanilla{
+  left: 175px;
+}
+
+.mask.integrated{
+  left: 350px;
+}
+
 .image-container {
   position: relative;
+  display: flex;
 }
 
 .pagination-controls {

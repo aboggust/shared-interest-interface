@@ -20,8 +20,12 @@ interface Selections {
     imgInfo: D3Sel
     imgContainer: D3Sel
     mainImg: D3Sel
+    vanillaGradientsImg: D3Sel
+    integratedGradientsImg: D3Sel
     bboxMask: D3Sel
     saliencyMask: D3Sel
+    vanillaBboxMask: D3Sel
+    integratedBboxMask: D3Sel
 }
 
 const Events: EventsI = {
@@ -58,7 +62,11 @@ export class SingleSaliencyImage extends HTMLComponent<DI>{
         self.sels.imgContainer = self.base.append("div").classed("image-container", true)
 
         self.sels.mainImg = self.sels.imgContainer.append("img").classed("saliency-image", true)
+        self.sels.vanillaGradientsImg = self.sels.imgContainer.append("img").classed("saliency-image-vanilla", true)
+        self.sels.integratedGradientsImg = self.sels.imgContainer.append("img").classed("saliency-image-integrated", true)
         self.sels.bboxMask = self.sels.imgContainer.append("svg").classed("bbox", true).classed("mask", true)
+        self.sels.vanillaBboxMask = self.sels.imgContainer.append("svg").classed("bbox", true).classed("mask", true).classed('vanilla', true)
+        self.sels.integratedBboxMask = self.sels.imgContainer.append("svg").classed("bbox", true).classed("mask", true).classed('integrated', true)
         self.sels.saliencyMask = self.sels.imgContainer.append("svg").classed("saliency", true).classed("mask", true)
     }
 
@@ -66,7 +74,10 @@ export class SingleSaliencyImage extends HTMLComponent<DI>{
         const self = this
         const sels = this.sels
 
-        const isCorrect = img.prediction == img.label
+        img.label = img.label.split('_').join(' ')
+        img.prediction = img.prediction.split(',')[0].toLowerCase()
+
+        const isCorrect = img.label == img.prediction;
 
         // INFO LOGIC
         sels.imgInfo.html('')
@@ -74,7 +85,7 @@ export class SingleSaliencyImage extends HTMLComponent<DI>{
         sels.imgInfo.append('span')
             .classed('info', true)
             // .classed('btn', true) // Add when functionality has been added to score info
-            .text(Number(img.score).toFixed(2))
+            .text('Lime=' + Number(img.score).toFixed(2))
             .style('background-color', self.colorScale(img.score))
             .style('color', img.score < 0.5 ? '#212529' : '#e3e3e3')
             .on("mouseover", function() {
@@ -82,6 +93,26 @@ export class SingleSaliencyImage extends HTMLComponent<DI>{
             })
             .on("click", function() {
                 self.trigger(Events.onScoreClick, {score: img.score})
+            })
+
+        sels.imgInfo.append('span')
+            .classed('info', true)
+            // .classed('btn', true) // Add when functionality has been added to score info
+            .text('Vanilla=' + Number(img.vanilla_gradients_score).toFixed(2))
+            .style('background-color', self.colorScale(img.vanilla_gradients_score))
+            .style('color', img.vanilla_gradients_score < 0.5 ? '#212529' : '#e3e3e3')
+            .on("mouseover", function() {
+                self.trigger(Events.onScoreHover, {score: img.vanilla_gradients_score})
+            })
+
+        sels.imgInfo.append('span')
+            .classed('info', true)
+            // .classed('btn', true) // Add when functionality has been added to score info
+            .text('Integrated=' + Number(img.integrated_gradients_score).toFixed(2))
+            .style('background-color', self.colorScale(img.integrated_gradients_score))
+            .style('color', img.integrated_gradients_score < 0.5 ? '#212529' : '#e3e3e3')
+            .on("mouseover", function() {
+                self.trigger(Events.onScoreHover, {score: img.integrated_gradients_score})
             })
 
         sels.imgInfo.append('span')
@@ -142,11 +173,43 @@ export class SingleSaliencyImage extends HTMLComponent<DI>{
             .attr("height", 175)
             .attr("width", 175)
             .selectAll('polygon')
-            .data(img.saliency)
+            .data(img.lime)
             .join('polygon')
                 .attr("points", d => d)
                 .style('fill-opacity', '10%')
                 .style('stroke', '#d95f02')
+                .style('stroke-width', '1.5px')
+
+        sels.vanillaGradientsImg.html('')
+        sels.vanillaGradientsImg.attr("src", toImgStr(img.vanilla_gradients))
+            .attr("height", 175)
+            .attr("width", 175)
+
+        sels.vanillaBboxMask.html('')
+        sels.vanillaBboxMask
+            .attr("height", 175)
+            .attr("width", 175)
+            .append("polygon")
+            //@ts-ignore
+            .attr("points", img.bbox)
+                .style('fill-opacity', '10%')
+                .style('stroke', '#f2d602')
+                .style('stroke-width', '1.5px')
+
+        sels.integratedGradientsImg.html('')
+        sels.integratedGradientsImg.attr("src", toImgStr(img.integrated_gradients))
+            .attr("height", 175)
+            .attr("width", 175)
+
+        sels.integratedBboxMask.html('')
+        sels.integratedBboxMask
+            .attr("height", 175)
+            .attr("width", 175)
+            .append("polygon")
+            //@ts-ignore
+            .attr("points", img.bbox)
+                .style('fill-opacity', '10%')
+                .style('stroke', '#f2d602')
                 .style('stroke-width', '1.5px')
 
     }

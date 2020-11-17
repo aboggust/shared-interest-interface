@@ -63,10 +63,14 @@ def send_static_client(file_path: str):
 class SaliencyImage(BaseModel):
     image: str
     bbox: list
-    saliency: list
+    lime: list
     label: str
     prediction: str
     score: str
+    vanilla_gradients: str
+    integrated_gradients: str
+    vanilla_gradients_score: str
+    integrated_gradients_score: str
 
 
 class Bins(BaseModel):
@@ -83,7 +87,7 @@ class ConfusionMatrix(BaseModel):
 
 
 # Load case study datasets
-datasets = ['data_dogs', 'data_vehicle', 'data_melanoma']
+datasets = ['data_development']
 dataframes = {}
 for dataset in datasets:
     dataframe = pd.read_json("./data/examples/%s.json" % dataset)
@@ -124,8 +128,19 @@ async def get_images(case_study: str, sort_by: int, prediction_fn: str,
         label_inds = df.label == label_filter
 
     mask = np.logical_and(pred_inds, label_inds)
+
+    if 'variance' not in df.columns:
+        df = df.assign(variance=np.var([df[score_fn], df['vanilla_gradients_score'], df['integrated_gradients_score']], axis=0))
+
+    if np.abs(sort_by) == 2:
+        score_fn = 'vanilla_gradients_score'
+    if np.abs(sort_by) == 3:
+        score_fn = 'integrated_gradients_score'
+    if np.abs(sort_by) == 4:
+        score_fn = 'variance'
+
     filtered_df = df.loc[mask].sort_values(score_fn, kind="mergesort",
-                                           ascending=sort_by == 1)
+                                           ascending=sort_by > 0)
     image_ids = list(filtered_df.index)
     return image_ids
 
