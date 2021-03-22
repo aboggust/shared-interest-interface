@@ -15,7 +15,7 @@ From the root:
 1. `conda env create -f environment.yml`
 2. `conda activate shared-interest`
 3. `pip install -e .`
-2. `cd client; npm run build`
+2. `cd client; npm i; npm run build`
 
 The distill article is available at `/` while the main demo is available at `/demo`.
 
