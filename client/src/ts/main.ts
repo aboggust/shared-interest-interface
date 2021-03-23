@@ -3,6 +3,7 @@ import { D3Sel } from "./etc/Util"
 import { LazySaliencyImages } from "./vis/LazySaliencyImages"
 import { SingleSaliencyImage } from "./vis/SingleSaliencyImage"
 import { ConfusionMatrix } from "./vis/ConfusionMatrix"
+import { InteractiveSaliencyMask } from "./vis/InteractiveSaliencyMask"
 import { Histogram } from './vis/Histogram'
 import { SimpleEventHandler } from './etc/SimpleEventHandler'
 import { API } from './api/mainApi'
@@ -92,7 +93,7 @@ function init(base: D3Sel) {
 /**
  * Main functionality in the below function
  */
-export function main(el: Element, ignoreUrl: boolean = false, stateParams: Partial<URLParameters> = {}, freezeParams: boolean = false, noSidebar: boolean=false) {
+export function main(el: Element, ignoreUrl: boolean = false, stateParams: Partial<URLParameters> = {}, freezeParams: boolean = false, noSidebar: boolean = false) {
     const base = d3.select(el)
 
     const eventHandler = new SimpleEventHandler(el)
@@ -143,6 +144,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
     const vizs = {
         histogram: noSidebar ? null : new Histogram(<HTMLElement>selectors.sidebar.node(), eventHandler),
         confusionMatrix: noSidebar ? null : new ConfusionMatrix(<HTMLElement>selectors.sidebar.node(), eventHandler),
+        interactiveSaliencyMask: noSidebar ? null : new InteractiveSaliencyMask(<HTMLElement>selectors.sidebar.node(), eventHandler),
         saliencyImages: new LazySaliencyImages(<HTMLElement>selectors.imagesPanel.node(), eventHandler),
     }
 
@@ -186,7 +188,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
                 // Update confusion matrix
                 const confusionMatrix = api.getConfusionMatrix(state.caseStudy(), state.labelFilter(), state.scoreFn())
                 confusionMatrix.then(matrix => {
-                    noSidebar ||vizs.confusionMatrix.update(matrix)
+                    noSidebar || vizs.confusionMatrix.update(matrix)
                 })
 
                 // Finished async calls
@@ -250,6 +252,12 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
 
         // Get data from state parameters
         eventHelpers.updatePage(state)
+
+        const exImgId: string = "n02701002_3441"
+        api.getSaliencyImage(state.caseStudy(), exImgId, state.scoreFn()).then(r => {
+            console.log("Got response: ", r)
+            vizs.interactiveSaliencyMask.update({ image: r.image })
+        })
     }
 
     initializeFromState(state)
