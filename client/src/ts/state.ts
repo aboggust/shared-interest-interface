@@ -69,6 +69,10 @@ export class State {
         return null // Allows `sel.attr("disabled", state.isFrozen(k))`
     }
 
+    displayText() {
+        return this.caseStudy() == "text"
+    }
+
     caseStudy(): string
     caseStudy(val): this
     caseStudy(val?) {
