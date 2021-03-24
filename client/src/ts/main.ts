@@ -250,6 +250,10 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
 
         // Get data from state parameters
         eventHelpers.updatePage(state)
+
+        api.getSaliencyText(null, state.scoreFn()).then(r => {
+            console.log("Text is working: ", r)
+        })
     }
 
     initializeFromState(state)

@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { makeUrl, toPayload } from '../etc/apiHelpers'
 import { URLHandler } from '../etc/URLHandler';
-import { SaliencyImg, Bins, ConfusionMatrixI } from '../types';
+import { SaliencyImg, Bins, ConfusionMatrixI, SaliencyText } from '../types';
 
 
 const baseurl = URLHandler.basicURL()
@@ -33,6 +33,30 @@ export class API {
         const url = makeUrl(this.baseURL + "/get-saliency-images")
         const payload = toPayload(imagesToSend)
         return d3.json(url, payload)
+    }
+
+    getSaliencyText(text_inds: number[], scoreFn: string): Promise<SaliencyText[]> {
+        // const toSend = {
+        //     text_inds,
+        //     score_fn: scoreFn
+        // }
+        // const url = makeUrl(this.baseURL + "/get-saliency-images")
+        // const payload = toPayload(imagesToSend)
+        // return d3.json(url, payload)
+
+        // Local fetch
+        const url = baseurl + "/client/assets/beer_advocate.json"
+        return d3.json(url).then((r:unknown[]) => {
+            // Fix the format of the provided file
+            r.forEach((t: SaliencyText) => {
+                t['ground_truth_coverage'] = +t.scores.recall
+                t['explanation_coverage'] = +t.scores.precision
+                t['iou'] = +t.scores.iou
+                t['score'] = +t[scoreFn]
+            })
+
+            return r as SaliencyText[]
+        })
     }
 
     /**

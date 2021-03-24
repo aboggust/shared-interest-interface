@@ -25,3 +25,22 @@ export interface ConfusionMatrixI {
     count: number,
     mean: number,
 }
+
+export interface TextScores {
+    iou: number
+    recall: number // Same as ground_truth_coverage
+    precision: number // Same as explanation_coverage
+}
+
+export interface SaliencyText {
+    words: string[]
+    label: 0 | 1
+    prediction: 0 | 1
+    explanation_inds: number[]
+    ground_truth_inds: number[]
+    scores: TextScores
+    ground_truth_coverage?: number
+    explanation_coverage?: number
+    iou?: number
+    score?: number
+}
