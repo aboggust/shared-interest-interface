@@ -31,8 +31,8 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
         width: 256,
         height: 256,
         radius: 7,
-        draw_color: "#0bc6d4",
-        active_alpha: .5
+        draw_color: "#f2d602",
+        active_alpha: .65
     };
     protected cssName = "InteractiveSaliencyMask";
     protected drawCanvas: HTMLCanvasElement
@@ -41,6 +41,7 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
     protected sels: Partial<InteractiveSaliencyMaskSels> = {}
 
     public static events = Events
+    protected hasImg: boolean = false
 
     constructor(parent: HTMLElement, eventHandler: SimpleEventHandler, options = {}) {
         super(parent, eventHandler);
@@ -58,9 +59,10 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
     protected _init() {
         const op = this.options;
         const templateHtml = `
-            <span id="reset-button" class="info btn">Reset</span>
-            <span id="submit-button" class="info btn">Submit</span>
-            <canvas></canvas>
+            <div class="title">Custom Saliency Overlap</div>
+            <span id="reset-button" class="btn">Reset</span>
+            <span id="submit-button" class="btn">Submit</span>
+            <canvas width=${op.width} height=${op.height}></canvas>
         `
         this.base.html(templateHtml)
         this.sels.resetBtn = this.base.select("#reset-button").on('click', () => {
@@ -68,7 +70,6 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
             this.trigger(Events.resetMask, {})
         })
         this.sels.submitBtn = this.base.select("#submit-button").on('click', () => {
-            console.log("Submit Clicked!")
             this.trigger(Events.submit, { mask: this.drawCanvas })
         })
         this.baseCanvas = this.base.select('canvas')
@@ -80,7 +81,7 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
         const ctx = (<HTMLCanvasElement>this.baseCanvas.node()).getContext('2d');
         const drawCtx = this.drawCanvas.getContext('2d')
         ctx.beginPath();
-        ctx.fillText('< please select image from list >', 10, 10);
+        ctx.fillText('< please select image from list >', 10, op.height / 2);
         ctx.closePath();
 
         const drawCircle = (ctx: CanvasRenderingContext2D, x: number, y: number, r: number) => {
@@ -97,15 +98,25 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
             ctx.restore()
         }
 
-        this.baseCanvas.on("mousedown", () => {
+        const assignMouseMove = () => {
             this.baseCanvas.on("mousemove", (e) => {
+                if (!this.hasImg) return
                 const [x, y] = d3.mouse(this.baseCanvas.node());
                 drawCircle(drawCtx, x, y, op.radius)
                 this._render()
             });
+        }
+        const clearMousemove = () => (this.baseCanvas.on("mousemove", null))
+
+        this.baseCanvas.on("mousedown", assignMouseMove)
+        // Assign mouse movement if dragged over with pointer clicked
+        this.baseCanvas.on("mouseover", () => {
+            const pointerClicked = d3.event.which == 1
+            if (pointerClicked) {
+                assignMouseMove()
+            }
         })
 
-        const clearMousemove = () => (this.baseCanvas.on("mousemove", null))
         this.baseCanvas.on("mouseup", clearMousemove)
         this.baseCanvas.on("mouseout", clearMousemove)
     }
@@ -127,13 +138,19 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
     }
 
     setNewImage(image) {
+        if (image == null) {
+            this.hasImg = false
+            return
+        }
+        this.hasImg = true
+        this.resetMask()
         const imgCtx = this.imageCanvas.getContext('2d');
         const ctx = this.baseCanvas.node().getContext('2d');
         const op = this.options
 
         const img = new Image()
         img.onload = () => {
-            imgCtx.drawImage(img, 0, 0)
+            imgCtx.drawImage(img, 0, 0, op.width, op.height)
             ctx.save()
             ctx.globalAlpha = 1
             ctx.drawImage(this.imageCanvas, 0, 0, op.width, op.height)

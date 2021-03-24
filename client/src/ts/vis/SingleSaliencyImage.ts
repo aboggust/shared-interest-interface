@@ -14,6 +14,9 @@ interface EventsI {
     onLabelHover: string
     onPredictionClick: string
     onPredictionHover: string
+    onImageClick: string
+    onImageMouseOver: string
+    onImageMouseOut: string
 }
 
 interface Selections {
@@ -31,6 +34,9 @@ const Events: EventsI = {
     onPredictionHover: "SingleSaliencyImage_onPredictionHover",
     onLabelClick: "SingleSaliencyImage_onLabelClick",
     onLabelHover: "SingleSaliencyImage_onLabelHover",
+    onImageClick: "SingleSaliencyImage_onImageClick",
+    onImageMouseOver: "SingleSaliencyImage_onImageMouseOver",
+    onImageMouseOut: "SingleSaliencyImage_onImageMouseOut",
 }
 
 function toImgStr(img: string) {
@@ -81,6 +87,7 @@ export class SingleSaliencyImage extends HTMLComponent<DI>{
                 self.trigger(Events.onScoreHover, {score: img.score})
             })
             .on("click", function() {
+                d3.event.stopPropagation()
                 self.trigger(Events.onScoreClick, {score: img.score})
             })
 
@@ -98,6 +105,7 @@ export class SingleSaliencyImage extends HTMLComponent<DI>{
                 self.trigger(Events.onLabelHover, {label: img.label})
             })
             .on("click", function() {
+                d3.event.stopPropagation()
                 self.trigger(Events.onLabelClick, {label: img.label})
             })
 
@@ -115,6 +123,7 @@ export class SingleSaliencyImage extends HTMLComponent<DI>{
                 self.trigger(Events.onPredictionHover, {prediction: img.prediction})
             })
             .on("click", function() {
+                d3.event.stopPropagation()
                 self.trigger(Events.onPredictionClick, {prediction: img.prediction})
             })
 

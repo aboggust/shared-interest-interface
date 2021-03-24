@@ -16,15 +16,21 @@ type DI = ImgData
 
 interface EventsI {
     onScreen: string
+    click: string
+    mouseOver: string
+    mouseOut: string
 }
 
 const Events: EventsI = {
-    onScreen: "LazySaliencyImages_ImgOnScreen"
+    onScreen: "LazySaliencyImages_ImgOnScreen",
+    click: "LazySaliencyImages_click",
+    mouseOver: "LazySaliencyImages_mouseOver",
+    mouseOut: "LazySaliencyImages_mouseOut",
 }
 
 export class LazySaliencyImages extends HTMLComponent<DI>{
     cssName = "saliency-images"
-    
+
     static events = Events
 
     constructor(parent: HTMLElement, eventHandler?: SimpleEventHandler, options = {}) {
@@ -49,12 +55,27 @@ export class LazySaliencyImages extends HTMLComponent<DI>{
             .classed("saliency-image-card", true)
             .attr("fname-id", d => d)
 
+        saliencyImageCards
+            .on('click', d => {
+                this.trigger(Events.click, { fname: d })
+            })
+            .on('mouseover', function (d) {
+                const el = d3.select(this)
+                el.classed("hovered", true)
+                self.trigger(Events.mouseOver, { fname: d })
+            })
+            .on('mouseout', function (d) {
+                const el = d3.select(this)
+                el.classed("hovered", false)
+                self.trigger(Events.mouseOut, { fname: d })
+            })
+
         saliencyImageCards.each(function (d, i) {
             const observer = lozad(this, {
-                load: function(el) {
-                    self.trigger(Events.onScreen, {el, id: el.getAttribute("fname-id"), scoreFn, caseStudy})
+                load: function (el) {
+                    self.trigger(Events.onScreen, { el, id: el.getAttribute("fname-id"), scoreFn, caseStudy })
                 }
-            }); 
+            });
             observer.observe();
         })
     }

@@ -6,6 +6,7 @@ export interface URLParameters {
     sortBy: number,
     predictionFn: string,
     labelFilter: string,
+    selectedImage: string,
 }
 
 interface StateConf { }
@@ -45,6 +46,7 @@ export class State {
             sortBy: params['sortBy'] || 1,
             predictionFn: params['predictionFn'] || 'all_images',
             labelFilter: params['labelFilter'] || '',
+            selectedImage: params['selectedImage'] || "",
         }
     }
 
@@ -110,6 +112,15 @@ export class State {
     labelFilter(filter?) {
         if (filter == null) return this._url.labelFilter
         this._url.labelFilter = filter
+        this.toURL()
+        return this
+    }
+
+    selectedImage(): string
+    selectedImage(value: string): this
+    selectedImage(value?) {
+        if (value == null) return this._url.selectedImage
+        this._url.selectedImage = value
         this.toURL()
         return this
     }

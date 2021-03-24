@@ -143,8 +143,8 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
 
     const vizs = {
         histogram: noSidebar ? null : new Histogram(<HTMLElement>selectors.sidebar.node(), eventHandler),
-        confusionMatrix: noSidebar ? null : new ConfusionMatrix(<HTMLElement>selectors.sidebar.node(), eventHandler),
         interactiveSaliencyMask: noSidebar ? null : new InteractiveSaliencyMask(<HTMLElement>selectors.sidebar.node(), eventHandler),
+        confusionMatrix: noSidebar ? null : new ConfusionMatrix(<HTMLElement>selectors.sidebar.node(), eventHandler),
         saliencyImages: new LazySaliencyImages(<HTMLElement>selectors.imagesPanel.node(), eventHandler),
     }
 
@@ -233,7 +233,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
                     .text(prediction => prediction)
                 selectors.predictionFn.property('value', state.predictionFn())
             })
-        }
+        },
     }
 
     /**
@@ -253,9 +253,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         // Get data from state parameters
         eventHelpers.updatePage(state)
 
-        const exImgId: string = "n02701002_3441"
-        api.getSaliencyImage(state.caseStudy(), exImgId, state.scoreFn()).then(r => {
-            console.log("Got response: ", r)
+        api.getSaliencyImage(state.caseStudy(), state.selectedImage(), state.scoreFn()).then(r => {
             vizs.interactiveSaliencyMask.update({ image: r.image })
         })
     }
@@ -325,6 +323,19 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             state.predictionFn(prediction)
             eventHelpers.updatePage(state)
         }
+    })
+
+    eventHandler.bind(LazySaliencyImages.events.click, ({ fname }) => {
+        state.selectedImage(fname)
+        api.getSaliencyImage(state.caseStudy(), state.selectedImage(), state.scoreFn()).then(r => {
+            vizs.interactiveSaliencyMask.setNewImage(r.image)
+        })
+    })
+    eventHandler.bind(LazySaliencyImages.events.mouseOver, ({ fname }) => {
+        selectors.body.style("cursor", "pointer")
+    })
+    eventHandler.bind(LazySaliencyImages.events.mouseOut, ({ fname }) => {
+        selectors.body.style("cursor", "default")
     })
 
 }
