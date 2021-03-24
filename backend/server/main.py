@@ -248,6 +248,76 @@ async def get_confusion_matrix_values(case_study: str, label_filter: str,
     return confusion_matrix
 
 
+# ======================================================================
+## Best Prediction API ##
+# ======================================================================
+
+class BestPrediction(BaseModel):
+    top_scores: list
+    top_saliency_masks: list
+
+def _load_model_from_pytorch(architecture, pretrained):
+    """Load model of type architecture from pytorch. Model is pretrained if pretrained."""
+    model = models.__dict__[architecture](pretrained=pretrained)
+    if torch.cuda.device_count() > 1:
+        model = nn.DataParallel(model)
+    return model   
+
+# ImageNet Constants
+NUM_CLASSES = 1000
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+MODEL = _load_model_from_pytorch('resnet50', True).to(DEVICE).eval()
+TRANSFORM = transforms.Compose([transforms.ToTensor(),
+                                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+
+# Saliency method
+SALIENCY_FN = VanillaGradients(MODEL).get_masks
+
+
+@app.get("/api/get-best-prediction", response_model=BestPrediction)
+async def get_best_prediction(image, image_shape, mask, mask_shape, si_method:str, topk:int = 5):
+    """Returns topk labels and saliency maps with the highest si_method score."""
+
+    # Convert string inputs to numpy arrays
+    image_shape = tuple([int(num) for num in image_shape.split(',')])
+    image = np.array([float(num) for num in image.split(',')]).reshape(image_shape)
+    mask_shape = tuple([int(num) for num in mask_shape.split(',')])
+    mask = np.array([float(num) for num in mask.split(',')]).reshape(mask_shape)
+
+    image, mask = np.array(image), np.array(mask)
+    if (image.shape[0], image.shape[1]) != mask.shape:
+        raise ValueError('Image and mask are not the same size.')
+
+    # Convert numpy arrays to tensor and include batch dimension.
+    mask = transforms.ToTensor()(mask)
+    if len(mask.shape) == 2:
+        mask.unsqueeze(0)
+
+    image = TRANSFORM(image).float().to(DEVICE)
+    if len(image.shape) == 3:
+        image = image.unsqueeze(0)
+
+    # Batch saliency map call by repeating the image for each class.
+    input_batch = image.repeat(NUM_CLASSES, 1, 1, 1)
+    target_classes = list(range(NUM_CLASSES))
+
+    # Get saliency maps for the input against all classes.
+    saliency_maps = SALIENCY_FN(input_batch, target_classes=target_classes)
+    saliency_masks = binarize_masks(np.expand_dims(np.sum(saliency_maps, axis=1), axis=1)).squeeze(1)
+
+    # Compute shared interest scores.
+    mask_batch = mask.repeat(NUM_CLASSES, 1, 1).numpy()
+    shared_interest_scores = shared_interest(mask_batch, saliency_masks, score=si_method)
+
+    # Return topk saliency maps and scores.
+    max_inds = np.argpartition(shared_interest_scores, -topk)[-topk:]
+    max_inds_sorted = max_inds[np.argsort(shared_interest_scores[max_inds])]
+    top_scores = shared_interest_scores[max_inds_sorted]
+    top_saliency_masks = saliency_masks[max_inds_sorted]
+
+    return {'top_scores': list(top_scores), 'top_saliency_masks': top_saliency_masks.tolist()}   
+
+
 if __name__ == "__main__":
     # This file is not run as __main__ in the uvicorn environment
     args, _ = parser.parse_known_args()
