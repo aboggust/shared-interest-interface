@@ -30,7 +30,7 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
         pos: { x: 0, y: 0 },
         width: 256,
         height: 256,
-        radius: 7,
+        radius: 10,
         draw_color: "#f2d602",
         active_alpha: .65
     };
