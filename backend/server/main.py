@@ -1,17 +1,23 @@
 import argparse
-import os
 from typing import *
-
 import numpy as np
-import pandas as pd
-import uvicorn
+
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+import uvicorn
+import server.api as api
+import path_fixes as pf
+
+import PIL.Image
+import torch
+from torchvision import models, transforms
 from pydantic import BaseModel
 
-import backend.server.api as api
-import backend.server.path_fixes as pf
+from backend.server.shared_interest.shared_interest import shared_interest 
+from backend.server.interpretability_methods.vanilla_gradients import VanillaGradients
+from backend.server.interpretability_methods.util import binarize_masks
 
 parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
