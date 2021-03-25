@@ -3,7 +3,6 @@ import { makeUrl, toPayload } from '../etc/apiHelpers'
 import { URLHandler } from '../etc/URLHandler';
 import { SaliencyImg, Bins, ConfusionMatrixI } from '../types';
 
-
 const baseurl = URLHandler.basicURL()
 
 
@@ -140,6 +139,19 @@ export class API {
         }
         const url = makeUrl(this.baseURL + "/confusion-matrix", toSend)
         return d3.json(url)
+    }
+
+    /**
+     * 
+     * @param image Base64 encoded image
+     * @param image_shape Comma separated numbers indicating the shape of the image (including channels)
+     * @param mask Base64 encoded mask
+     * @param mask_shape Comma separated numbers indicating the shape of the image (including channels)
+     * @param si_method 
+     * @param topk 
+     */
+    getBestPrediction(image:string, image_shape:string, mask:string, mask_shape:string, si_method:string, topk: number=5) {
+
     }
 
 

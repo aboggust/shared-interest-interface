@@ -2,6 +2,8 @@ import argparse
 from typing import *
 import numpy as np
 
+import torch
+import pandas as pd
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,7 +12,6 @@ import uvicorn
 import server.api as api
 import path_fixes as pf
 
-import PIL.Image
 import torch
 from torchvision import models, transforms
 from pydantic import BaseModel
@@ -18,6 +19,11 @@ from pydantic import BaseModel
 from backend.server.shared_interest.shared_interest import shared_interest 
 from backend.server.interpretability_methods.vanilla_gradients import VanillaGradients
 from backend.server.interpretability_methods.util import binarize_masks
+import backend.server.api as api
+import backend.server.path_fixes as pf
+from PIL import Image
+from io import BytesIO
+from base64 import b64decode
 
 parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -269,28 +275,36 @@ def _load_model_from_pytorch(architecture, pretrained):
         model = nn.DataParallel(model)
     return model   
 
-# ImageNet Constants
-NUM_CLASSES = 1000
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-MODEL = _load_model_from_pytorch('resnet50', True).to(DEVICE).eval()
-TRANSFORM = transforms.Compose([transforms.ToTensor(),
-                                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+# # ImageNet Constants
+# NUM_CLASSES = 1000
+# DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# MODEL = _load_model_from_pytorch('resnet50', True).to(DEVICE).eval()
+# TRANSFORM = transforms.Compose([transforms.ToTensor(),
+#                                 transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
 
 # Saliency method
-SALIENCY_FN = VanillaGradients(MODEL).get_masks
+# SALIENCY_FN = VanillaGradients(MODEL).get_masks
 
+def bytes2np(img_bytes):
+    """Convert image bytes from frontend to numpy array"""
+    im = Image.open(BytesIO(b64decode(img_bytes)))
+    return np.array(im)
 
 @app.get("/api/get-best-prediction", response_model=BestPrediction)
 async def get_best_prediction(image, image_shape, mask, mask_shape, si_method:str, topk:int = 5):
     """Returns topk labels and saliency maps with the highest si_method score."""
 
-    # Convert string inputs to numpy arrays
     image_shape = tuple([int(num) for num in image_shape.split(',')])
-    image = np.array([float(num) for num in image.split(',')]).reshape(image_shape)
-    mask_shape = tuple([int(num) for num in mask_shape.split(',')])
-    mask = np.array([float(num) for num in mask.split(',')]).reshape(mask_shape)
+    image = bytes2np(image).reshape(image_shape)
 
-    image, mask = np.array(image), np.array(mask)
+    mask_shape = tuple([int(num) for num in mask_shape.split(',')])
+    mask = bytes2np(mask).reshape(mask_shape)
+
+    # Convert string inputs to numpy arrays
+    # image = np.array([float(num) for num in image.split(',')]).reshape(image_shape)
+    # mask = np.array([float(num) for num in mask.split(',')]).reshape(mask_shape)
+
+    # image, mask = np.array(image), np.array(mask)
     if (image.shape[0], image.shape[1]) != mask.shape:
         raise ValueError('Image and mask are not the same size.')
 
