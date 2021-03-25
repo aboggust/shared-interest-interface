@@ -183,11 +183,15 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         updatePage: (state: State) => {
             // vizs.saliencyImages.clear()
             if (state.displayText()) {
-                selectors.sidebar.classed('hidden', true)
+                selectors.sidebar.classed('hidden', false)
                 console.log("Text detected in update images")
-                api.getTextIDs(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter()).then(r => {
-                    console.log(r)
-                    vizs.saliencyTexts.update(r)
+                api.getTextIDs(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter()).then(ids => {
+                    console.log(ids)
+                    vizs.saliencyTexts.update(ids)
+
+                    api.binTextScores(state.caseStudy(), ids, state.scoreFn()).then(bins => {
+                        vizs.histogram.update(bins)
+                    })
                 })
             } else {
                 selectors.sidebar.classed('hidden', false)

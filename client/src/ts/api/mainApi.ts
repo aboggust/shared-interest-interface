@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import {bin} from 'd3-array';
 import { makeUrl, toPayload } from '../etc/apiHelpers'
 import { URLHandler } from '../etc/URLHandler';
 import { SaliencyImg, Bins, ConfusionMatrixI, SaliencyText, SaliencyTextMap } from '../types';
@@ -155,6 +156,27 @@ export class API {
         const url = makeUrl(this.baseURL + "/bin-scores")
         const payload = toPayload(imagesToSend)
         return d3.json(url, payload)
+    }
+
+    /**
+     * Get the histogram bins for the scoreFn scores of the imageIDs.
+     *
+     * @param {string} caseStudy - the name of the case study
+     * @param {string[]} imageIDs - a list of string image ids
+     * @param {string} scoreFn - the score function name
+     * @return {Promise<Bins[]>} a list of Bins for the binned scores of the image IDs
+     */
+    async binTextScores(caseStudy: string, IDs: string[], scoreFn: string): Promise<Bins[]> {
+        const values = await Promise.all(IDs.map(id => this.getSaliencyText(caseStudy, id, scoreFn)))
+        const scores = values.map(v => v.score)
+        const binner = bin().domain([0,1])
+        return binner(scores).map(b => {
+            return {
+                x0: b.x0,
+                x1: b.x1,
+                num: b.length
+            }
+        })
     }
 
 
