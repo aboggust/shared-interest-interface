@@ -17,7 +17,7 @@ From the root:
 3. `pip install -e .`
 2. `cd client; npm i; npm run build`
 
-The distill article is available at `/` while the main demo is available at `/demo`.
+The main demo is available at `/`.
 
 ## Running Locally
 To start the server for development, run:

@@ -1,7 +1,7 @@
 {
     "allowSyntheticDefaultImports": true,
     "compilerOptions": {
-      "outDir": "./dist/",
+      "outDir": "./src",
       "rootDir": "./src",
       "module": "esnext",
       "target": "es2015",

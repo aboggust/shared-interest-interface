@@ -30,10 +30,13 @@ _notebooks
 .cache
 .cache-loader
 node_modules
-dist
 client/src/css/*.css
 client/src/css/*.css.map
 client/src/demo
+client/src/main.css
+client/src/main.js
+client/src/vendor.js
+client/src/*.ttf
 
 # Icon must end with two \r
 Icon
