@@ -5,5 +5,5 @@ from pathlib import Path
 ROOT = Path(
     os.path.abspath(__file__)
 ).parent.parent.parent  # Root directory of the project
-SRC = ROOT / "src"
 CLIENT = ROOT / "client"
+SRC = CLIENT / "src"
