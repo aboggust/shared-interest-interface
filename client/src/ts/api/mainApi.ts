@@ -3,9 +3,7 @@ import { makeUrl, toPayload } from '../etc/apiHelpers'
 import { URLHandler } from '../etc/URLHandler';
 import { SaliencyImg, Bins, ConfusionMatrixI, SaliencyText } from '../types';
 
-
 const baseurl = URLHandler.basicURL()
-
 
 export class API {
 
@@ -25,6 +23,8 @@ export class API {
      * @return {Promise<SaliencyImg[]>} a list of SaliencyImg for the imageIDs in the caseStudy
      */
     getSaliencyImages(caseStudy: string, imageIDs: string[], scoreFn: string): Promise<SaliencyImg[]> {
+        // This is not used in favor of lazy loading
+
         const imagesToSend = {
             case_study: caseStudy,
             image_ids: imageIDs,
@@ -35,9 +35,16 @@ export class API {
         return d3.json(url, payload)
     }
 
-    getSaliencyText(text_inds: number[], scoreFn: string): Promise<SaliencyText[]> {
+    getSaliencies(caseStudy: string, ids: string[], scoreFn: string): Promise<SaliencyImg[] | SaliencyText[]> {
+        if (caseStudy == "text") {
+            return this.getSaliencyTexts(ids, scoreFn)
+        }
+        return this.getSaliencyImages(caseStudy, ids, scoreFn)
+    }
+
+    getSaliencyTexts(text_ids: (number | string)[], scoreFn: string): Promise<SaliencyText[]> {
         // const toSend = {
-        //     text_inds,
+        //     text_ids,
         //     score_fn: scoreFn
         // }
         // const url = makeUrl(this.baseURL + "/get-saliency-images")
@@ -46,7 +53,11 @@ export class API {
 
         // Local fetch
         const url = baseurl + "/client/assets/beer_advocate.json"
-        return d3.json(url).then((r:unknown[]) => {
+        const labelMap = {
+            0: "negative",
+            1: "positive"
+        }
+        return d3.json(url).then((r: unknown[]) => {
             // Fix the format of the provided file
             r.forEach((t: SaliencyText) => {
                 t['ground_truth_coverage'] = +t.scores.recall
@@ -107,6 +118,11 @@ export class API {
      * @return {Promise<string[]>} a list of all model predictions for caseStudy
      */
     getPredictions(caseStudy: string): Promise<string[]> {
+        if (caseStudy == "text") {
+            return new Promise((resolve, reject) => {
+                resolve(["0", "1"])
+            })
+        }
         const toSend = {
             case_study: caseStudy
         }
@@ -121,6 +137,11 @@ export class API {
      * @return {Promise<string[]>} a list of all image labels for caseStudy
      */
     getLabels(caseStudy: string): Promise<string[]> {
+        if (caseStudy == "text") {
+            return new Promise((resolve, reject) => {
+                resolve(["0", "1"])
+            })
+        }
         const toSend = {
             case_study: caseStudy
         }

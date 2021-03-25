@@ -9,6 +9,7 @@ import { API } from './api/mainApi'
 import { State, URLParameters } from './state'
 import { caseStudyOptions, sortByOptions, predictionFnOptions, scoreFnOptions, labelFilterOptions } from './etc/selectionOptions'
 import { SaliencyImg } from './types';
+import { SaliencyTextViz } from "./vis/SaliencyTexts"
 
 /**
  * Render static elements needed for interface
@@ -143,7 +144,8 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
     const vizs = {
         histogram: noSidebar ? null : new Histogram(<HTMLElement>selectors.sidebar.node(), eventHandler),
         confusionMatrix: noSidebar ? null : new ConfusionMatrix(<HTMLElement>selectors.sidebar.node(), eventHandler),
-        saliencyImages: new LazySaliencyImages(<HTMLElement>selectors.imagesPanel.node(), eventHandler),
+        // saliencyImages: new LazySaliencyImages(<HTMLElement>selectors.imagesPanel.node(), eventHandler),
+        saliencyText: new SaliencyTextViz(<HTMLElement>selectors.imagesPanel.node(), eventHandler)
     }
 
     const eventHelpers = {
@@ -152,9 +154,9 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         * @param {State} state - the current state of the application.
         */
         updateImages: (state: State) => {
-            vizs.saliencyImages.clear()
+            // vizs.saliencyImages.clear()
+            // vizs.saliencyText.clear()
             if (state.displayText()) {
-                console.log("Text detected in update images")
             } else {
                 const imageIDs = api.getImages(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(),
                     state.labelFilter())
@@ -164,7 +166,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
                         imgIDs: IDs,
                         scoreFn: state.scoreFn()
                     }
-                    vizs.saliencyImages.update(imgData)
+                    // vizs.saliencyImages.update(imgData)
                 })
             }
         },
@@ -174,9 +176,13 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         * @param {State} state - the current state of the application.
         */
         updatePage: (state: State) => {
-            vizs.saliencyImages.clear()
+            // vizs.saliencyImages.clear()
             if (state.displayText()) {
                 selectors.sidebar.classed('hidden', true)
+                console.log("Text detected in update images")
+                api.getSaliencyTexts(null, state.scoreFn()).then(r => {
+                    vizs.saliencyText.update(r[3])
+                })
             } else {
                 selectors.sidebar.classed('hidden', false)
 
@@ -185,7 +191,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
                 selectors.body.style('cursor', 'progress')
                 imageIDs.then(IDs => {
                     // Update image panel
-                    vizs.saliencyImages.update({ caseStudy: state.caseStudy(), imgIDs: IDs, scoreFn: state.scoreFn() })
+                    // vizs.saliencyImages.update({ caseStudy: state.caseStudy(), imgIDs: IDs, scoreFn: state.scoreFn() })
 
                     // Update histogram
                     api.binScores(state.caseStudy(), IDs, state.scoreFn()).then(bins => {
@@ -209,22 +215,18 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         * @param {State} state - the current state of the application.
         */
         updateLabels: (state: State) => {
-            if (state.displayText()) {
-                console.log("Not updating labels nuhuh, cuz text")
-            } else {
-                api.getLabels(state.caseStudy()).then(labels => {
-                    const labelValues = labels.slice();
-                    labels.splice.apply(labels, [0, 0 as string | number].concat(labelFilterOptions.map(option => option.name)));
-                    labelValues.splice.apply(labelValues, [0, 0 as string | number].concat(labelFilterOptions.map(option => option.value)));
-                    selectors.labelFilter.selectAll('option')
-                        .data(labels)
-                        .join('option')
-                        .attr('value', (label, i) => labelValues[i])
-                        .attr('disabled', state.isFrozen('labelFilter'))
-                        .text(label => label)
-                    selectors.labelFilter.property('value', state.labelFilter())
-                })
-            }
+            api.getLabels(state.caseStudy()).then(labels => {
+                const labelValues = labels.slice();
+                labels.splice.apply(labels, [0, 0 as string | number].concat(labelFilterOptions.map(option => option.name)));
+                labelValues.splice.apply(labelValues, [0, 0 as string | number].concat(labelFilterOptions.map(option => option.value)));
+                selectors.labelFilter.selectAll('option')
+                    .data(labels)
+                    .join('option')
+                    .attr('value', (label, i) => labelValues[i])
+                    .attr('disabled', state.isFrozen('labelFilter'))
+                    .text(label => label)
+                selectors.labelFilter.property('value', state.labelFilter())
+            })
         },
 
         /**
@@ -232,23 +234,18 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         * @param {State} state - the current state of the application.
         */
         updatePredictions: (state: State) => {
-            if (state.displayText()) {
-
-            } else {
-
-                api.getPredictions(state.caseStudy()).then(predictions => {
-                    const predictionValues = predictions.slice();
-                    predictions.splice.apply(predictions, [0, 0 as string | number].concat(predictionFnOptions.map(option => option.name)));
-                    predictionValues.splice.apply(predictionValues, [0, 0 as string | number].concat(predictionFnOptions.map(option => option.value)));
-                    selectors.predictionFn.selectAll('option')
-                        .data(predictions)
-                        .join('option')
-                        .attr('value', (prediction, i) => predictionValues[i])
-                        .attr('disabled', state.isFrozen('predictionFn'))
-                        .text(prediction => prediction)
-                    selectors.predictionFn.property('value', state.predictionFn())
-                })
-            }
+            api.getPredictions(state.caseStudy()).then(predictions => {
+                const predictionValues = predictions.slice();
+                predictions.splice.apply(predictions, [0, 0 as string | number].concat(predictionFnOptions.map(option => option.name)));
+                predictionValues.splice.apply(predictionValues, [0, 0 as string | number].concat(predictionFnOptions.map(option => option.value)));
+                selectors.predictionFn.selectAll('option')
+                    .data(predictions)
+                    .join('option')
+                    .attr('value', (prediction, i) => predictionValues[i])
+                    .attr('disabled', state.isFrozen('predictionFn'))
+                    .text(prediction => prediction)
+                selectors.predictionFn.property('value', state.predictionFn())
+            })
         }
     }
 
@@ -269,7 +266,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         // Get data from state parameters
         eventHelpers.updatePage(state)
 
-        api.getSaliencyText(null, state.scoreFn()).then(r => {
+        api.getSaliencyTexts(null, state.scoreFn()).then(r => {
             console.log("Text is working: ", r)
         })
     }
