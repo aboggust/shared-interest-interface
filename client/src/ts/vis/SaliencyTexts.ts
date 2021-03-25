@@ -61,13 +61,15 @@ export class SaliencyTexts extends HTMLComponent<DI>{
         const sels = this.sels
         const op = this.options
 
+        this.base.html('')
+
         const saliencyTxtRows = this.base.selectAll('.saliency-txt-row')
             .data(txts)
             .join('div')
             .classed('saliency-txt-row', true)
             .style('margin-bottom', '1rem')
             .style('height', op.baseLoadHeight)
-            .attr('fname-id', (d, i) => i)
+            .attr('fname-id', (d, i) => d.id)
 
 
         saliencyTxtRows.each(function (d, i) {
@@ -75,7 +77,7 @@ export class SaliencyTexts extends HTMLComponent<DI>{
             const observer = lozad(this, {
                 load: function (el) {
                     me.style("height", null)
-                    self.trigger(Events.onScreen, { el, id: i })
+                    self.trigger(Events.onScreen, { el, id: d.id })
                 }
             });
             observer.observe();

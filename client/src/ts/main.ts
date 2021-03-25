@@ -159,6 +159,9 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             // vizs.saliencyImages.clear()
             // vizs.saliencyText.clear()
             if (state.displayText()) {
+                api.getSaliencyTexts(state.sortBy(), state.scoreFn()).then(r => {
+                    vizs.saliencyTexts.update(r.sort((x1, x2) => state.sortBy() * (x1.score - x2.score)))
+                })
             } else {
                 const imageIDs = api.getImages(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(),
                     state.labelFilter())
@@ -182,7 +185,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             if (state.displayText()) {
                 selectors.sidebar.classed('hidden', true)
                 console.log("Text detected in update images")
-                api.getSaliencyTexts(null, state.scoreFn()).then(r => {
+                api.getSaliencyTexts(state.sortBy(), state.scoreFn()).then(r => {
                     vizs.saliencyTexts.update(r)
                 })
             } else {
@@ -268,7 +271,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         // Get data from state parameters
         eventHelpers.updatePage(state)
 
-        api.getSaliencyTexts(null, state.scoreFn()).then(r => {
+        api.getSaliencyTexts(state.sortBy(), state.scoreFn()).then(r => {
             console.log("Text is working: ", r)
         })
     }
@@ -329,9 +332,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
     eventHandler.bind(SaliencyTexts.events.onScreen, ({ el, id, caller }) => {
         /* Lazy load the saliency images. */
         const row = new SaliencyTextViz(el, eventHandler)
-        console.log("CALLING FOR ID: ", id)
         api.getSaliencyText(state.caseStudy(), id, state.scoreFn()).then(salTxt => {
-            console.log("received id: ", id)
             row.update(salTxt)
         })
     })

@@ -13,7 +13,6 @@ export class API {
         }
     }
 
-
     /**
      * Get the saliency image objects for all imageIDs.
      *
@@ -37,23 +36,16 @@ export class API {
 
     getSaliencies(caseStudy: string, ids: string[], scoreFn: string): Promise<SaliencyImg[] | SaliencyText[]> {
         if (caseStudy == "text") {
-            return this.getSaliencyTexts(ids, scoreFn)
+            return this.getSaliencyTexts(null, scoreFn)
         }
         return this.getSaliencyImages(caseStudy, ids, scoreFn)
     }
 
     getSaliencyText(caseStudy: string, id: (number | string), scoreFn: string): Promise<SaliencyText> {
-        return this.getSaliencyTexts(null, scoreFn).then(r => { return r[+id] })
+        return this.getSaliencyTexts(null, scoreFn).then(r => r.filter(x => x.id == id)[0])
     }
 
-    getSaliencyTexts(text_ids: (number | string)[], scoreFn: string): Promise<SaliencyText[]> {
-        // const toSend = {
-        //     text_ids,
-        //     score_fn: scoreFn
-        // }
-        // const url = makeUrl(this.baseURL + "/get-saliency-images")
-        // const payload = toPayload(imagesToSend)
-        // return d3.json(url, payload)
+    getSaliencyTexts(sortBy: number, scoreFn: string): Promise<SaliencyText[]> {
 
         // Local fetch
         const url = baseurl + "/client/assets/beer_advocate.json"
@@ -63,14 +55,17 @@ export class API {
         }
         return d3.json(url).then((r: unknown[]) => {
             // Fix the format of the provided file
-            r.forEach((t: SaliencyText) => {
+            r.forEach((t: SaliencyText, i) => {
                 t['ground_truth_coverage'] = +t.scores.recall
                 t['explanation_coverage'] = +t.scores.precision
                 t['iou'] = +t.scores.iou
                 t['score'] = +t[scoreFn]
+                t['id'] = i
             })
 
-            return r as SaliencyText[]
+            const scale = sortBy == null ? 1 : sortBy
+
+            return (<SaliencyText[]>r).sort((x1, x2) => scale * (x1.score - x2.score))
         })
     }
 
@@ -190,6 +185,4 @@ export class API {
         const url = makeUrl(this.baseURL + "/confusion-matrix", toSend)
         return d3.json(url)
     }
-
-
 };

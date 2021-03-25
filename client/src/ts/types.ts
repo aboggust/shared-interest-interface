@@ -43,4 +43,5 @@ export interface SaliencyText {
     explanation_coverage?: number
     iou?: number
     score?: number
+    id?: number
 }
