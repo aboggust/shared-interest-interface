@@ -141,7 +141,9 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
     }
 
     const vizs = {
-        histogram: noSidebar ? null : new Histogram(<HTMLElement>selectors.sidebar.node(), eventHandler),
+        IouHistogram: noSidebar ? null : new Histogram(<HTMLElement>selectors.sidebar.node(), 'IoU', eventHandler),
+        ECHistogram: noSidebar ? null : new Histogram(<HTMLElement>selectors.sidebar.node(), 'Explanation Coverage', eventHandler),
+        GTCHistogram: noSidebar ? null : new Histogram(<HTMLElement>selectors.sidebar.node(), 'Ground Truth Coverage', eventHandler),
         confusionMatrix: noSidebar ? null : new ConfusionMatrix(<HTMLElement>selectors.sidebar.node(), eventHandler),
         saliencyImages: new LazySaliencyImages(<HTMLElement>selectors.imagesPanel.node(), eventHandler),
     }
@@ -178,9 +180,15 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
                 // Update image panel
                 vizs.saliencyImages.update({ caseStudy: state.caseStudy(), imgIDs: IDs, scoreFn: state.scoreFn() })
 
-                // Update histogram
-                api.binScores(state.caseStudy(), IDs, state.scoreFn()).then(bins => {
-                    noSidebar || vizs.histogram.update(bins)
+                // Update histograms
+                api.binScores(state.caseStudy(), IDs, 'iou').then(bins => {
+                    noSidebar || vizs.IouHistogram.update(bins)
+                })
+                api.binScores(state.caseStudy(), IDs, 'explanation_coverage').then(bins => {
+                    noSidebar || vizs.ECHistogram.update(bins)
+                })
+                api.binScores(state.caseStudy(), IDs, 'ground_truth_coverage').then(bins => {
+                    noSidebar || vizs.GTCHistogram.update(bins,)
                 })
 
                 // Update confusion matrix

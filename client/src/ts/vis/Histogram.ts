@@ -10,17 +10,17 @@ type DI = Bins[]
 export class Histogram extends HTMLComponent<DI>{
     cssName = 'score-histogram'
 
-    constructor(parent:HTMLElement, eventHandler?:SimpleEventHandler, options={}) {
+    constructor(parent:HTMLElement, score:string, eventHandler?:SimpleEventHandler, options={},) {
         super(parent, eventHandler, options)
         this._superInit(options);
-        this._init()
+        this._init(score)
     }
 
-    _init() {
+    _init(score?:string) {
         this.base
             .append('div')
             .classed('title', true)
-            .text('Score Distribution')
+            .text(score + ' Distribution')
     }
 
     _render(bins: Bins[]) {
