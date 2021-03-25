@@ -9,6 +9,8 @@ import { API } from './api/mainApi'
 import { State, URLParameters } from './state'
 import { caseStudyOptions, sortByOptions, predictionFnOptions, scoreFnOptions, labelFilterOptions } from './etc/selectionOptions'
 import { SaliencyImg } from './types';
+import { min } from 'lodash'
+import { stat } from 'fs'
 
 /**
  * Render static elements needed for interface
@@ -324,6 +326,17 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             selectors.predictionFn.property('value', prediction)
             state.predictionFn(prediction)
             eventHelpers.updatePage(state)
+        }
+    })
+
+    eventHandler.bind(Histogram.events.onBrush, ({ minScore, maxScore, score, caller }) => {
+        /* Filter scores */
+        if (score == 'IoU') { 
+            state.iouFilter(minScore, maxScore)
+        } else if (score == 'Explanation Coverage') { 
+            state.explanationFilter(minScore, maxScore)
+        } else if (score == 'Ground Truth Coverage') { 
+            state.groundTruthFilter(minScore, maxScore)
         }
     })
 
