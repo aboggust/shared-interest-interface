@@ -42,6 +42,10 @@ export class API {
         return this.getSaliencyImages(caseStudy, ids, scoreFn)
     }
 
+    getSaliencyText(caseStudy: string, id: (number | string), scoreFn: string): Promise<SaliencyText> {
+        return this.getSaliencyTexts(null, scoreFn).then(r => { return r[+id] })
+    }
+
     getSaliencyTexts(text_ids: (number | string)[], scoreFn: string): Promise<SaliencyText[]> {
         // const toSend = {
         //     text_ids,

@@ -9,7 +9,8 @@ import { API } from './api/mainApi'
 import { State, URLParameters } from './state'
 import { caseStudyOptions, sortByOptions, predictionFnOptions, scoreFnOptions, labelFilterOptions } from './etc/selectionOptions'
 import { SaliencyImg } from './types';
-import { SaliencyTextViz } from "./vis/SaliencyTexts"
+import { SaliencyTextViz } from "./vis/SaliencyTextRow"
+import { SaliencyTexts } from "./vis/SaliencyTexts"
 
 /**
  * Render static elements needed for interface
@@ -145,7 +146,8 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         histogram: noSidebar ? null : new Histogram(<HTMLElement>selectors.sidebar.node(), eventHandler),
         confusionMatrix: noSidebar ? null : new ConfusionMatrix(<HTMLElement>selectors.sidebar.node(), eventHandler),
         // saliencyImages: new LazySaliencyImages(<HTMLElement>selectors.imagesPanel.node(), eventHandler),
-        saliencyText: new SaliencyTextViz(<HTMLElement>selectors.imagesPanel.node(), eventHandler)
+        // saliencyText: new SaliencyTextViz(<HTMLElement>selectors.imagesPanel.node(), eventHandler),
+        saliencyTexts: new SaliencyTexts(<HTMLElement>selectors.imagesPanel.node(), eventHandler),
     }
 
     const eventHelpers = {
@@ -181,7 +183,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
                 selectors.sidebar.classed('hidden', true)
                 console.log("Text detected in update images")
                 api.getSaliencyTexts(null, state.scoreFn()).then(r => {
-                    vizs.saliencyText.update(r[3])
+                    vizs.saliencyTexts.update(r)
                 })
             } else {
                 selectors.sidebar.classed('hidden', false)
@@ -322,6 +324,16 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
                 img.update(salImg)
             })
         }
+    })
+
+    eventHandler.bind(SaliencyTexts.events.onScreen, ({ el, id, caller }) => {
+        /* Lazy load the saliency images. */
+        const row = new SaliencyTextViz(el, eventHandler)
+        console.log("CALLING FOR ID: ", id)
+        api.getSaliencyText(state.caseStudy(), id, state.scoreFn()).then(salTxt => {
+            console.log("received id: ", id)
+            row.update(salTxt)
+        })
     })
 
     eventHandler.bind(SingleSaliencyImage.events.onLabelClick, ({ label, caller }) => {

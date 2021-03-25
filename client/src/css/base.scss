@@ -192,6 +192,7 @@ select {
 .ID_images-panel {
   height: inherit;
   width: inherit;
+  overflow-y: auto;
 }
 
 .full-width-images {
@@ -297,7 +298,7 @@ select {
   display: none;
 }
 
-.saliency-texts {
+.saliency-text-viz {
   text-align: center;
 
   .txt-info {
