@@ -89,7 +89,6 @@ for dataset in datasets:
     dataframe = pd.read_json("./data/examples/%s.json" % dataset)
     dataframes[dataset] = dataframe.set_index('fname')
 
-
 @app.get("/api/get-images", response_model=List[str])
 async def get_images(case_study: str, sort_by: int, prediction_fn: str,
                      score_fn: str, label_filter: str):
@@ -98,7 +97,7 @@ async def get_images(case_study: str, sort_by: int, prediction_fn: str,
     Args:
         case_study: The name of the case study dataset.
         sort_by: 1 if ascending, -1 if descending.
-        prediction_fn: The prediction function. It can be 'all_images',
+        prediction_fn: The prediction function. It can be 'all',
                        'correct_only', 'incorrect_only', or any label.
         score_fn: The score function name to apply.
         label_filter: The label filter to apply. It can be any label name or ''
@@ -109,7 +108,7 @@ async def get_images(case_study: str, sort_by: int, prediction_fn: str,
          label_filter and sorted by the score_fn in sort_by order.
     """
     df = dataframes[case_study]
-    if prediction_fn == "all_images":
+    if prediction_fn == "all":
         pred_inds = np.ones(len(df))
     elif prediction_fn == "correct_only":
         pred_inds = df.label == df.prediction

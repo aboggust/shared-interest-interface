@@ -10,6 +10,7 @@ export interface URLParameters {
 
 interface StateConf { }
 
+
 export class State {
     private _url: Partial<URLParameters> = {}
     private _conf: Partial<StateConf> = {}
@@ -43,7 +44,7 @@ export class State {
             caseStudy: params['caseStudy'] || 'data_vehicle',
             scoreFn: params['scoreFn'] || 'explanation_coverage',
             sortBy: params['sortBy'] || 1,
-            predictionFn: params['predictionFn'] || 'all_images',
+            predictionFn: params['predictionFn'] || 'all',
             labelFilter: params['labelFilter'] || '',
         }
     }
@@ -70,7 +71,8 @@ export class State {
     }
 
     displayText() {
-        return this.caseStudy() == "text"
+        const textDatasets = new Set(["text", "data_beer"])
+        return textDatasets.has(this.caseStudy())
     }
 
     caseStudy(): string

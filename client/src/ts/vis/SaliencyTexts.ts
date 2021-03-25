@@ -6,7 +6,7 @@ import { SaliencyText } from '../types';
 import { SaliencyTextViz } from "./SaliencyTextRow"
 import lozad from "lozad"
 
-type DI = SaliencyText[]
+type DI = string[]
 
 interface EventsI {
     onScoreClick: string
@@ -69,7 +69,7 @@ export class SaliencyTexts extends HTMLComponent<DI>{
             .classed('saliency-txt-row', true)
             .style('margin-bottom', '1rem')
             .style('height', op.baseLoadHeight)
-            .attr('fname-id', (d, i) => d.id)
+            .attr('fname-id', (d, i) => d)
 
 
         saliencyTxtRows.each(function (d, i) {
@@ -77,7 +77,7 @@ export class SaliencyTexts extends HTMLComponent<DI>{
             const observer = lozad(this, {
                 load: function (el) {
                     me.style("height", null)
-                    self.trigger(Events.onScreen, { el, id: d.id })
+                    self.trigger(Events.onScreen, { el, id: d })
                 }
             });
             observer.observe();

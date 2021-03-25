@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { makeUrl, toPayload } from '../etc/apiHelpers'
 import { URLHandler } from '../etc/URLHandler';
-import { SaliencyImg, Bins, ConfusionMatrixI, SaliencyText } from '../types';
+import { SaliencyImg, Bins, ConfusionMatrixI, SaliencyText, SaliencyTextMap } from '../types';
 
 const baseurl = URLHandler.basicURL()
 
@@ -13,59 +13,49 @@ export class API {
         }
     }
 
-    /**
-     * Get the saliency image objects for all imageIDs.
-     *
-     * @param {string} caseStudy - the name of the case study
-     * @param {string[]} imageIDs - a list of string image ids
-     * @param {string} scoreFn - the score function name
-     * @return {Promise<SaliencyImg[]>} a list of SaliencyImg for the imageIDs in the caseStudy
-     */
-    getSaliencyImages(caseStudy: string, imageIDs: string[], scoreFn: string): Promise<SaliencyImg[]> {
-        // This is not used in favor of lazy loading
+    getTextIDs(caseStudy: string, sortBy: number, predictionFn: string, scoreFn: string, labelFilter: string): Promise<string[]> {
+        return this.getSaliencyTexts(sortBy, scoreFn).then(r => {
+            let out = Object.entries(r).filter(x => {
+                const k = x[0], v = x[1]
+                const isCorrect = +v.prediction == +v.label
+                const goodLabel = (labelFilter == "") || (v.label.toString() == labelFilter)
 
-        const imagesToSend = {
-            case_study: caseStudy,
-            image_ids: imageIDs,
-            score_fn: scoreFn
-        }
-        const url = makeUrl(this.baseURL + "/get-saliency-images")
-        const payload = toPayload(imagesToSend)
-        return d3.json(url, payload)
-    }
+                const goodPrediction = predictionFn == "correct_only" ? isCorrect 
+                    : predictionFn == "incorrect_only" ? !isCorrect
+                    : true
+                return goodLabel && goodPrediction
+            }).sort((a, b) => {
+                const v0 = a[1], v1 = b[1]
+                return sortBy * (v0.score - v1.score)
+            }).map(x => x[0])
 
-    getSaliencies(caseStudy: string, ids: string[], scoreFn: string): Promise<SaliencyImg[] | SaliencyText[]> {
-        if (caseStudy == "text") {
-            return this.getSaliencyTexts(null, scoreFn)
-        }
-        return this.getSaliencyImages(caseStudy, ids, scoreFn)
+            return out
+        })
     }
 
     getSaliencyText(caseStudy: string, id: (number | string), scoreFn: string): Promise<SaliencyText> {
-        return this.getSaliencyTexts(null, scoreFn).then(r => r.filter(x => x.id == id)[0])
+        return this.getSaliencyTexts(null, scoreFn).then(r => r[id])
     }
 
-    getSaliencyTexts(sortBy: number, scoreFn: string): Promise<SaliencyText[]> {
-
+    getSaliencyTexts(sortBy: number, scoreFn: string): Promise<SaliencyTextMap> {
         // Local fetch
         const url = baseurl + "/client/assets/beer_advocate.json"
-        const labelMap = {
-            0: "negative",
-            1: "positive"
-        }
         return d3.json(url).then((r: unknown[]) => {
-            // Fix the format of the provided file
-            r.forEach((t: SaliencyText, i) => {
-                t['ground_truth_coverage'] = +t.scores.recall
-                t['explanation_coverage'] = +t.scores.precision
-                t['iou'] = +t.scores.iou
-                t['score'] = +t[scoreFn]
-                t['id'] = i
+            let rout = {}
+            r.forEach((t:SaliencyText, i) => {
+                const t2 = {
+                    ...t,
+                    ground_truth_coverage: +t.scores.recall,
+                    explanation_coverage: +t.scores.precision,
+                    iou: +t.scores.iou,
+                    id: i,
+                }
+                rout[i] = {
+                    ...t2,
+                    score: t2[scoreFn]
+                }                 
             })
-
-            const scale = sortBy == null ? 1 : sortBy
-
-            return (<SaliencyText[]>r).sort((x1, x2) => scale * (x1.score - x2.score))
+            return rout
         })
     }
 
@@ -98,7 +88,7 @@ export class API {
      * @param {string} labelFilter - the name of the label filter
      * @return {Promise<string[]>} a list of imageIDs
      */
-    getImages(caseStudy: string, sortBy: number, predictionFn: string, scoreFn: string, labelFilter: string): Promise<string[]> {
+    getImageIDs(caseStudy: string, sortBy: number, predictionFn: string, scoreFn: string, labelFilter: string): Promise<string[]> {
         const toSend = {
             case_study: caseStudy,
             sort_by: sortBy,

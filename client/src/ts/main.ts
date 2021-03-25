@@ -159,11 +159,11 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             // vizs.saliencyImages.clear()
             // vizs.saliencyText.clear()
             if (state.displayText()) {
-                api.getSaliencyTexts(state.sortBy(), state.scoreFn()).then(r => {
-                    vizs.saliencyTexts.update(r.sort((x1, x2) => state.sortBy() * (x1.score - x2.score)))
+                api.getTextIDs(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter()).then(r => {
+                    vizs.saliencyTexts.update(r)
                 })
             } else {
-                const imageIDs = api.getImages(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(),
+                const imageIDs = api.getImageIDs(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(),
                     state.labelFilter())
                 imageIDs.then(IDs => {
                     const imgData = {
@@ -185,13 +185,14 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             if (state.displayText()) {
                 selectors.sidebar.classed('hidden', true)
                 console.log("Text detected in update images")
-                api.getSaliencyTexts(state.sortBy(), state.scoreFn()).then(r => {
+                api.getTextIDs(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter()).then(r => {
+                    console.log(r)
                     vizs.saliencyTexts.update(r)
                 })
             } else {
                 selectors.sidebar.classed('hidden', false)
 
-                const imageIDs = api.getImages(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(),
+                const imageIDs = api.getImageIDs(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(),
                     state.labelFilter())
                 selectors.body.style('cursor', 'progress')
                 imageIDs.then(IDs => {
@@ -271,8 +272,8 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         // Get data from state parameters
         eventHelpers.updatePage(state)
 
-        api.getSaliencyTexts(state.sortBy(), state.scoreFn()).then(r => {
-            console.log("Text is working: ", r)
+        api.getTextIDs(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter()).then(r => {
+            vizs.saliencyTexts.update(r)
         })
     }
 
@@ -284,7 +285,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         state.caseStudy(caseStudy)
         state.labelFilter('')
         eventHelpers.updateLabels(state)
-        state.predictionFn('all_images')
+        state.predictionFn('all')
         eventHelpers.updatePredictions(state)
         eventHelpers.updatePage(state)
     });

@@ -3,6 +3,7 @@ export const caseStudyOptions = [
     { name: "Dogs", value: "data_dogs" },
     { name: "Melanoma", value: "data_melanoma" },
     { name: "Text", value: "text" },
+    { name: "Beer Sentiment", value: "data_beer" },
 ]
 
 export const sortByOptions = [
@@ -17,7 +18,7 @@ export const scoreFnOptions = [
 ]
 
 export const predictionFnOptions = [
-    { name: "All", value: 'all_images' },
+    { name: "All", value: 'all' },
     { name: "Correct", value: 'correct_only' },
     { name: "Incorrect", value: 'incorrect_only' },
 ]

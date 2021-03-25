@@ -45,3 +45,5 @@ export interface SaliencyText {
     score?: number
     id?: number
 }
+
+export type SaliencyTextMap = {[k: string]: SaliencyText}
