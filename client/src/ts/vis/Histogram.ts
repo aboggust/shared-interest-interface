@@ -112,8 +112,7 @@ export class Histogram extends HTMLComponent<DI>{
             })
 
         self.base.selectAll('.score-histogram' + ' svg').call(brush)
-
-        if (brushRange[0] != 0 && brushRange[1] != 1) {
+        if ( !(brushRange[0] == 0 && brushRange[1] == 1) ) { 
             const left = brushRange[0] + (brushStartX / brushWidth);
             const right = brushRange[1] + (brushStartX / brushWidth);
             self.base.selectAll('.score-histogram' + ' svg').call(brush.move, [left, right].map(x))

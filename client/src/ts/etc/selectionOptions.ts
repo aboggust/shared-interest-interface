@@ -26,12 +26,43 @@ export const labelFilterOptions = [
 ]
 
 export const caseOptions = [
-    { name: "Human Aligned", value: '' },
-    { name: "Sfficient Subset", value: '' },
-    { name: "Sufficient Background", value: '' },
-    { name: "Context Dependant", value: '' },
-    { name: "Confuser", value: '' },
-    { name: "Too Focused", value: '' },
-    { name: "Distracted", value: '' },
-    { name: "Context Confusion", value: '' },
+    { name: "--- Select a preset to explore ---", value: 'default' },
+    { name: "Human Aligned", value: 'human_aligned' },
+    { name: "Sufficient Subset", value: 'sufficient_subset' },
+    { name: "Sufficient Background", value: 'sufficient_background' },
+    { name: "Context Dependant", value: 'context_dependant' },
+    { name: "Confuser", value: 'confuser' },
+    { name: "Too Focused", value: 'too_focused' },
+    { name: "Distracted", value: 'distracted' },
+    { name: "Context Confusion", value: 'context_confusion' },
 ]
+
+export const caseValues = {
+    "default":  
+        {'scores': {"iou": [0.0, 1.0], 'ground_truth_coverage': [0.0, 1.0], 'explanation_coverage': [0.0, 1.0]},
+         'prediction': 'all_images'},
+    "human_aligned":
+        {'scores': {"iou": [0.8, 1.0], 'ground_truth_coverage': [0.0, 1.0], 'explanation_coverage': [0.0, 1.0]},
+         'prediction': 'correct_only'},
+    "sufficient_subset":
+        {'scores': {"iou": [0.0, 1.0], 'ground_truth_coverage': [0.8, 1.0], 'explanation_coverage': [0.0, 0.2]},
+         'prediction': 'correct_only'},
+    "sufficient_background":
+        {'scores': {"iou": [0.0, 1.0], 'ground_truth_coverage': [0.0, 0.2], 'explanation_coverage': [0.0, 1.0]},
+         'prediction': 'correct_only'},
+    "context_dependant":
+        {'scores': {"iou": [0.0, 1.0], 'ground_truth_coverage': [0.0, 0.2], 'explanation_coverage': [0.8, 1.0]},
+         'prediction': 'correct_only'},
+    "confuser":
+        {'scores': {"iou": [0.8, 1.0], 'ground_truth_coverage': [0.0, 1.0], 'explanation_coverage': [0.0, 1.0]},
+        'prediction': 'incorrect_only'},
+    "too_focused":
+        {'scores': {"iou": [0.0, 1.0], 'ground_truth_coverage': [0.8, 1.0], 'explanation_coverage': [0.0, 0.2]},
+        'prediction': 'incorrect_only'},
+    "distracted":
+        {'scores': {"iou": [0.0, 1.0], 'ground_truth_coverage': [0.0, 0.2], 'explanation_coverage': [0.0, 1.0]},
+        'prediction': 'incorrect_only'},
+    "context_confusion":
+        {'scores': {"iou": [0.0, 1.0], 'ground_truth_coverage': [0.0, 0.2], 'explanation_coverage': [0.8, 1.0]},
+        'prediction': 'incorrect_only'},
+}

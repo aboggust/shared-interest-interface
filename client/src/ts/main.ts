@@ -7,10 +7,11 @@ import { Histogram } from './vis/Histogram'
 import { SimpleEventHandler } from './etc/SimpleEventHandler'
 import { API } from './api/mainApi'
 import { State, URLParameters } from './state'
-import { caseStudyOptions, sortByOptions, predictionFnOptions, scoreFnOptions, labelFilterOptions, caseOptions} from './etc/selectionOptions'
+import { caseStudyOptions, sortByOptions, predictionFnOptions, scoreFnOptions, labelFilterOptions, caseOptions, caseValues} from './etc/selectionOptions'
 import { SaliencyImg } from './types';
 import { min } from 'lodash'
 import { stat } from 'fs'
+
 
 /**
  * Render static elements needed for interface
@@ -256,7 +257,29 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
                     .text(prediction => prediction)
                 selectors.predictionFn.property('value', state.predictionFn())
             })
-        }
+        },
+
+         /**
+        * Update the prediction drop down values.
+        * @param {State} state - the current state of the application.
+        */
+        updateCase: (state: State) => {
+            const currentCase = selectors.caseFilter.property('value')
+            const currentPredictionFilter = selectors.predictionFn.property('value')
+            if (currentCase != 'default') { 
+                const caseScores = caseValues[currentCase]['scores']
+                if ( currentPredictionFilter != caseValues[currentCase]['prediction'] ||
+                state.iouFilter()[0] != caseScores['iou'][0] || 
+                state.iouFilter()[1] != caseScores['iou'][1] || 
+                state.groundTruthFilter()[0] != caseScores['ground_truth_coverage'][0] ||
+                state.groundTruthFilter()[1] != caseScores['ground_truth_coverage'][1] ||
+                state.explanationFilter()[0] != caseScores['explanation_coverage'][0] ||
+                state.explanationFilter()[1] != caseScores['explanation_coverage'][1] ) {
+                    selectors.caseFilter.property('value', 'default')
+                }
+            }
+        },
+
     }
 
     /**
@@ -301,6 +324,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         /* When the prediction function changes, update the page. */
         const predictionValue = selectors.predictionFn.property('value')
         state.predictionFn(predictionValue)
+        eventHelpers.updateCase(state)
         eventHelpers.updateImages(state)
     });
 
@@ -317,6 +341,20 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         state.labelFilter(labelFilter)
         eventHelpers.updateImages(state)
     });
+
+    selectors.caseFilter.on('change', () => {
+        /* When case changes, update the page. */
+        const caseFilter = selectors.caseFilter.property('value')
+        if (caseFilter) { 
+            const caseFilterScores = caseValues[caseFilter]['scores']
+            state.iouFilter(caseFilterScores['iou'][0], caseFilterScores['iou'][1])
+            state.groundTruthFilter(caseFilterScores['ground_truth_coverage'][0], caseFilterScores['ground_truth_coverage'][1])
+            state.explanationFilter(caseFilterScores['explanation_coverage'][0], caseFilterScores['explanation_coverage'][1])
+            state.predictionFn(caseValues[caseFilter]['prediction'])
+            eventHelpers.updatePredictions(state)
+            eventHelpers.updatePage(state)
+        }
+    })
 
     eventHandler.bind(LazySaliencyImages.events.onScreen, ({ el, id, scoreFn, caseStudy, caller }) => {
         /* Lazy load the saliency images. */
@@ -348,14 +386,15 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         /* Filter scores */
         if (score == 'IoU') { 
             state.iouFilter(minScore, maxScore)
-            eventHelpers.updateImages(state)
         } else if (score == 'Explanation Coverage') { 
             state.explanationFilter(minScore, maxScore)
-            eventHelpers.updateImages(state)
         } else if (score == 'Ground Truth Coverage') { 
             state.groundTruthFilter(minScore, maxScore)
-            eventHelpers.updateImages(state)
         }
+        eventHelpers.updateImages(state)
+
+        // Reset case if necessary 
+        eventHelpers.updateCase(state)
     })
 
 }
