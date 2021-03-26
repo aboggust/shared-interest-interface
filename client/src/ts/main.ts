@@ -8,7 +8,6 @@ import { SimpleEventHandler } from './etc/SimpleEventHandler'
 import { API } from './api/mainApi'
 import { State, URLParameters } from './state'
 import { caseStudyOptions, sortByOptions, predictionFnOptions, scoreFnOptions, labelFilterOptions } from './etc/selectionOptions'
-import { SaliencyImg } from './types';
 import { SaliencyTextViz } from "./vis/SaliencyTextRow"
 import { SaliencyTexts } from "./vis/SaliencyTexts"
 
@@ -142,12 +141,17 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             .text(option => option.name),
     }
 
+    function assignResultsView() {
+        const node = selectors.imagesPanel
+        node.html('')
+        return state.displayText() ? new SaliencyTexts(<HTMLElement>node.node(), eventHandler)
+            : new LazySaliencyImages(<HTMLElement>node.node(), eventHandler)
+    }
+
     const vizs = {
         histogram: noSidebar ? null : new Histogram(<HTMLElement>selectors.sidebar.node(), eventHandler),
         confusionMatrix: noSidebar ? null : new ConfusionMatrix(<HTMLElement>selectors.sidebar.node(), eventHandler),
-        // saliencyImages: new LazySaliencyImages(<HTMLElement>selectors.imagesPanel.node(), eventHandler),
-        // saliencyText: new SaliencyTextViz(<HTMLElement>selectors.imagesPanel.node(), eventHandler),
-        saliencyTexts: new SaliencyTexts(<HTMLElement>selectors.imagesPanel.node(), eventHandler),
+        saliencyResults: assignResultsView()
     }
 
     const eventHelpers = {
@@ -156,11 +160,11 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         * @param {State} state - the current state of the application.
         */
         updateImages: (state: State) => {
-            // vizs.saliencyImages.clear()
-            // vizs.saliencyText.clear()
+            vizs.saliencyResults = assignResultsView()
             if (state.displayText()) {
                 api.getTextIDs(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter()).then(r => {
-                    vizs.saliencyTexts.update(r)
+                    //@ts-ignore
+                    vizs.saliencyResults.update(r)
                 })
             } else {
                 const imageIDs = api.getImageIDs(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(),
@@ -171,7 +175,8 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
                         imgIDs: IDs,
                         scoreFn: state.scoreFn()
                     }
-                    // vizs.saliencyImages.update(imgData)
+                    //@ts-ignore
+                    vizs.saliencyResults.update(imgData)
                 })
             }
         },
@@ -182,16 +187,20 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         */
         updatePage: (state: State) => {
             // vizs.saliencyImages.clear()
+            vizs.saliencyResults = assignResultsView()
             if (state.displayText()) {
-                selectors.sidebar.classed('hidden', false)
+
+                // CHANGE THIS WHEN HISTOGRAM + CONFUSION MATRIX ARE WORKING
+                selectors.sidebar.classed('hidden', true)
                 console.log("Text detected in update images")
                 api.getTextIDs(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter()).then(ids => {
-                    console.log(ids)
-                    vizs.saliencyTexts.update(ids)
+                    //@ts-ignore
+                    vizs.saliencyResults.update(ids)
 
-                    api.binTextScores(state.caseStudy(), ids, state.scoreFn()).then(bins => {
-                        vizs.histogram.update(bins)
-                    })
+                    // THIS IS REALLY SLOW on the frontend. Need a different route
+                    // api.binTextScores(state.caseStudy(), ids, state.scoreFn()).then(bins => {
+                    //     vizs.histogram.update(bins)
+                    // })
                 })
             } else {
                 selectors.sidebar.classed('hidden', false)
@@ -201,7 +210,8 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
                 selectors.body.style('cursor', 'progress')
                 imageIDs.then(IDs => {
                     // Update image panel
-                    // vizs.saliencyImages.update({ caseStudy: state.caseStudy(), imgIDs: IDs, scoreFn: state.scoreFn() })
+                    //@ts-ignore
+                    vizs.saliencyResults.update({ caseStudy: state.caseStudy(), imgIDs: IDs, scoreFn: state.scoreFn() })
 
                     // Update histogram
                     api.binScores(state.caseStudy(), IDs, state.scoreFn()).then(bins => {
@@ -275,10 +285,6 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
 
         // Get data from state parameters
         eventHelpers.updatePage(state)
-
-        api.getTextIDs(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter()).then(r => {
-            vizs.saliencyTexts.update(r)
-        })
     }
 
     initializeFromState(state)

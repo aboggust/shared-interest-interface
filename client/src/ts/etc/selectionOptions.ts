@@ -3,7 +3,6 @@ export const caseStudyOptions = [
     { name: "Dogs", value: "data_dogs" },
     { name: "Melanoma", value: "data_melanoma" },
     { name: "Text", value: "text" },
-    { name: "Beer Sentiment", value: "data_beer" },
 ]
 
 export const sortByOptions = [
