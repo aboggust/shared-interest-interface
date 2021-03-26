@@ -333,7 +333,7 @@ async def get_best_prediction(payload:api.BestPredictionPayload):
 
     # Return topk saliency maps and scores.
     max_inds = np.argpartition(shared_interest_scores, -topk)[-topk:]
-    max_inds_sorted = max_inds[np.argsort(shared_interest_scores[max_inds])]
+    max_inds_sorted = max_inds[np.argsort(-shared_interest_scores[max_inds])]
     top_scores = shared_interest_scores[max_inds_sorted]
     top_saliency_masks = saliency_masks[max_inds_sorted]
 

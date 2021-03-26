@@ -67,13 +67,12 @@ export class InteractiveSaliencyPopup extends HTMLComponent<DI> {
             sels = this.sels;
         const templateHtml = `
         <div class="result-popup">
-            <div class="layout horizontal">
-                <div class="flex">
+            <div class="layout horizontal center center-center">
+                <div class="flex" style="margin-right: 2rem; margin-left: 2rem">
                     <div class="ID_score-dropdown"></div>
                     <div class="ID_interactive-saliency"></div>
                 </div>
-                <div class="flex-8 layout horizontal result-container">
-                    <div class="flex result-mask"></div>
+                <div class="flex-8 layout horizontal result-container wrap">
                 </div>
             </div>
         </div>
@@ -126,6 +125,9 @@ export class InteractiveSaliencyPopup extends HTMLComponent<DI> {
             .data(resultImgData)
             .join('div')
             .classed("result-mask-image", true)
+            .classed("flex", true)
+            .classed("self-start", true)
+            .style("margin", "1rem")
 
         sels.resultMasks.each(function (d, i) {
             const viz = new BestPredictionResultImage(<HTMLElement>this, self.eventHandler)
