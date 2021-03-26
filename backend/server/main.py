@@ -60,6 +60,9 @@ class SaliencyImage(BaseModel):
     label: str
     prediction: str
     score: str
+    iou: str
+    ground_truth_coverage: str
+    explanation_coverage: str
 
 
 class Bins(BaseModel):

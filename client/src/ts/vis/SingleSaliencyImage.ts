@@ -18,6 +18,8 @@ interface EventsI {
 
 interface Selections {
     imgInfo: D3Sel
+    imgScores: D3Sel
+    imgLabels: D3Sel
     imgContainer: D3Sel
     mainImg: D3Sel
     bboxMask: D3Sel
@@ -54,9 +56,10 @@ export class SingleSaliencyImage extends HTMLComponent<DI>{
 
     _init() {
         const self = this
-        self.sels.imgInfo = self.base.append("div").classed("image-info", true)
-        self.sels.imgContainer = self.base.append("div").classed("image-container", true)
+        self.sels.imgScores = self.base.append("div").classed("image-info", true)
+        self.sels.imgLabels = self.base.append("div").classed("image-info", true)
 
+        self.sels.imgContainer = self.base.append("div").classed("image-container", true)
         self.sels.mainImg = self.sels.imgContainer.append("img").classed("saliency-image", true)
         self.sels.bboxMask = self.sels.imgContainer.append("svg").classed("bbox", true).classed("mask", true)
         self.sels.saliencyMask = self.sels.imgContainer.append("svg").classed("saliency", true).classed("mask", true)
@@ -69,22 +72,53 @@ export class SingleSaliencyImage extends HTMLComponent<DI>{
         const isCorrect = img.prediction == img.label
 
         // INFO LOGIC
-        sels.imgInfo.html('')
+        sels.imgScores.html('')
+        sels.imgLabels.html('')
 
-        sels.imgInfo.append('span')
+        // IoU Score 
+        sels.imgScores.append('span')
             .classed('info', true)
             // .classed('btn', true) // Add when functionality has been added to score info
-            .text(Number(img.score).toFixed(2))
-            .style('background-color', self.colorScale(img.score))
-            .style('color', img.score < 0.5 ? '#212529' : '#e3e3e3')
+            .text('IoU: ' + Number(img.iou).toFixed(2))
+            .style('background-color', self.colorScale(img.iou))
+            .style('color', img.iou < 0.5 ? '#212529' : '#e3e3e3')
             .on("mouseover", function() {
-                self.trigger(Events.onScoreHover, {score: img.score})
+                self.trigger(Events.onScoreHover, {score: img.iou})
             })
             .on("click", function() {
-                self.trigger(Events.onScoreClick, {score: img.score})
+                self.trigger(Events.onScoreClick, {score: img.iou})
             })
 
-        sels.imgInfo.append('span')
+        // GTC Score 
+        sels.imgScores.append('span')
+            .classed('info', true)
+            // .classed('btn', true) // Add when functionality has been added to score info
+            .text('GTC: ' + Number(img.ground_truth_coverage).toFixed(2))
+            .style('background-color', self.colorScale(img.ground_truth_coverage))
+            .style('color', img.ground_truth_coverage < 0.5 ? '#212529' : '#e3e3e3')
+            .on("mouseover", function() {
+                self.trigger(Events.onScoreHover, {score: img.ground_truth_coverage})
+            })
+            .on("click", function() {
+                self.trigger(Events.onScoreClick, {score: img.ground_truth_coverage})
+            })
+
+        // EC Score 
+        sels.imgScores.append('span')
+            .classed('info', true)
+            // .classed('btn', true) // Add when functionality has been added to score info
+            .text('EC: ' + Number(img.explanation_coverage).toFixed(2))
+            .style('background-color', self.colorScale(img.explanation_coverage))
+            .style('color', img.explanation_coverage < 0.5 ? '#212529' : '#e3e3e3')
+            .on("mouseover", function() {
+                self.trigger(Events.onScoreHover, {score: img.explanation_coverage})
+            })
+            .on("click", function() {
+                self.trigger(Events.onScoreClick, {score: img.explanation_coverage})
+            })
+
+        // Label 
+        sels.imgLabels.append('span')
             .classed('info', true)
             .classed('btn', true)
             .text(img.label)
@@ -101,7 +135,8 @@ export class SingleSaliencyImage extends HTMLComponent<DI>{
                 self.trigger(Events.onLabelClick, {label: img.label})
             })
 
-        sels.imgInfo.append('span')
+        // Prediction
+        sels.imgLabels.append('span')
             .classed('info', true)
             .classed('btn', true)
             .text(img.prediction)
