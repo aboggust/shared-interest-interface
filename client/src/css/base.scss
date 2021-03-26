@@ -208,7 +208,7 @@ select {
   align-items: center;
   width: 200px;
   margin-bottom: calc(var(--vertical-element-gap) / 2);
-  margin-top: calc(var(--vertical-element-gap) / 2);
+  // margin-top: calc(var(--vertical-element-gap) / 2);
 }
 
 .saliency-image {
@@ -279,5 +279,11 @@ select {
 }
 
 .remove-margin-top {
-    margin-top: 0px;
+  margin-top: 0px;
 }
+
+.description { 
+  font-size: 10pt;
+  height: 38px; // height of 2 lines of text.
+}
+

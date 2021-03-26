@@ -86,12 +86,13 @@ function init(base: D3Sel) {
             <div class="cases">
                 <div class="input-group input-group-sm mb-3">
                     <div class="input-group-prepend">
-                        <label class="input-group-text" for="prediction-filter">Case</label>
+                        <label class="input-group-text" for="case-filter">Case</label>
                     </div>
                     <select class="custom-select custom-select-sm ID_cases">
                         <!-- Fill in from data in TS now -->
                     </select>
                 </div>
+                <div class="ID_case-description"></div>
             </div>
         </div>
         <div class="ID_mainpage">
@@ -159,6 +160,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             .join('option')
             .attr('value', option => option.value)
             .text(option => option.name),
+        caseDescription: base.select('.ID_case-description').classed("description", true)
     }
 
     const vizs = {
@@ -276,6 +278,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
                 state.explanationFilter()[0] != caseScores['explanation_coverage'][0] ||
                 state.explanationFilter()[1] != caseScores['explanation_coverage'][1] ) {
                     selectors.caseFilter.property('value', 'default')
+                    selectors.caseDescription.text(caseValues['default']['description'])
                 }
             }
         },
@@ -351,6 +354,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             state.groundTruthFilter(caseFilterScores['ground_truth_coverage'][0], caseFilterScores['ground_truth_coverage'][1])
             state.explanationFilter(caseFilterScores['explanation_coverage'][0], caseFilterScores['explanation_coverage'][1])
             state.predictionFn(caseValues[caseFilter]['prediction'])
+            selectors.caseDescription.text(caseValues[caseFilter]['description'])
             eventHelpers.updatePredictions(state)
             eventHelpers.updatePage(state)
         }

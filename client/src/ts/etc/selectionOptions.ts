@@ -40,29 +40,38 @@ export const caseOptions = [
 export const caseValues = {
     "default":  
         {'scores': {"iou": [0.0, 1.0], 'ground_truth_coverage': [0.0, 1.0], 'explanation_coverage': [0.0, 1.0]},
-         'prediction': 'all_images'},
+         'prediction': 'all_images',
+         'description': ''},
     "human_aligned":
         {'scores': {"iou": [0.8, 1.0], 'ground_truth_coverage': [0.0, 1.0], 'explanation_coverage': [0.0, 1.0]},
-         'prediction': 'correct_only'},
+         'prediction': 'correct_only',
+         'description': 'Correctly classified images with high IoU.'},
     "sufficient_subset":
         {'scores': {"iou": [0.0, 1.0], 'ground_truth_coverage': [0.8, 1.0], 'explanation_coverage': [0.0, 0.2]},
-         'prediction': 'correct_only'},
+         'prediction': 'correct_only',
+         'description': 'Correctly classified images with high Ground Truth Coverage and low Explanation Coverage.'},
     "sufficient_background":
         {'scores': {"iou": [0.0, 1.0], 'ground_truth_coverage': [0.0, 0.2], 'explanation_coverage': [0.0, 1.0]},
-         'prediction': 'correct_only'},
+         'prediction': 'correct_only',
+         'description': 'Correctly classified images with low Ground Truth Coverage.'},
     "context_dependant":
         {'scores': {"iou": [0.0, 1.0], 'ground_truth_coverage': [0.0, 0.2], 'explanation_coverage': [0.8, 1.0]},
-         'prediction': 'correct_only'},
+         'prediction': 'correct_only',
+         'description': 'Correctly classified images with low Ground Truth Coverage and high Explanation Coverage.'},
     "confuser":
         {'scores': {"iou": [0.8, 1.0], 'ground_truth_coverage': [0.0, 1.0], 'explanation_coverage': [0.0, 1.0]},
-        'prediction': 'incorrect_only'},
+        'prediction': 'incorrect_only',
+        'description': 'Incorrectly classified images with high IoU.'},
     "too_focused":
         {'scores': {"iou": [0.0, 1.0], 'ground_truth_coverage': [0.8, 1.0], 'explanation_coverage': [0.0, 0.2]},
-        'prediction': 'incorrect_only'},
+        'prediction': 'incorrect_only',
+        'description': 'Incorrectly classified images with high Ground Truth Coverage and low Explanation Coverage.'},
     "distracted":
         {'scores': {"iou": [0.0, 1.0], 'ground_truth_coverage': [0.0, 0.2], 'explanation_coverage': [0.0, 1.0]},
-        'prediction': 'incorrect_only'},
+        'prediction': 'incorrect_only',
+        'description': 'Inorrectly classified images with low Ground Truth Coverage.'},
     "context_confusion":
         {'scores': {"iou": [0.0, 1.0], 'ground_truth_coverage': [0.0, 0.2], 'explanation_coverage': [0.8, 1.0]},
-        'prediction': 'incorrect_only'},
+        'prediction': 'incorrect_only',
+        'description': 'Incorrectly classified images with low Ground Truth Coverage and high Explanation Coverage.'},
 }
