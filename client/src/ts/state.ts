@@ -21,6 +21,9 @@ export class State {
     freeze: boolean
     frozenParams: Set<string> = new Set([])
 
+    totalNumImages: number
+    numImages: number
+
     /**
      * 
      * @param ignoreUrl - if provided, do not update URL parameters when state changes or initialize state from URL
@@ -144,6 +147,22 @@ export class State {
         if (minValue == null) return this._url.explanationFilter
         this._url.explanationFilter = [minValue, maxValue]
         this.toURL()
+        return this
+    }
+
+    imageCount(): number
+    imageCount(count: number): this
+    imageCount(count?) { 
+        if (count == null) return this.numImages
+        this.numImages = count
+        return this
+    }
+
+    totalImageCount(): number
+    totalImageCount(count: number): this
+    totalImageCount(count?) { 
+        if (count == null) return this.totalNumImages
+        this.totalNumImages = count
         return this
     }
 }

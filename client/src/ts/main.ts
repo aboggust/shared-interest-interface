@@ -82,6 +82,7 @@ function init(base: D3Sel) {
     <!--  Saliency Image Grid  -->
     <div class="ID_main">
         <div class="ID_sidebar">
+            <div class="ID_number-of-images">Filtering to x of Y images</div>
             <!--  Cases  -->
             <div class="cases">
                 <div class="input-group input-group-sm mb-3">
@@ -154,6 +155,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             .join('option')
             .attr('value', option => option.value)
             .text(option => option.name),
+        numberOfImages: base.select('.ID_number-of-images'),
         caseFilter: base.select('.ID_cases').attr('disabled', disableSelection),
         caseListOptions: base.select('.ID_cases').selectAll('option')
             .data(caseOptions)
@@ -180,6 +182,11 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             const imageIDs = api.getImages(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(),
                 state.labelFilter(), state.iouFilter(), state.groundTruthFilter(), state.explanationFilter())
             imageIDs.then(IDs => {
+                // Set the number of images
+                state.imageCount(IDs.length)
+                eventHelpers.updateImageCount(state)
+
+                // Update images
                 const imgData = {
                     caseStudy: state.caseStudy(),
                     imgIDs: IDs,
@@ -199,6 +206,10 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
                 '', [0, 1], [0, 1], [0, 1])
             selectors.body.style('cursor', 'progress')
             allImageIDs.then(IDs => {
+                // Update number of images
+                state.totalImageCount(IDs.length)
+
+                // Update histograms
                 api.binScores(state.caseStudy(), IDs, 'iou').then(bins => {
                     noSidebar || vizs.IouHistogram.update({bins: bins, brushRange: state.iouFilter()})
                 })
@@ -217,6 +228,10 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
                 state.labelFilter(), state.iouFilter(), state.groundTruthFilter(), state.explanationFilter())
             selectors.body.style('cursor', 'progress')
             imageIDs.then(IDs => {
+                // Set the number of images
+                state.imageCount(IDs.length)
+                eventHelpers.updateImageCount(state)
+
                 // Set images
                 vizs.saliencyImages.update({ caseStudy: state.caseStudy(), imgIDs: IDs, scoreFn: state.scoreFn() })
                 selectors.body.style('cursor', 'default')
@@ -261,8 +276,8 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             })
         },
 
-         /**
-        * Update the prediction drop down values.
+        /**
+        * Update the case if the filters have changed.
         * @param {State} state - the current state of the application.
         */
         updateCase: (state: State) => {
@@ -281,6 +296,14 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
                     selectors.caseDescription.text(caseValues['default']['description'])
                 }
             }
+        },
+
+        /**
+        * Update the image count.
+        * @param {State} state - the current state of the application.
+        */
+        updateImageCount: (state: State) => {
+            selectors.numberOfImages.text('Filtering to ' + state.imageCount() + ' of ' + state.totalImageCount() + ' images')
         },
 
     }
