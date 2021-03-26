@@ -411,6 +411,8 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
 
     eventHandler.bind(Histogram.events.onBrush, ({ minScore, maxScore, score, caller }) => {
         /* Filter scores */
+        minScore = Math.round((minScore + Number.EPSILON) * 100) / 100
+        maxScore = Math.round((maxScore + Number.EPSILON) * 100) / 100
         if (score == 'IoU') { 
             state.iouFilter(minScore, maxScore)
         } else if (score == 'Explanation Coverage') { 

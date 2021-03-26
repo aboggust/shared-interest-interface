@@ -130,9 +130,9 @@ async def get_images(case_study: str, sort_by: int, prediction_fn: str,
         label_inds = df.label == label_filter
 
     # Filter by scores
-    iou_inds = np.logical_and(df.iou >= iou_min, df.iou <= iou_max)
-    ec_inds = np.logical_and(df.explanation_coverage >= ec_min, df.explanation_coverage <= ec_max)
-    gtc_inds = np.logical_and(df.ground_truth_coverage >= gtc_min, df.ground_truth_coverage <= gtc_max)
+    iou_inds = np.logical_and(df.iou.round(2) >= iou_min, df.iou.round(2) <= iou_max)
+    ec_inds = np.logical_and(df.explanation_coverage.round(2) >= ec_min, df.explanation_coverage.round(2) <= ec_max)
+    gtc_inds = np.logical_and(df.ground_truth_coverage.round(2) >= gtc_min, df.ground_truth_coverage.round(2) <= gtc_max)
 
     # Filter data frame.
     mask = np.logical_and.reduce((pred_inds, label_inds, iou_inds, ec_inds, gtc_inds))
