@@ -191,15 +191,11 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         * @param {State} state - the current state of the application.
         */
         updatePage: (state: State) => {
-            vizs.saliencyImages.clear()
-            const imageIDs = api.getImages(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(),
-                state.labelFilter(), state.iouFilter(), state.groundTruthFilter(), state.explanationFilter())
+            // Update histograms
+            const allImageIDs = api.getImages(state.caseStudy(), state.sortBy(), 'all_images', state.scoreFn(),
+                '', [0, 1], [0, 1], [0, 1])
             selectors.body.style('cursor', 'progress')
-            imageIDs.then(IDs => {
-                // Update image panel
-                vizs.saliencyImages.update({ caseStudy: state.caseStudy(), imgIDs: IDs, scoreFn: state.scoreFn() })
-
-                // Update histograms
+            allImageIDs.then(IDs => {
                 api.binScores(state.caseStudy(), IDs, 'iou').then(bins => {
                     noSidebar || vizs.IouHistogram.update(bins)
                 })
@@ -209,13 +205,20 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
                 api.binScores(state.caseStudy(), IDs, 'ground_truth_coverage').then(bins => {
                     noSidebar || vizs.GTCHistogram.update(bins,)
                 })
-
-                // Finished async calls
                 selectors.body.style('cursor', 'default')
-
+            })
+            
+            // Update image panel
+            vizs.saliencyImages.clear()
+            const imageIDs = api.getImages(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(),
+                state.labelFilter(), [0, 1], [0, 1], [0, 1])
+            selectors.body.style('cursor', 'progress')
+            imageIDs.then(IDs => {
+                vizs.saliencyImages.update({ caseStudy: state.caseStudy(), imgIDs: IDs, scoreFn: state.scoreFn() })
+                selectors.body.style('cursor', 'default')
             })
         },
-
+            
         /**
         * Update the label drop down values.
         * @param {State} state - the current state of the application.
