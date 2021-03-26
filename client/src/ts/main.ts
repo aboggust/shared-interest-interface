@@ -7,7 +7,7 @@ import { Histogram } from './vis/Histogram'
 import { SimpleEventHandler } from './etc/SimpleEventHandler'
 import { API } from './api/mainApi'
 import { State, URLParameters } from './state'
-import { caseStudyOptions, sortByOptions, predictionFnOptions, scoreFnOptions, labelFilterOptions } from './etc/selectionOptions'
+import { caseStudyOptions, sortByOptions, predictionFnOptions, scoreFnOptions, labelFilterOptions, caseOptions} from './etc/selectionOptions'
 import { SaliencyImg } from './types';
 import { min } from 'lodash'
 import { stat } from 'fs'
@@ -80,7 +80,19 @@ function init(base: D3Sel) {
 
     <!--  Saliency Image Grid  -->
     <div class="ID_main">
-        <div class="ID_sidebar"></div>
+        <div class="ID_sidebar">
+            <!--  Cases  -->
+            <div class="cases">
+                <div class="input-group input-group-sm mb-3">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="prediction-filter">Case</label>
+                    </div>
+                    <select class="custom-select custom-select-sm ID_cases">
+                        <!-- Fill in from data in TS now -->
+                    </select>
+                </div>
+            </div>
+        </div>
         <div class="ID_mainpage">
             <div class="ID_images-panel"></div>
         </div>
@@ -137,6 +149,12 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         labelFilter: base.select('.ID_label-filter').attr('disabled', disableSelection),
         labelFilterListOptions: base.select('.ID_label-filter').selectAll('option')
             .data(labelFilterOptions)
+            .join('option')
+            .attr('value', option => option.value)
+            .text(option => option.name),
+        caseFilter: base.select('.ID_cases').attr('disabled', disableSelection),
+        caseListOptions: base.select('.ID_cases').selectAll('option')
+            .data(caseOptions)
             .join('option')
             .attr('value', option => option.value)
             .text(option => option.name),

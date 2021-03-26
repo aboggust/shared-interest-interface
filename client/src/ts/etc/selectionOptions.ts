@@ -24,3 +24,14 @@ export const predictionFnOptions = [
 export const labelFilterOptions = [
     { name: "All", value: '' },
 ]
+
+export const caseOptions = [
+    { name: "Human Aligned", value: '' },
+    { name: "Sfficient Subset", value: '' },
+    { name: "Sufficient Background", value: '' },
+    { name: "Context Dependant", value: '' },
+    { name: "Confuser", value: '' },
+    { name: "Too Focused", value: '' },
+    { name: "Distracted", value: '' },
+    { name: "Context Confusion", value: '' },
+]
