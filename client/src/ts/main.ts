@@ -10,6 +10,7 @@ import { API } from './api/mainApi'
 import { State, URLParameters } from './state'
 import { caseStudyOptions, sortByOptions, predictionFnOptions, scoreFnOptions, labelFilterOptions } from './etc/selectionOptions'
 import { SaliencyImg } from './types';
+import { InteractiveSaliencyPopup } from './vis/InteractiveSaliencyPopup'
 
 /**
  * Render static elements needed for interface
@@ -17,6 +18,10 @@ import { SaliencyImg } from './types';
 function init(base: D3Sel) {
     const html = `
     <!--  Filter Controls  -->
+    <div id="prediction-results-popup" class="hidden">
+        <div class="close btn">x</div>
+        <div id="popup-content"></div>
+    </div>
     <div class="controls container-md cont-nav">
         <div class="form-row">
             <div class="col-sm-2">
@@ -103,6 +108,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
     init(base)
     const disableSelection = noSidebar ? 'disabled' : null;
     const selectors = {
+        html: d3.select('html'),
         body: d3.select('body'),
         main: base.select('.ID_main').classed("short-height-main", noSidebar),
         navBar: base.select('.controls').classed("remove-margin-top", noSidebar),
@@ -139,6 +145,11 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             .join('option')
             .attr('value', option => option.value)
             .text(option => option.name),
+        popup: base.select("#prediction-results-popup"),
+        closePopup: base.select(".close").on('click', () => {
+            eventHelpers.togglePopup()
+        }),
+        popupContent: base.select("#popup-content"),
     }
 
     const vizs = {
@@ -146,6 +157,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         interactiveSaliencyMask: noSidebar ? null : new InteractiveSaliencyMask(<HTMLElement>selectors.sidebar.node(), eventHandler),
         confusionMatrix: noSidebar ? null : new ConfusionMatrix(<HTMLElement>selectors.sidebar.node(), eventHandler),
         saliencyImages: new LazySaliencyImages(<HTMLElement>selectors.imagesPanel.node(), eventHandler),
+        interactivePopupContent: null,
     }
 
     const eventHelpers = {
@@ -153,6 +165,10 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         * Update the image panel.
         * @param {State} state - the current state of the application.
         */
+        togglePopup: () => {
+            const popup = selectors.popup
+            popup.classed("hidden", !popup.classed("hidden"))
+        },
         updateImages: (state: State) => {
             vizs.saliencyImages.clear()
             const imageIDs = api.getImages(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(),
@@ -236,15 +252,27 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         },
 
         maskSubmitted: (state: State) => {
+            selectors.body.style("cursor", "progress")
             const imgData = vizs.interactiveSaliencyMask.imageCanvas.toDataURL().slice(22) // Remove data/png info
             const maskData = vizs.interactiveSaliencyMask.drawCanvas.toDataURL().slice(22) // Remove data/png info
             // Turn mask into 224,224 bit array
-            const topk = 5
-            selectors.body.style("cursor", "progress")
+            const topk = 4
+            eventHelpers.togglePopup()
+            // selectors.popup.append(`<div id="loading"></div>`)
+            selectors.popupContent.append('div').attr("id", "loading").classed("centered-vh", true)
             api.getBestPrediction(imgData, maskData, state.scoreFn(), topk).then(r => {
-                console.log("SUBMITTED MASK SUCCESSFULLY: ", r)
                 selectors.body.style("cursor", "default")
 
+                selectors.popupContent.html('')
+                vizs.interactivePopupContent = new InteractiveSaliencyPopup(<HTMLElement>selectors.popupContent.node(), eventHandler);
+
+                const data = {
+                    image: vizs.interactiveSaliencyMask.imageCanvas,
+                    mask: vizs.interactiveSaliencyMask.drawCanvas,
+                    scoreFn: state.scoreFn(),
+                    bestPredicted: r,
+                }
+                vizs.interactivePopupContent.update(data)
             })
         }
     }

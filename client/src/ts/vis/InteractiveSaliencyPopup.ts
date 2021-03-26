@@ -4,6 +4,7 @@ import { SimpleEventHandler } from "../etc/SimpleEventHandler";
 import { BestPredicted } from "../types"
 import { scoreFnOptions } from '../etc/selectionOptions'
 import { InteractiveSaliencyMask } from "./InteractiveSaliencyMask"
+import { BestPredictionResultData, BestPredictionResultImage } from "./BestPredictionResultImage"
 import * as d3 from "d3"
 
 export type CanvasImageMaskData = {
@@ -39,7 +40,7 @@ export class InteractiveSaliencyPopup extends HTMLComponent<DI> {
     protected options = {
         // Passed to interactive drawer
         interactiveDrawer: {
-            width: 224, 
+            width: 224,
             height: 224,
             radius: 8,
             draw_color: "#f2d602",
@@ -65,24 +66,24 @@ export class InteractiveSaliencyPopup extends HTMLComponent<DI> {
         const op = this.options,
             sels = this.sels;
         const templateHtml = `
-            <div class="result-popup">
-                <div class="layout horizontal">
-                    <div class="flex-4">
-                        <div class="ID_score-dropdown"></div>
-                        <div class="ID_interactive-saliency></div>
-                    </div>
-                    <div class="flex layout horizontal result-container">
-                        <div class="flex result-mask"></div>
-                    </div>
+        <div class="result-popup">
+            <div class="layout horizontal">
+                <div class="flex">
+                    <div class="ID_score-dropdown"></div>
+                    <div class="ID_interactive-saliency"></div>
+                </div>
+                <div class="flex-8 layout horizontal result-container">
+                    <div class="flex result-mask"></div>
                 </div>
             </div>
+        </div>
         `
         this.base.html(templateHtml)
         sels.scoreFnDropdown = this.base.select(".ID_score-dropdown").append("select")
             .classed("custom-select", true)
             .classed("custom-select-sm", true)
 
-        sels.scoreFnDropdown
+        sels.scoreFnDropdown.selectAll('option')
             .data(scoreFnOptions)
             .join("option")
             .attr("value", option => option.value)
@@ -92,7 +93,7 @@ export class InteractiveSaliencyPopup extends HTMLComponent<DI> {
             .attr('value', option => option.value)
             .text(option => option.name),
 
-        sels.interactiveSaliency = this.base.select(".ID_interactive-saliency")
+            sels.interactiveSaliency = this.base.select(".ID_interactive-saliency").append("div")
         sels.resultContainer = this.base.select(".result-container")
     }
 
@@ -100,7 +101,8 @@ export class InteractiveSaliencyPopup extends HTMLComponent<DI> {
 
         const op = this.options,
             sels = this.sels,
-            cur = this.cur;
+            cur = this.cur,
+            self = this;
 
         cur.scoreFn = rD.scoreFn
 
@@ -112,5 +114,22 @@ export class InteractiveSaliencyPopup extends HTMLComponent<DI> {
         const newInteractiveViz = new InteractiveSaliencyMask(<HTMLElement>sels.interactiveSaliency.node(), this.eventHandler, op.interactiveDrawer)
         newInteractiveViz.update(interactiveSaliencyData)
 
+        // Show results
+        const resultImgData: BestPredictionResultData[] = rD.bestPredicted.map(r => {
+            return {
+                ...r,
+                imageCanvas: rD.image
+            }
+        })
+
+        sels.resultMasks = sels.resultContainer.selectAll('.result-mask-image')
+            .data(resultImgData)
+            .join('div')
+            .classed("result-mask-image", true)
+
+        sels.resultMasks.each(function (d, i) {
+            const viz = new BestPredictionResultImage(<HTMLElement>this, self.eventHandler)
+            viz.update(d)
+        })
     }
 }

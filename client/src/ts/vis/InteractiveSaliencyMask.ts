@@ -61,9 +61,13 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
         const op = this.options;
         const templateHtml = `
             <div class="title">Custom Saliency Overlap</div>
-            <span id="reset-button" class="btn">Reset</span>
-            <span id="submit-button" class="btn">Submit</span>
-            <canvas width=${op.width} height=${op.height}></canvas>
+            <div class="layout vertical start-justified">
+                <div class="layout horizontal flex start self-start">
+                    <span id="reset-button" class="flex btn self-start">Reset</span>
+                    <span id="submit-button" class="flex btn self-start">Submit</span>
+                </div>
+                <canvas width=${op.width} height=${op.height} class="flex self-start"></canvas>
+            </div>
         `
         this.base.html(templateHtml)
         this.sels.resetBtn = this.base.select("#reset-button").on('click', () => {
@@ -107,7 +111,9 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
                 this._render()
             });
         }
-        const clearMousemove = () => (this.baseCanvas.on("mousemove", null))
+        const clearMousemove = () => {
+            this.baseCanvas.on("mousemove", null)
+        }
 
         this.baseCanvas.on("mousedown", assignMouseMove)
         // Assign mouse movement if dragged over with pointer clicked
@@ -176,11 +182,14 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
                 this.setNewImage(rD.image)
                 // Or a canvas
             } else {
-                this.imageCanvas = <HTMLCanvasElement>rD.image
+                this.hasImg = true
+                const imgCtx = this.imageCanvas.getContext('2d')
+                imgCtx.drawImage(<HTMLCanvasElement>rD.image, 0, 0, op.width, op.height)
             }
         }
         if (rD?.drawing != null) {
-            this.drawCanvas = rD.drawing
+            const drawCtx = this.drawCanvas.getContext('2d')
+            drawCtx.drawImage(rD.drawing, 0, 0, op.width, op.height)
         }
         const ctx = this.baseCanvas.node().getContext('2d')
         ctx.drawImage(this.imageCanvas, 0, 0, op.width, op.height)

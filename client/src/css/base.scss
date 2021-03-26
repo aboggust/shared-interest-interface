@@ -308,3 +308,51 @@ select {
   margin-top: 10px;
   margin-bottom: 20px;
 }
+
+#prediction-results-popup {
+  position: absolute;
+  vertical-align: middle;
+  margin: 0;
+  top: 50%;
+  left: 50%;
+  width: 90%;
+  height: 70%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  background-color: #fff;
+  border-style: outset;
+}
+
+.hidden {
+  display: none;
+}
+
+#loading {
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: $component-head-color;
+  animation: spin 1s ease-in-out infinite;
+  -webkit-animation: spin 1s ease-in-out infinite;
+  z-index: 3;
+}
+
+@keyframes spin {
+  to {
+    -webkit-transform: rotate(360deg);
+  }
+}
+@-webkit-keyframes spin {
+  to {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+.centered-vh {
+  position: absolute;
+  top: 45%;
+  left: 45%;
+}

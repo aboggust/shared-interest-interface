@@ -6,9 +6,10 @@ import { BestPredicted } from "../types"
 import * as _ from "lodash"
 import { scoreFnOptions } from '../etc/selectionOptions';
 
-interface DI extends BestPredicted {
+export interface BestPredictionResultData extends BestPredicted {
     imageCanvas: HTMLCanvasElement
 }
+type DI = BestPredictionResultData
 
 interface EventsI {
 }
@@ -45,6 +46,7 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
     // drawCanvas: HTMLCanvasElement
     // imageCanvas: HTMLCanvasElement
     protected baseCanvas: D3Sel;
+    protected drawCanvas: HTMLCanvasElement;
     protected sels: Partial<BestPredictionResultImageSels> = {}
 
     public static events = Events
@@ -67,8 +69,8 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
         const templateHtml = `
             <div class="result-image">
                 <div class="image-info layout horizontal">
-                    <div class="flex btn info ID_score"></div>
-                    <div class="flex btn info ID_classname"></div>
+                    <div class="flex info ID_score"></div>
+                    <div class="flex info ID_classname"></div>
                 </div>
                 <div class="result-image-canvas">
                     <canvas width=${op.width} height=${op.height}></canvas>
@@ -77,15 +79,9 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
         `
         this.base.html(templateHtml)
         this.sels.score = this.base.select(".ID_score")
-
-        this.sels.score
-            .data(scoreFnOptions)
-            .join("option")
-            .attr("value", option => option.value)
-            .text(option => option.name)
-
-        this.sels.classname = this.base.select("#ID_classname")
+        this.sels.classname = this.base.select(".ID_classname")
         this.baseCanvas = this.base.select('canvas')
+        this.drawCanvas = this._createNewCanvas()
     }
 
     clearCanvas(canvas: HTMLCanvasElement) {
@@ -111,26 +107,32 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
             .property('width', op.width)
             .property('height', op.height);
 
-        const ctx = this.baseCanvas.node().getContext('2d')
-        // Render BG
-        ctx.drawImage(rD.imageCanvas, 0, 0, op.width, op.height)
+        const maskCtx = this.drawCanvas.getContext('2d')
 
-        let maskData = ctx.createImageData(op.width, op.height)
+        let maskData = maskCtx.createImageData(op.width, op.height)
 
         const flatMask = _.flattenDeep(rD.saliency_mask)
 
         const color = op.colors.explanation
-        for (let i = 0; i < maskData.data.length; i+= 4) {
-            const val = flatMask[Math.floor(i/4)]
+        let num1 = 0
+        let alpha = Math.floor(op.active_alpha * 255)
+        for (let i = 0; i < maskData.data.length; i += 4) {
+            const val = flatMask[Math.floor(i / 4)]
 
             if (val == 1) {
+                num1 += 1
                 maskData.data[i] = color.r
-                maskData.data[i+1] = color.g
-                maskData.data[i+2] = color.b
-                maskData.data[i+3] = op.active_alpha
+                maskData.data[i + 1] = color.g
+                maskData.data[i + 2] = color.b
+                maskData.data[i + 3] = alpha
             }
         }
 
-        ctx.drawImage(maskData, 0, 0, op.width, op.height)
+        maskCtx.putImageData(maskData, 0, 0)
+
+        // Render BG
+        const ctx = this.baseCanvas.node().getContext('2d')
+        ctx.drawImage(rD.imageCanvas, 0, 0, op.width, op.height)
+        ctx.drawImage(this.drawCanvas, 0, 0, op.width, op.height)
     }
 }
