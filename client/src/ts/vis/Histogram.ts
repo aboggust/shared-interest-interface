@@ -5,7 +5,12 @@ import { SimpleEventHandler } from '../etc/SimpleEventHandler'
 import { Bins } from '../types';
 
 
-type DI = Bins[]
+interface HistogramI { 
+    bins: Bins[]
+    brushRange: number[]
+}
+
+type DI = HistogramI
 
 interface EventsI {
     onBrush: string
@@ -34,8 +39,11 @@ export class Histogram extends HTMLComponent<DI>{
             .text(this.score + ' Distribution')
     }
 
-    _render(bins: Bins[]) {
+    _render(histogram: HistogramI) {
         const self = this
+        const bins = histogram.bins
+        const brushRange = histogram.brushRange
+
         // Remove previous histogram
         this.base.selectAll('.score-histogram' + ' svg').remove();
 
@@ -86,25 +94,31 @@ export class Histogram extends HTMLComponent<DI>{
         // Add brush
         const brushStartX = 10;
         const brushEndX = 290;
+        const brushWidth = brushEndX - brushStartX;
         const brushStartY = 0; 
         const brushEndY = totalHeight - 10;
-        // var brushWidth = totalWidth - brushMarginX
-        // console.log(brushWidth)
-        self.base.selectAll('.score-histogram' + ' svg')
-            .call( d3.brushX()                     // Add the brush feature using the d3.brush function
-                .extent( [ [brushStartX, brushStartY], [brushEndX, brushEndY] ] )       // initialise the brush area: start at 0,0 and finishes at width,height: it means I select the whole graph area
-                .on("end", function(){
-                    var left = brushStartX;
-                    var right = brushEndX;
-                    if (d3.event.selection) {
-                        left = d3.event.selection[0]
-                        right = d3.event.selection[1]
-                    }
-                    const minScore = (left - brushStartX) / (brushEndX - brushStartX)
-                    const maxScore = (right - brushStartX) / (brushEndX - brushStartX)
-                    self.trigger(Events.onBrush, {minScore: minScore, maxScore: maxScore, score: self.score})
-                })
-            )
+        const brush = d3.brushX()                     // Add the brush feature using the d3.brush function
+            .extent( [ [brushStartX, brushStartY], [brushEndX, brushEndY] ] )       // initialise the brush area: start at 0,0 and finishes at width,height: it means I select the whole graph area
+            .on("end", function(){
+                var left = brushStartX;
+                var right = brushEndX;
+                if (d3.event.selection) {
+                    left = d3.event.selection[0]
+                    right = d3.event.selection[1]
+                }
+                const minScore = (left - brushStartX) / brushWidth
+                const maxScore = (right - brushStartX) / brushWidth
+                self.trigger(Events.onBrush, {minScore: minScore, maxScore: maxScore, score: self.score})
+            })
+
+        self.base.selectAll('.score-histogram' + ' svg').call(brush)
+
+        if (brushRange[0] != 0 && brushRange[1] != 1) {
+            const left = brushRange[0] + (brushStartX / brushWidth);
+            const right = brushRange[1] + (brushStartX / brushWidth);
+            self.base.selectAll('.score-histogram' + ' svg').call(brush.move, [left, right].map(x))
+
+        }
     }
 
 }

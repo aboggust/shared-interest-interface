@@ -197,23 +197,24 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             selectors.body.style('cursor', 'progress')
             allImageIDs.then(IDs => {
                 api.binScores(state.caseStudy(), IDs, 'iou').then(bins => {
-                    noSidebar || vizs.IouHistogram.update(bins)
+                    noSidebar || vizs.IouHistogram.update({bins: bins, brushRange: state.iouFilter()})
                 })
                 api.binScores(state.caseStudy(), IDs, 'explanation_coverage').then(bins => {
-                    noSidebar || vizs.ECHistogram.update(bins)
+                    noSidebar || vizs.ECHistogram.update({bins: bins, brushRange: state.explanationFilter()})
                 })
                 api.binScores(state.caseStudy(), IDs, 'ground_truth_coverage').then(bins => {
-                    noSidebar || vizs.GTCHistogram.update(bins,)
+                    noSidebar || vizs.GTCHistogram.update({bins: bins, brushRange: state.groundTruthFilter()})
                 })
                 selectors.body.style('cursor', 'default')
             })
-            
+
             // Update image panel
             vizs.saliencyImages.clear()
             const imageIDs = api.getImages(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(),
-                state.labelFilter(), [0, 1], [0, 1], [0, 1])
+                state.labelFilter(), state.iouFilter(), state.groundTruthFilter(), state.explanationFilter())
             selectors.body.style('cursor', 'progress')
             imageIDs.then(IDs => {
+                // Set images
                 vizs.saliencyImages.update({ caseStudy: state.caseStudy(), imgIDs: IDs, scoreFn: state.scoreFn() })
                 selectors.body.style('cursor', 'default')
             })
