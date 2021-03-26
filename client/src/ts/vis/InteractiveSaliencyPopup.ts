@@ -3,13 +3,14 @@ import { D3Sel } from "../etc/Util";
 import { SimpleEventHandler } from "../etc/SimpleEventHandler";
 import { BestPredicted } from "../types"
 import { scoreFnOptions } from '../etc/selectionOptions'
-import { InteractiveSaliencyMask } from "./InteractiveSaliencyMask"
+import { InteractiveSaliencyMask, InteractiveSaliencyMaskSels } from "./InteractiveSaliencyMask"
 import { BestPredictionResultData, BestPredictionResultImage } from "./BestPredictionResultImage"
+import { State } from "../state"
+import { API } from "../api/mainApi"
 import * as d3 from "d3"
 
 export type CanvasImageMaskData = {
     image: HTMLCanvasElement
-    mask: HTMLCanvasElement
     scoreFn: string
     bestPredicted?: BestPredicted[]
 }
@@ -29,6 +30,11 @@ const Events: EventsI = {
     scoreFnChanged: "InteractiveSaliencyPopup_scoreFnChanged"
 }
 
+interface Options {
+    api?: API
+    state?: State
+    interactiveDrawer: {}
+}
 export interface InteractiveSaliencyPopupSels {
     scoreFnDropdown: D3Sel
     interactiveSaliency: D3Sel
@@ -37,7 +43,7 @@ export interface InteractiveSaliencyPopupSels {
 }
 
 export class InteractiveSaliencyPopup extends HTMLComponent<DI> {
-    protected options = {
+    protected options: Options = {
         // Passed to interactive drawer
         interactiveDrawer: {
             width: 224,
@@ -45,7 +51,7 @@ export class InteractiveSaliencyPopup extends HTMLComponent<DI> {
             radius: 8,
             draw_color: "#f2d602",
             active_alpha: .65
-        }
+        },
     };
 
     protected cur = {
@@ -55,6 +61,8 @@ export class InteractiveSaliencyPopup extends HTMLComponent<DI> {
     protected sels: Partial<InteractiveSaliencyPopupSels> = {}
 
     public static events = Events
+
+    interactiveSaliencyMask: InteractiveSaliencyMask | null = null
 
     constructor(parent: HTMLElement, eventHandler: SimpleEventHandler, options = {}) {
         super(parent, eventHandler);
@@ -67,12 +75,12 @@ export class InteractiveSaliencyPopup extends HTMLComponent<DI> {
             sels = this.sels;
         const templateHtml = `
         <div class="result-popup">
-            <div class="layout horizontal center center-center">
+            <div class="layout horizontal center">
                 <div class="flex" style="margin-right: 2rem; margin-left: 2rem">
                     <div class="ID_score-dropdown"></div>
                     <div class="ID_interactive-saliency"></div>
                 </div>
-                <div class="flex-8 layout horizontal result-container wrap">
+                <div class="flex-6 layout horizontal result-container wrap" style="position: relative;">
                 </div>
             </div>
         </div>
@@ -90,10 +98,37 @@ export class InteractiveSaliencyPopup extends HTMLComponent<DI> {
             .data(scoreFnOptions)
             .join('option')
             .attr('value', option => option.value)
-            .text(option => option.name),
+            .text(option => option.name)
 
-            sels.interactiveSaliency = this.base.select(".ID_interactive-saliency").append("div")
+        sels.interactiveSaliency = this.base.select(".ID_interactive-saliency").append("div")
         sels.resultContainer = this.base.select(".result-container")
+
+        this.eventHandler.bind(InteractiveSaliencyMask.events.submit, () => {
+            console.log("Caught event submission!");
+            this.base.style("cursor", "progress")
+            const imgData = this.interactiveSaliencyMask.imageCanvas.toDataURL().slice(22) // Remove data/png info
+            const maskData = this.interactiveSaliencyMask.drawCanvas.toDataURL().slice(22) // Remove data/png info
+            // Turn mask into 224,224 bit array
+            const topk = 4
+            // selectors.popup.append(`<div id="loading"></div>`)
+            sels.resultContainer.append('div').attr("id", "loading").classed("centered-vh", true)
+            op.api.getBestPrediction(imgData, maskData, op.state.scoreFn(), topk).then(r => {
+                sels.resultContainer.html('')
+                // vizs.interactivePopupContent = new InteractiveSaliencyPopup(<HTMLElement>selectors.popupContent.node(), eventHandler);
+
+                const data = {
+                    image: this.interactiveSaliencyMask.imageCanvas,
+                    scoreFn: op.state.scoreFn(),
+                    bestPredicted: r,
+                }
+                this._render(data)
+                this.base.style("cursor", "default")
+            })
+            op.api.getSaliencyImage(op.state.caseStudy(), op.state.selectedImage(), op.state.scoreFn()).then(r => {
+                console.log("Got my image! ", r)
+                // vizs.interactiveSaliencyMask.setNewImage(r.image)
+            })
+        })
     }
 
     _render(rD: DI): void {
@@ -107,11 +142,12 @@ export class InteractiveSaliencyPopup extends HTMLComponent<DI> {
 
         const interactiveSaliencyData = {
             image: rD.image,
-            drawing: rD.mask
+            drawing: this.interactiveSaliencyMask?.drawCanvas
         }
 
-        const newInteractiveViz = new InteractiveSaliencyMask(<HTMLElement>sels.interactiveSaliency.node(), this.eventHandler, op.interactiveDrawer)
-        newInteractiveViz.update(interactiveSaliencyData)
+        sels.interactiveSaliency.html('')
+        this.interactiveSaliencyMask = new InteractiveSaliencyMask(<HTMLElement>sels.interactiveSaliency.node(), this.eventHandler, op.interactiveDrawer)
+        this.interactiveSaliencyMask.update(interactiveSaliencyData)
 
         // Show results
         const resultImgData: BestPredictionResultData[] = rD.bestPredicted.map(r => {

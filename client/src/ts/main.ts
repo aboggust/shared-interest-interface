@@ -3,7 +3,6 @@ import { D3Sel } from "./etc/Util"
 import { LazySaliencyImages } from "./vis/LazySaliencyImages"
 import { SingleSaliencyImage } from "./vis/SingleSaliencyImage"
 import { ConfusionMatrix } from "./vis/ConfusionMatrix"
-import { InteractiveSaliencyMask } from "./vis/InteractiveSaliencyMask"
 import { Histogram } from './vis/Histogram'
 import { SimpleEventHandler } from './etc/SimpleEventHandler'
 import { API } from './api/mainApi'
@@ -154,7 +153,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
 
     const vizs = {
         histogram: noSidebar ? null : new Histogram(<HTMLElement>selectors.sidebar.node(), eventHandler),
-        interactiveSaliencyMask: noSidebar ? null : new InteractiveSaliencyMask(<HTMLElement>selectors.sidebar.node(), eventHandler),
+        // interactiveSaliencyMask: noSidebar ? null : new InteractiveSaliencyMask(<HTMLElement>selectors.sidebar.node(), eventHandler),
         confusionMatrix: noSidebar ? null : new ConfusionMatrix(<HTMLElement>selectors.sidebar.node(), eventHandler),
         saliencyImages: new LazySaliencyImages(<HTMLElement>selectors.imagesPanel.node(), eventHandler),
         interactivePopupContent: null,
@@ -251,30 +250,30 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             })
         },
 
-        maskSubmitted: (state: State) => {
-            selectors.body.style("cursor", "progress")
-            const imgData = vizs.interactiveSaliencyMask.imageCanvas.toDataURL().slice(22) // Remove data/png info
-            const maskData = vizs.interactiveSaliencyMask.drawCanvas.toDataURL().slice(22) // Remove data/png info
-            // Turn mask into 224,224 bit array
-            const topk = 4
-            eventHelpers.togglePopup()
-            // selectors.popup.append(`<div id="loading"></div>`)
-            selectors.popupContent.append('div').attr("id", "loading").classed("centered-vh", true)
-            api.getBestPrediction(imgData, maskData, state.scoreFn(), topk).then(r => {
-                selectors.body.style("cursor", "default")
+        // maskSubmitted: (state: State) => {
+        //     selectors.body.style("cursor", "progress")
+        //     const imgData = vizs.interactiveSaliencyMask.imageCanvas.toDataURL().slice(22) // Remove data/png info
+        //     const maskData = vizs.interactiveSaliencyMask.drawCanvas.toDataURL().slice(22) // Remove data/png info
+        //     // Turn mask into 224,224 bit array
+        //     const topk = 4
+        //     eventHelpers.togglePopup()
+        //     // selectors.popup.append(`<div id="loading"></div>`)
+        //     selectors.popupContent.append('div').attr("id", "loading").classed("centered-vh", true)
+        //     api.getBestPrediction(imgData, maskData, state.scoreFn(), topk).then(r => {
+        //         selectors.body.style("cursor", "default")
 
-                selectors.popupContent.html('')
-                vizs.interactivePopupContent = new InteractiveSaliencyPopup(<HTMLElement>selectors.popupContent.node(), eventHandler);
+        //         selectors.popupContent.html('')
+        //         vizs.interactivePopupContent = new InteractiveSaliencyPopup(<HTMLElement>selectors.popupContent.node(), eventHandler);
 
-                const data = {
-                    image: vizs.interactiveSaliencyMask.imageCanvas,
-                    mask: vizs.interactiveSaliencyMask.drawCanvas,
-                    scoreFn: state.scoreFn(),
-                    bestPredicted: r,
-                }
-                vizs.interactivePopupContent.update(data)
-            })
-        }
+        //         const data = {
+        //             image: vizs.interactiveSaliencyMask.imageCanvas,
+        //             mask: vizs.interactiveSaliencyMask.drawCanvas,
+        //             scoreFn: state.scoreFn(),
+        //             bestPredicted: r,
+        //         }
+        //         vizs.interactivePopupContent.update(data)
+        //     })
+        // }
     }
 
     /**
@@ -295,7 +294,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         eventHelpers.updatePage(state)
 
         api.getSaliencyImage(state.caseStudy(), state.selectedImage(), state.scoreFn()).then(r => {
-            vizs.interactiveSaliencyMask.update({ image: r.image })
+            // vizs.interactiveSaliencyMask.update({ image: r.image })
         })
     }
 
@@ -368,9 +367,16 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
 
     eventHandler.bind(LazySaliencyImages.events.click, ({ fname }) => {
         state.selectedImage(fname)
-        api.getSaliencyImage(state.caseStudy(), state.selectedImage(), state.scoreFn()).then(r => {
-            vizs.interactiveSaliencyMask.setNewImage(r.image)
-        })
+        selectors.popup.classed('hidden', false)
+        // api.getSaliencyImage(state.caseStudy(), state.selectedImage(), state.scoreFn()).then(r => {
+        //     vizs.interactiveSaliencyMask.setNewImage(r.image)
+        // })
+    })
+    eventHandler.bind(SingleSaliencyImage.events.onImageClick, (img: SaliencyImg) => {
+        selectors.popupContent.html('')
+        selectors.popup.classed('hidden', false)
+        vizs.interactivePopupContent = new InteractiveSaliencyPopup(<HTMLElement>selectors.popupContent.node(), eventHandler, { state, api });
+        vizs.interactivePopupContent.update(img)
     })
     eventHandler.bind(LazySaliencyImages.events.mouseOver, ({ fname }) => {
         selectors.body.style("cursor", "pointer")
@@ -378,10 +384,4 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
     eventHandler.bind(LazySaliencyImages.events.mouseOut, ({ fname }) => {
         selectors.body.style("cursor", "default")
     })
-
-    eventHandler.bind(InteractiveSaliencyMask.events.submit, () => {
-        eventHelpers.maskSubmitted(state)
-        selectors.body.style("cursor", "default")
-    })
-
 }

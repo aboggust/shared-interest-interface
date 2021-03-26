@@ -56,9 +56,9 @@ export class LazySaliencyImages extends HTMLComponent<DI>{
             .attr("fname-id", d => d)
 
         saliencyImageCards
-            .on('click', d => {
-                this.trigger(Events.click, { fname: d })
-            })
+            // .on('click', d => {
+            //     this.trigger(Events.click, { fname: d })
+            // })
             .on('mouseover', function (d) {
                 const el = d3.select(this)
                 el.classed("hovered", true)

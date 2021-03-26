@@ -49,7 +49,7 @@ export class SingleSaliencyImage extends HTMLComponent<DI>{
     sels: Partial<Selections> = {}
     colorScale = d3.scaleSequential(d3.interpolateBlues)
         .domain([-0.2, 1]) // start the color scheme from light blue instead of white
-    
+
     static events = Events
 
     constructor(parent: HTMLElement, eventHandler?: SimpleEventHandler, options = {}) {
@@ -83,12 +83,12 @@ export class SingleSaliencyImage extends HTMLComponent<DI>{
             .text(Number(img.score).toFixed(2))
             .style('background-color', self.colorScale(img.score))
             .style('color', img.score < 0.5 ? '#212529' : '#e3e3e3')
-            .on("mouseover", function() {
-                self.trigger(Events.onScoreHover, {score: img.score})
+            .on("mouseover", function () {
+                self.trigger(Events.onScoreHover, { score: img.score })
             })
-            .on("click", function() {
+            .on("click", function () {
                 d3.event.stopPropagation()
-                self.trigger(Events.onScoreClick, {score: img.score})
+                self.trigger(Events.onScoreClick, { score: img.score })
             })
 
         sels.imgInfo.append('span')
@@ -101,12 +101,12 @@ export class SingleSaliencyImage extends HTMLComponent<DI>{
             .style('text-overflow', 'ellipsis')
             .style('white-space', 'nowrap')
             .style('overflow', 'hidden')
-            .on("mouseover", function() {
-                self.trigger(Events.onLabelHover, {label: img.label})
+            .on("mouseover", function () {
+                self.trigger(Events.onLabelHover, { label: img.label })
             })
-            .on("click", function() {
+            .on("click", function () {
                 d3.event.stopPropagation()
-                self.trigger(Events.onLabelClick, {label: img.label})
+                self.trigger(Events.onLabelClick, { label: img.label })
             })
 
         sels.imgInfo.append('span')
@@ -119,17 +119,21 @@ export class SingleSaliencyImage extends HTMLComponent<DI>{
             .style('text-overflow', 'ellipsis')
             .style('white-space', 'nowrap')
             .style('overflow', 'hidden')
-            .on("mouseover", function() {
-                self.trigger(Events.onPredictionHover, {prediction: img.prediction})
+            .on("mouseover", function () {
+                self.trigger(Events.onPredictionHover, { prediction: img.prediction })
             })
-            .on("click", function() {
+            .on("click", function () {
                 d3.event.stopPropagation()
-                self.trigger(Events.onPredictionClick, {prediction: img.prediction})
+                self.trigger(Events.onPredictionClick, { prediction: img.prediction })
             })
 
         // Container Logic
         sels.imgContainer.classed("correct", isCorrect)
         sels.imgContainer.classed("incorrect", !isCorrect)
+            .on('click', () => {
+                d3.event.stopPropagation()
+                this.trigger(Events.onImageClick, img)
+            })
 
         sels.mainImg.attr("src", toImgStr(img.image))
             .attr("height", 175)
@@ -142,9 +146,9 @@ export class SingleSaliencyImage extends HTMLComponent<DI>{
             .append("polygon")
             //@ts-ignore
             .attr("points", img.bbox)
-                .style('fill-opacity', '10%')
-                .style('stroke', '#f2d602')
-                .style('stroke-width', '1.5px')
+            .style('fill-opacity', '10%')
+            .style('stroke', '#f2d602')
+            .style('stroke-width', '1.5px')
 
         sels.saliencyMask.html('')
         sels.saliencyMask
@@ -153,10 +157,10 @@ export class SingleSaliencyImage extends HTMLComponent<DI>{
             .selectAll('polygon')
             .data(img.saliency)
             .join('polygon')
-                .attr("points", d => d)
-                .style('fill-opacity', '10%')
-                .style('stroke', '#d95f02')
-                .style('stroke-width', '1.5px')
+            .attr("points", d => d)
+            .style('fill-opacity', '10%')
+            .style('stroke', '#d95f02')
+            .style('stroke-width', '1.5px')
 
     }
 

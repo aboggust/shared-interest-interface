@@ -62,11 +62,11 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
         const templateHtml = `
             <div class="title">Custom Saliency Overlap</div>
             <div class="layout vertical start-justified">
+                <canvas width=${op.width} height=${op.height} class="flex self-start"></canvas>
                 <div class="layout horizontal flex start self-start">
                     <span id="reset-button" class="flex btn self-start">Reset</span>
                     <span id="submit-button" class="flex btn self-start">Submit</span>
                 </div>
-                <canvas width=${op.width} height=${op.height} class="flex self-start"></canvas>
             </div>
         `
         this.base.html(templateHtml)
