@@ -8,12 +8,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import uvicorn
 import server.api as api
-import path_fixes as pf
+import server.path_fixes as pf
 
 import PIL.Image
 import torch
 from torchvision import models, transforms
 from pydantic import BaseModel
+import os
+import pandas as pd
+import pickle
+import json
 
 from backend.server.shared_interest.shared_interest import shared_interest 
 from backend.server.interpretability_methods.vanilla_gradients import VanillaGradients
@@ -89,7 +93,7 @@ class ConfusionMatrix(BaseModel):
 
 
 # Load case study datasets
-datasets = ['data_dogs', 'data_vehicle', 'data_melanoma']
+datasets = ['data_vehicle_10']
 dataframes = {}
 for dataset in datasets:
     dataframe = pd.read_json("./data/examples/%s.json" % dataset)
@@ -258,70 +262,46 @@ async def get_confusion_matrix_values(case_study: str, label_filter: str,
 ## Best Prediction API ##
 # ======================================================================
 
-class BestPrediction(BaseModel):
-    top_scores: list
-    top_saliency_masks: list
-
-def _load_model_from_pytorch(architecture, pretrained):
-    """Load model of type architecture from pytorch. Model is pretrained if pretrained."""
-    model = models.__dict__[architecture](pretrained=pretrained)
-    if torch.cuda.device_count() > 1:
-        model = nn.DataParallel(model)
-    return model   
-
-# ImageNet Constants
+# Load precomputed saliency maps
+SALIENCY_MASK_DIR = './data/examples/saliency_masks'
+SHAPE = (224, 224)
 NUM_CLASSES = 1000
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-MODEL = _load_model_from_pytorch('resnet50', True).to(DEVICE).eval()
-TRANSFORM = transforms.Compose([transforms.ToTensor(),
-                                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+with open('./data/examples/imagenet_class_labels.json', 'r') as f:
+    CLASSNAMES = json.load(f)
 
-# Saliency method
-SALIENCY_FN = VanillaGradients(MODEL).get_masks
+class BestPrediction(BaseModel):
+    classname: str
+    score: float
+    saliency_mask: list
 
-
-@app.get("/api/get-best-prediction", response_model=BestPrediction)
-async def get_best_prediction(image, image_shape, mask, mask_shape, si_method:str, topk:int = 5):
+@app.get("/api/get-best-prediction", response_model=List[BestPrediction])
+async def get_best_prediction(fname, mask, si_method:str, topk:int = 5):
     """Returns topk labels and saliency maps with the highest si_method score."""
 
-    # Convert string inputs to numpy arrays
-    image_shape = tuple([int(num) for num in image_shape.split(',')])
-    image = np.array([float(num) for num in image.split(',')]).reshape(image_shape)
-    mask_shape = tuple([int(num) for num in mask_shape.split(',')])
-    mask = np.array([float(num) for num in mask.split(',')]).reshape(mask_shape)
-
-    image, mask = np.array(image), np.array(mask)
-    if (image.shape[0], image.shape[1]) != mask.shape:
-        raise ValueError('Image and mask are not the same size.')
-
-    # Convert numpy arrays to tensor and include batch dimension.
+    # Batch masks
+    mask = np.array([float(num) for num in mask.split(',')]).reshape(SHAPE)
     mask = transforms.ToTensor()(mask)
     if len(mask.shape) == 2:
         mask.unsqueeze(0)
+    mask_batch = mask.repeat(NUM_CLASSES, 1, 1).numpy()
 
-    image = TRANSFORM(image).float().to(DEVICE)
-    if len(image.shape) == 3:
-        image = image.unsqueeze(0)
-
-    # Batch saliency map call by repeating the image for each class.
-    input_batch = image.repeat(NUM_CLASSES, 1, 1, 1)
-    target_classes = list(range(NUM_CLASSES))
-
-    # Get saliency maps for the input against all classes.
-    saliency_maps = SALIENCY_FN(input_batch, target_classes=target_classes)
-    saliency_masks = binarize_masks(np.expand_dims(np.sum(saliency_maps, axis=1), axis=1)).squeeze(1)
+    # Load saliency masks
+    with open(os.path.join(SALIENCY_MASK_DIR, 'human_annotation_data_vehicle_10_%s.pkl' %(fname)), 'rb') as f:
+        saliency_masks = pickle.load(f)
 
     # Compute shared interest scores.
-    mask_batch = mask.repeat(NUM_CLASSES, 1, 1).numpy()
     shared_interest_scores = shared_interest(mask_batch, saliency_masks, score=si_method)
 
     # Return topk saliency maps and scores.
     max_inds = np.argpartition(shared_interest_scores, -topk)[-topk:]
-    max_inds_sorted = max_inds[np.argsort(shared_interest_scores[max_inds])]
+    max_inds_sorted = max_inds[np.argsort(shared_interest_scores[max_inds])][::-1]
     top_scores = shared_interest_scores[max_inds_sorted]
     top_saliency_masks = saliency_masks[max_inds_sorted]
+    top_classes = [CLASSNAMES[ind] for ind in max_inds_sorted]
 
-    return {'top_scores': list(top_scores), 'top_saliency_masks': top_saliency_masks.tolist()}   
+    output = [{'classname': str(top_classes[i]), 'score': float(top_scores[i]), 'saliency_mask': top_saliency_masks[i].tolist()}
+            for i in range(topk)]
+    return output
 
 
 if __name__ == "__main__":

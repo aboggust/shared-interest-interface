@@ -142,5 +142,19 @@ export class API {
         return d3.json(url)
     }
 
+    /**
+     * Get best predictions.
+     */
+     getBestPrediction(fname: string, mask: number[][], si_method: string, topk: number = 5): Promise<string[]> {
+        const toSend = {
+            fname: fname, 
+            mask: mask,
+            si_method: si_method,
+            topk: topk
+        }
+        const url = makeUrl(this.baseURL + "/get-best-prediction", toSend)
+        return d3.json(url)
+    }
+
 
 };
