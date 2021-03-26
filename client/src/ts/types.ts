@@ -25,3 +25,9 @@ export interface ConfusionMatrixI {
     count: number,
     mean: number,
 }
+
+export interface BestPredicted {
+    classname: string
+    score: number
+    saliency_mask: number[][]
+}

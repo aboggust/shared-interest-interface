@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { makeUrl, toPayload } from '../etc/apiHelpers'
 import { URLHandler } from '../etc/URLHandler';
-import { SaliencyImg, Bins, ConfusionMatrixI } from '../types';
+import { SaliencyImg, Bins, ConfusionMatrixI, BestPredicted } from '../types';
 
 const baseurl = URLHandler.basicURL()
 
@@ -144,21 +144,17 @@ export class API {
     /**
      * 
      * @param image Base64 encoded image
-     * @param image_shape Comma separated numbers indicating the shape of the image (including channels)
      * @param mask Base64 encoded mask
-     * @param mask_shape Comma separated numbers indicating the shape of the image (including channels)
      * @param si_method 
      * @param topk 
      */
-    getBestPrediction(image: string, image_shape: string, mask: string, mask_shape: string, si_method: string, topk: number = 5) {
+    getBestPrediction(image: string, mask: string, si_method: string, topk: number = 5): Promise<BestPredicted[]> {
         const toSend = {
-            image, image_shape, mask, mask_shape, si_method, topk
+            image, mask, si_method, topk
         }
 
         const url = makeUrl(this.baseURL + "/get-best-prediction")
         const payload = toPayload(toSend)
         return d3.json(url, payload)
     }
-
-
 };

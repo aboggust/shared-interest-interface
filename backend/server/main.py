@@ -264,9 +264,10 @@ async def get_confusion_matrix_values(case_study: str, label_filter: str,
 ## Best Prediction API ##
 # ======================================================================
 
-class BestPrediction(BaseModel):
-    top_scores: list
-    top_saliency_masks: list
+class PredictionResponse(BaseModel):
+    classname: str
+    score: float
+    saliency_mask: List[List[int]]
 
 def _load_model_from_pytorch(architecture, pretrained):
     """Load model of type architecture from pytorch. Model is pretrained if pretrained."""
@@ -276,7 +277,8 @@ def _load_model_from_pytorch(architecture, pretrained):
     return model   
 
 # # ImageNet Constants
-NUM_CLASSES = 1000
+# NUM_CLASSES = 1000
+NUM_CLASSES = 5
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 MODEL = _load_model_from_pytorch('resnet50', True).to(DEVICE).eval()
 TRANSFORM = transforms.Compose([transforms.ToTensor(),
@@ -290,11 +292,11 @@ def bytes2np(img_bytes):
     im = Image.open(BytesIO(b64decode(img_bytes))).convert("RGB")
     return np.array(im)
 
-@app.post("/api/get-best-prediction", response_model=BestPrediction)
+@app.post("/api/get-best-prediction", response_model=List[PredictionResponse])
 async def get_best_prediction(payload:api.BestPredictionPayload):
     """Returns topk labels and saliency maps with the highest si_method score.
     
-    Assumes image and mask are of shape (256,256, 4) [rgba]. The mask is processed here to be (256,256)
+    Assumes image and mask are of shape (224,224, 4) [rgba]. The mask is processed here to be (224,224)
     """
 
     image = payload['image']
@@ -313,8 +315,6 @@ async def get_best_prediction(payload:api.BestPredictionPayload):
     if len(mask.shape) == 2:
         mask.unsqueeze(0)
 
-    print("Image shape: ", image.shape)
-    print("Mask shape: ", mask.shape)
     image = TRANSFORM(image).float().to(DEVICE)
     if len(image.shape) == 3:
         image = image.unsqueeze(0)
@@ -337,7 +337,16 @@ async def get_best_prediction(payload:api.BestPredictionPayload):
     top_scores = shared_interest_scores[max_inds_sorted]
     top_saliency_masks = saliency_masks[max_inds_sorted]
 
-    return {'top_scores': list(top_scores), 'top_saliency_masks': top_saliency_masks.tolist()}   
+    classlist = "The great big dog jumped over a crowded building".split(" ")
+    output = []
+    for score, m, cname in zip(list(top_scores), top_saliency_masks.tolist(), classlist[:topk]):
+        output.append(PredictionResponse(**{
+            "classname": cname,
+            "score": score,
+            "saliency_mask": m
+        }))
+
+    return output
 
 
 if __name__ == "__main__":

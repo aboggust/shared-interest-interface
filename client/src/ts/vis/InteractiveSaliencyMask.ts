@@ -5,7 +5,8 @@ import * as d3 from "d3"
 
 
 export type CanvasImageMaskData = {
-    image: string
+    image: string | HTMLCanvasElement
+    drawing?: HTMLCanvasElement
 }
 
 interface EventsI {
@@ -28,8 +29,8 @@ export interface InteractiveSaliencyMaskSels {
 export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> {
     protected options = {
         pos: { x: 0, y: 0 },
-        width: 256,
-        height: 256,
+        width: 224,
+        height: 224,
         radius: 10,
         draw_color: "#f2d602",
         active_alpha: .65
@@ -170,7 +171,16 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
 
         // Render BG
         if (rD?.image != null) {
-            this.setNewImage(rD.image)
+            // Check if it is a raw image
+            if (rD.image.constructor.name == "String") {
+                this.setNewImage(rD.image)
+                // Or a canvas
+            } else {
+                this.imageCanvas = <HTMLCanvasElement>rD.image
+            }
+        }
+        if (rD?.drawing != null) {
+            this.drawCanvas = rD.drawing
         }
         const ctx = this.baseCanvas.node().getContext('2d')
         ctx.drawImage(this.imageCanvas, 0, 0, op.width, op.height)

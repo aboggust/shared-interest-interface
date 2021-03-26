@@ -238,12 +238,10 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         maskSubmitted: (state: State) => {
             const imgData = vizs.interactiveSaliencyMask.imageCanvas.toDataURL().slice(22) // Remove data/png info
             const maskData = vizs.interactiveSaliencyMask.drawCanvas.toDataURL().slice(22) // Remove data/png info
-            const imgShape = "256,256,4"
-            const maskShape = "256,256,4"
-            // Turn mask into 256,256 bit array
+            // Turn mask into 224,224 bit array
             const topk = 5
             selectors.body.style("cursor", "progress")
-            api.getBestPrediction(imgData, imgShape, maskData, maskShape, state.scoreFn(), topk).then(r => {
+            api.getBestPrediction(imgData, maskData, state.scoreFn(), topk).then(r => {
                 console.log("SUBMITTED MASK SUCCESSFULLY: ", r)
                 selectors.body.style("cursor", "default")
 
@@ -352,9 +350,8 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
     eventHandler.bind(LazySaliencyImages.events.mouseOut, ({ fname }) => {
         selectors.body.style("cursor", "default")
     })
-    
+
     eventHandler.bind(InteractiveSaliencyMask.events.submit, () => {
-        console.log("Submitted yo")
         eventHelpers.maskSubmitted(state)
         selectors.body.style("cursor", "default")
     })

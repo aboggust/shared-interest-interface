@@ -20,6 +20,7 @@ def recall(ground_truth_masks, explanation_regions):
     explanation_saliency = np.sum(explanation_regions, axis=(1,2))
     return intersection / explanation_saliency
 
+ground_truth_coverage = recall
 
 def precision(ground_truth_masks, explanation_regions):
     """
@@ -28,3 +29,5 @@ def precision(ground_truth_masks, explanation_regions):
     intersection = np.sum(ground_truth_masks * explanation_regions, axis=(1,2))
     ground_truth_saliency = np.sum(ground_truth_masks, axis=(1,2))
     return intersection / ground_truth_saliency
+
+explanation_coverage = precision
