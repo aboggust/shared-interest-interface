@@ -84,22 +84,24 @@ export class Histogram extends HTMLComponent<DI>{
                 .attr('fill', d => colorScale(d.x0))
 
         // Add brush
-        var brushStart = 10;
-        var brushEnd = 290;
+        const brushStartX = 10;
+        const brushEndX = 290;
+        const brushStartY = 0; 
+        const brushEndY = totalHeight - 10;
         // var brushWidth = totalWidth - brushMarginX
         // console.log(brushWidth)
         self.base.selectAll('.score-histogram' + ' svg')
             .call( d3.brushX()                     // Add the brush feature using the d3.brush function
-                .extent( [ [brushStart,0], [brushEnd, totalHeight] ] )       // initialise the brush area: start at 0,0 and finishes at width,height: it means I select the whole graph area
+                .extent( [ [brushStartX, brushStartY], [brushEndX, brushEndY] ] )       // initialise the brush area: start at 0,0 and finishes at width,height: it means I select the whole graph area
                 .on("end", function(){
-                    var left = brushStart;
-                    var right = brushEnd;
+                    var left = brushStartX;
+                    var right = brushEndX;
                     if (d3.event.selection) {
                         left = d3.event.selection[0]
                         right = d3.event.selection[1]
                     }
-                    const minScore = (left - brushStart) / (brushEnd - brushStart)
-                    const maxScore = (right - brushStart) / (brushEnd - brushStart)
+                    const minScore = (left - brushStartX) / (brushEndX - brushStartX)
+                    const maxScore = (right - brushStartX) / (brushEndX - brushStartX)
                     self.trigger(Events.onBrush, {minScore: minScore, maxScore: maxScore, score: self.score})
                 })
             )

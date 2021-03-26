@@ -62,15 +62,25 @@ export class API {
      * @param {string} predictionFn - the name of the prediction filter
      * @param {string} scoreFn - the score function name
      * @param {string} labelFilter - the name of the label filter
+     * @param {string} iouFilter - min and max iou values
+     * @param {string} groundTruthFilter - min and max ground truth coverage values
+     * @param {string} explanationFilter - min and max explanation coverage values
      * @return {Promise<string[]>} a list of imageIDs
      */
-    getImages(caseStudy: string, sortBy: number, predictionFn: string, scoreFn: string, labelFilter: string): Promise<string[]> {
+    getImages(caseStudy: string, sortBy: number, predictionFn: string, scoreFn: string, labelFilter: string,
+              iouFilter: number[], groundTruthFilter: number[], explanationFilter: number[]): Promise<string[]> {
         const toSend = {
             case_study: caseStudy,
             sort_by: sortBy,
             prediction_fn: predictionFn,
             score_fn: scoreFn,
             label_filter: labelFilter,
+            iou_min: iouFilter[0],
+            iou_max: iouFilter[1],
+            ec_min: explanationFilter[0],
+            ec_max: explanationFilter[1],
+            gtc_min: groundTruthFilter[0],
+            gtc_max: groundTruthFilter[1],
         }
         const url = makeUrl(this.baseURL + "/get-images", toSend)
         return d3.json(url)

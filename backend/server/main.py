@@ -85,7 +85,8 @@ for dataset in datasets:
 
 @app.get("/api/get-images", response_model=List[str])
 async def get_images(case_study: str, sort_by: int, prediction_fn: str,
-                     score_fn: str, label_filter: str):
+                     score_fn: str, label_filter: str, iou_min: float, iou_max: float,
+                     ec_min: float, ec_max: float, gtc_min: float, gtc_max: float):
     """ Get images from dataset given the current filters.
 
     Args:
@@ -96,12 +97,20 @@ async def get_images(case_study: str, sort_by: int, prediction_fn: str,
         score_fn: The score function name to apply.
         label_filter: The label filter to apply. It can be any label name or ''
                       for all labels.
+        iou_min: Min iou score to keep.
+        iou_max: Max iou score to keep.
+        ec_min: Min explanation coverage score to keep.
+        ec_max: Max explanation coverage score to keep.
+        gtc_min: Min ground truth coverage score to keep.
+        gtc_max: Max ground truth coverage score to keep.
 
     Returns:
         A list of image IDs from case_study filtered given the prediction_fn and
          label_filter and sorted by the score_fn in sort_by order.
     """
     df = dataframes[case_study]
+
+    # Filter by prediction
     if prediction_fn == "all_images":
         pred_inds = np.ones(len(df))
     elif prediction_fn == "correct_only":
@@ -111,12 +120,19 @@ async def get_images(case_study: str, sort_by: int, prediction_fn: str,
     else:  # Assume predictionFn is a label
         pred_inds = df.prediction == prediction_fn
 
+    # Filter by label 
     if label_filter == '':
         label_inds = np.ones(len(df))
     else:
         label_inds = df.label == label_filter
 
-    mask = np.logical_and(pred_inds, label_inds)
+    # Filter by scores
+    iou_inds = np.logical_and(df.iou >= iou_min, df.iou <= iou_max)
+    ec_inds = np.logical_and(df.explanation_coverage >= ec_min, df.explanation_coverage <= ec_max)
+    gtc_inds = np.logical_and(df.ground_truth_coverage >= gtc_min, df.ground_truth_coverage <= gtc_max)
+
+    # Filter data frame.
+    mask = np.logical_and.reduce((pred_inds, label_inds, iou_inds, ec_inds, gtc_inds))
     filtered_df = df.loc[mask].sort_values(score_fn, kind="mergesort",
                                            ascending=sort_by == 1)
     image_ids = list(filtered_df.index)

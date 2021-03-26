@@ -146,7 +146,6 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         IouHistogram: noSidebar ? null : new Histogram(<HTMLElement>selectors.sidebar.node(), 'IoU', eventHandler),
         ECHistogram: noSidebar ? null : new Histogram(<HTMLElement>selectors.sidebar.node(), 'Explanation Coverage', eventHandler),
         GTCHistogram: noSidebar ? null : new Histogram(<HTMLElement>selectors.sidebar.node(), 'Ground Truth Coverage', eventHandler),
-        confusionMatrix: noSidebar ? null : new ConfusionMatrix(<HTMLElement>selectors.sidebar.node(), eventHandler),
         saliencyImages: new LazySaliencyImages(<HTMLElement>selectors.imagesPanel.node(), eventHandler),
     }
 
@@ -158,7 +157,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         updateImages: (state: State) => {
             vizs.saliencyImages.clear()
             const imageIDs = api.getImages(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(),
-                state.labelFilter())
+                state.labelFilter(), state.iouFilter(), state.groundTruthFilter(), state.explanationFilter())
             imageIDs.then(IDs => {
                 const imgData = {
                     caseStudy: state.caseStudy(),
@@ -176,7 +175,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         updatePage: (state: State) => {
             vizs.saliencyImages.clear()
             const imageIDs = api.getImages(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(),
-                state.labelFilter())
+                state.labelFilter(), state.iouFilter(), state.groundTruthFilter(), state.explanationFilter())
             selectors.body.style('cursor', 'progress')
             imageIDs.then(IDs => {
                 // Update image panel
@@ -191,12 +190,6 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
                 })
                 api.binScores(state.caseStudy(), IDs, 'ground_truth_coverage').then(bins => {
                     noSidebar || vizs.GTCHistogram.update(bins,)
-                })
-
-                // Update confusion matrix
-                const confusionMatrix = api.getConfusionMatrix(state.caseStudy(), state.labelFilter(), state.scoreFn())
-                confusionMatrix.then(matrix => {
-                    noSidebar ||vizs.confusionMatrix.update(matrix)
                 })
 
                 // Finished async calls
@@ -286,21 +279,21 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         /* When the prediction function changes, update the page. */
         const predictionValue = selectors.predictionFn.property('value')
         state.predictionFn(predictionValue)
-        eventHelpers.updatePage(state)
+        eventHelpers.updateImages(state)
     });
 
     selectors.scoreFn.on('change', () => {
         /* When the score function changes, update the page. */
         const scoreValue = selectors.scoreFn.property('value')
         state.scoreFn(scoreValue)
-        eventHelpers.updatePage(state)
+        eventHelpers.updateImages(state)
     });
 
     selectors.labelFilter.on('change', () => {
         /* When the label filter changes, update the page. */
         const labelFilter = selectors.labelFilter.property('value')
         state.labelFilter(labelFilter)
-        eventHelpers.updatePage(state)
+        eventHelpers.updateImages(state)
     });
 
     eventHandler.bind(LazySaliencyImages.events.onScreen, ({ el, id, scoreFn, caseStudy, caller }) => {
@@ -316,7 +309,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         if (!state.isFrozen('labelFilter')) {
             selectors.labelFilter.property('value', label)
             state.labelFilter(label)
-            eventHelpers.updatePage(state)
+            eventHelpers.updateImages(state)
         }
     })
 
@@ -325,7 +318,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         if (!state.isFrozen('predictionFn')) {
             selectors.predictionFn.property('value', prediction)
             state.predictionFn(prediction)
-            eventHelpers.updatePage(state)
+            eventHelpers.updateImages(state)
         }
     })
 
@@ -333,10 +326,13 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         /* Filter scores */
         if (score == 'IoU') { 
             state.iouFilter(minScore, maxScore)
+            eventHelpers.updateImages(state)
         } else if (score == 'Explanation Coverage') { 
             state.explanationFilter(minScore, maxScore)
+            eventHelpers.updateImages(state)
         } else if (score == 'Ground Truth Coverage') { 
             state.groundTruthFilter(minScore, maxScore)
+            eventHelpers.updateImages(state)
         }
     })
 
