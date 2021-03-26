@@ -1,4 +1,5 @@
 import argparse
+import os
 from typing import *
 import numpy as np
 
@@ -10,7 +11,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import uvicorn
 import server.api as api
-import path_fixes as pf
 
 import torch
 from torchvision import models, transforms
@@ -276,35 +276,35 @@ def _load_model_from_pytorch(architecture, pretrained):
     return model   
 
 # # ImageNet Constants
-# NUM_CLASSES = 1000
-# DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-# MODEL = _load_model_from_pytorch('resnet50', True).to(DEVICE).eval()
-# TRANSFORM = transforms.Compose([transforms.ToTensor(),
-#                                 transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+NUM_CLASSES = 1000
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+MODEL = _load_model_from_pytorch('resnet50', True).to(DEVICE).eval()
+TRANSFORM = transforms.Compose([transforms.ToTensor(),
+                                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
 
 # Saliency method
-# SALIENCY_FN = VanillaGradients(MODEL).get_masks
+SALIENCY_FN = VanillaGradients(MODEL).get_masks
 
 def bytes2np(img_bytes):
     """Convert image bytes from frontend to numpy array"""
-    im = Image.open(BytesIO(b64decode(img_bytes)))
+    im = Image.open(BytesIO(b64decode(img_bytes))).convert("RGB")
     return np.array(im)
 
-@app.get("/api/get-best-prediction", response_model=BestPrediction)
-async def get_best_prediction(image, image_shape, mask, mask_shape, si_method:str, topk:int = 5):
-    """Returns topk labels and saliency maps with the highest si_method score."""
+@app.post("/api/get-best-prediction", response_model=BestPrediction)
+async def get_best_prediction(payload:api.BestPredictionPayload):
+    """Returns topk labels and saliency maps with the highest si_method score.
+    
+    Assumes image and mask are of shape (256,256, 4) [rgba]. The mask is processed here to be (256,256)
+    """
 
-    image_shape = tuple([int(num) for num in image_shape.split(',')])
-    image = bytes2np(image).reshape(image_shape)
+    image = payload['image']
+    mask = payload['mask']
+    si_method = payload['si_method']
+    topk = payload['topk']
 
-    mask_shape = tuple([int(num) for num in mask_shape.split(',')])
-    mask = bytes2np(mask).reshape(mask_shape)
+    image = bytes2np(image)
+    mask = (bytes2np(mask).sum(axis=-1) > 0)
 
-    # Convert string inputs to numpy arrays
-    # image = np.array([float(num) for num in image.split(',')]).reshape(image_shape)
-    # mask = np.array([float(num) for num in mask.split(',')]).reshape(mask_shape)
-
-    # image, mask = np.array(image), np.array(mask)
     if (image.shape[0], image.shape[1]) != mask.shape:
         raise ValueError('Image and mask are not the same size.')
 
@@ -313,6 +313,8 @@ async def get_best_prediction(image, image_shape, mask, mask_shape, si_method:st
     if len(mask.shape) == 2:
         mask.unsqueeze(0)
 
+    print("Image shape: ", image.shape)
+    print("Mask shape: ", mask.shape)
     image = TRANSFORM(image).float().to(DEVICE)
     if len(image.shape) == 3:
         image = image.unsqueeze(0)

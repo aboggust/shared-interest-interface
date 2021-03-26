@@ -35,8 +35,8 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
         active_alpha: .65
     };
     protected cssName = "InteractiveSaliencyMask";
-    protected drawCanvas: HTMLCanvasElement
-    protected imageCanvas: HTMLCanvasElement
+    drawCanvas: HTMLCanvasElement
+    imageCanvas: HTMLCanvasElement
     protected baseCanvas: D3Sel;
     protected sels: Partial<InteractiveSaliencyMaskSels> = {}
 

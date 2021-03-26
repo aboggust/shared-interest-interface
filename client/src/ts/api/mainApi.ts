@@ -150,8 +150,14 @@ export class API {
      * @param si_method 
      * @param topk 
      */
-    getBestPrediction(image:string, image_shape:string, mask:string, mask_shape:string, si_method:string, topk: number=5) {
+    getBestPrediction(image: string, image_shape: string, mask: string, mask_shape: string, si_method: string, topk: number = 5) {
+        const toSend = {
+            image, image_shape, mask, mask_shape, si_method, topk
+        }
 
+        const url = makeUrl(this.baseURL + "/get-best-prediction")
+        const payload = toPayload(toSend)
+        return d3.json(url, payload)
     }
 
 
