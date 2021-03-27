@@ -1,8 +1,5 @@
 import * as d3 from 'd3'
 import { D3Sel } from "./etc/Util"
-import { LazySaliencyImages } from "./vis/LazySaliencyImages"
-import { SingleSaliencyImage } from "./vis/SingleSaliencyImage"
-import { ConfusionMatrix } from "./vis/ConfusionMatrix"
 import { Histogram } from './vis/Histogram'
 import { SimpleEventHandler } from './etc/SimpleEventHandler'
 import { API } from './api/mainApi'
@@ -77,11 +74,11 @@ function init(base: D3Sel) {
         </div>
     </div>
 
-    <!--  Saliency Image Grid  -->
+    <!--  Results  -->
     <div class="ID_main">
         <div class="ID_sidebar"></div>
         <div class="ID_mainpage">
-            <div class="ID_images-panel"></div>
+            <div class="ID_results-panel"></div>
         </div>
 
     </div>
@@ -107,7 +104,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         main: base.select('.ID_main').classed("short-height-main", noSidebar),
         navBar: base.select('.controls').classed("remove-margin-top", noSidebar),
         mainPage: base.select('.ID_mainpage').classed("short-height-main", noSidebar),
-        imagesPanel: base.select('.ID_images-panel').classed("full-width-images", false),
+        resultsPanel: base.select('.ID_results-panel'),
         sidebar: base.select('.ID_sidebar').classed("empty-sidebar", noSidebar),
         caseStudy: base.select('.ID_case-study-select').attr('disabled', disableSelection),
         caseStudyListOptions: base.select('.ID_case-study-select').selectAll('option')
@@ -141,93 +138,39 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             .text(option => option.name),
     }
 
-    function assignResultsView() {
-        const node = selectors.imagesPanel
-        node.html('')
-        return state.displayText() ? new SaliencyTexts(<HTMLElement>node.node(), eventHandler)
-            : new LazySaliencyImages(<HTMLElement>node.node(), eventHandler)
-    }
-
     const vizs = {
         histogram: noSidebar ? null : new Histogram(<HTMLElement>selectors.sidebar.node(), eventHandler),
-        confusionMatrix: noSidebar ? null : new ConfusionMatrix(<HTMLElement>selectors.sidebar.node(), eventHandler),
-        saliencyResults: assignResultsView()
+        results: new SaliencyTexts(<HTMLElement>selectors.resultsPanel.node(), eventHandler)
     }
 
     const eventHelpers = {
         /**
-        * Update the image panel.
+        * Update the results panel.
         * @param {State} state - the current state of the application.
         */
-        updateImages: (state: State) => {
-            vizs.saliencyResults = assignResultsView()
-            if (state.displayText()) {
-                api.getTextIDs(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter()).then(r => {
-                    //@ts-ignore
-                    vizs.saliencyResults.update(r)
-                })
-            } else {
-                const imageIDs = api.getImageIDs(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(),
-                    state.labelFilter())
-                imageIDs.then(IDs => {
-                    const imgData = {
-                        caseStudy: state.caseStudy(),
-                        imgIDs: IDs,
-                        scoreFn: state.scoreFn()
-                    }
-                    //@ts-ignore
-                    vizs.saliencyResults.update(imgData)
-                })
-            }
+        updateResults: (state: State) => {
+            api.getTextIDs(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter()).then(r => {
+                //@ts-ignore
+                vizs.results.update(r)
+            })
         },
 
         /**
-        * Update the image panel, histogram, and confusion matrix.
+        * Update the results panel, histogram, and confusion matrix.
         * @param {State} state - the current state of the application.
         */
         updatePage: (state: State) => {
-            // vizs.saliencyImages.clear()
-            vizs.saliencyResults = assignResultsView()
-            if (state.displayText()) {
+            // CHANGE THIS WHEN HISTOGRAM + CONFUSION MATRIX ARE WORKING
+            selectors.sidebar.classed('hidden', true)
+            api.getTextIDs(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter()).then(ids => {
+                //@ts-ignore
+                vizs.results.update(ids)
 
-                // CHANGE THIS WHEN HISTOGRAM + CONFUSION MATRIX ARE WORKING
-                selectors.sidebar.classed('hidden', true)
-                console.log("Text detected in update images")
-                api.getTextIDs(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter()).then(ids => {
-                    //@ts-ignore
-                    vizs.saliencyResults.update(ids)
-
-                    // THIS IS REALLY SLOW on the frontend. Need a different route
-                    // api.binTextScores(state.caseStudy(), ids, state.scoreFn()).then(bins => {
-                    //     vizs.histogram.update(bins)
-                    // })
-                })
-            } else {
-                selectors.sidebar.classed('hidden', false)
-
-                const imageIDs = api.getImageIDs(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(),
-                    state.labelFilter())
-                selectors.body.style('cursor', 'progress')
-                imageIDs.then(IDs => {
-                    // Update image panel
-                    //@ts-ignore
-                    vizs.saliencyResults.update({ caseStudy: state.caseStudy(), imgIDs: IDs, scoreFn: state.scoreFn() })
-
-                    // Update histogram
-                    api.binScores(state.caseStudy(), IDs, state.scoreFn()).then(bins => {
-                        noSidebar || vizs.histogram.update(bins)
-                    })
-
-                    // Update confusion matrix
-                    const confusionMatrix = api.getConfusionMatrix(state.caseStudy(), state.labelFilter(), state.scoreFn())
-                    confusionMatrix.then(matrix => {
-                        noSidebar || vizs.confusionMatrix.update(matrix)
-                    })
-
-                    // Finished async calls
-                    selectors.body.style('cursor', 'default')
-                })
-            }
+                // THIS IS REALLY SLOW on the frontend. Need a different route
+                // api.binTextScores(state.caseStudy(), ids, state.scoreFn()).then(bins => {
+                //     vizs.histogram.update(bins)
+                // })
+            })
         },
 
         /**
@@ -301,10 +244,10 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
     });
 
     selectors.sortBy.on('change', () => {
-        /* When the sort by value changes, update the image panel. */
+        /* When the sort by value changes, update the results panel. */
         const sortByValue = selectors.sortBy.property('value')
         state.sortBy(sortByValue)
-        eventHelpers.updateImages(state)
+        eventHelpers.updateResults(state)
     });
 
     selectors.predictionFn.on('change', () => {
@@ -328,42 +271,12 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         eventHelpers.updatePage(state)
     });
 
-    eventHandler.bind(LazySaliencyImages.events.onScreen, ({ el, id, scoreFn, caseStudy, caller }) => {
-        /* Lazy load the saliency images. */
-        const img = new SingleSaliencyImage(el, eventHandler)
-        if (state.displayText()) {
-            console.log("Can't display this text")
-        } else {
-            api.getSaliencyImage(caseStudy, id, scoreFn).then(salImg => {
-                img.update(salImg)
-            })
-        }
-    })
-
     eventHandler.bind(SaliencyTexts.events.onScreen, ({ el, id, caller }) => {
-        /* Lazy load the saliency images. */
+        /* Lazy load the saliency results. */
         const row = new SaliencyTextViz(el, eventHandler)
         api.getSaliencyText(state.caseStudy(), id, state.scoreFn()).then(salTxt => {
             row.update(salTxt)
         })
-    })
-
-    eventHandler.bind(SingleSaliencyImage.events.onLabelClick, ({ label, caller }) => {
-        /* Update label filter on label tag click. */
-        if (!state.isFrozen('labelFilter')) {
-            selectors.labelFilter.property('value', label)
-            state.labelFilter(label)
-            eventHelpers.updatePage(state)
-        }
-    })
-
-    eventHandler.bind(SingleSaliencyImage.events.onPredictionClick, ({ prediction, caller }) => {
-        /* Update prediction function on label tag click. */
-        if (!state.isFrozen('predictionFn')) {
-            selectors.predictionFn.property('value', prediction)
-            state.predictionFn(prediction)
-            eventHelpers.updatePage(state)
-        }
     })
 
 }

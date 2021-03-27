@@ -6,7 +6,6 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 module.exports = {
     entry: {
         main: './src/index.ts',
-        distillMain: "./src/index-distill.ts"
     },
     module: {
         rules: [

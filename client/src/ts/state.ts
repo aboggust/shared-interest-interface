@@ -41,7 +41,7 @@ export class State {
         const params = this.ignoreUrl ? {} : URLHandler.parameters
 
         this._url = {
-            caseStudy: params['caseStudy'] || 'data_vehicle',
+            caseStudy: params['caseStudy'] || 'beer_advocate',
             scoreFn: params['scoreFn'] || 'explanation_coverage',
             sortBy: params['sortBy'] || 1,
             predictionFn: params['predictionFn'] || 'all',
@@ -68,11 +68,6 @@ export class State {
     isFrozen(k: string) {
         if (this.frozenParams.has(k)) return true
         return null // Allows `sel.attr("disabled", state.isFrozen(k))`
-    }
-
-    displayText() {
-        const textDatasets = new Set(["text", "data_beer"])
-        return textDatasets.has(this.caseStudy())
     }
 
     caseStudy(): string
