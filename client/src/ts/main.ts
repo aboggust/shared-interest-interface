@@ -90,7 +90,7 @@ function init(base: D3Sel) {
 /**
  * Main functionality in the below function
  */
-export function main(el: Element, ignoreUrl: boolean = false, stateParams: Partial<URLParameters> = {}, freezeParams: boolean = false, noSidebar: boolean = false) {
+export function main(el: Element, ignoreUrl: boolean = false, stateParams: Partial<URLParameters> = {}, freezeParams: boolean = false) {
     const base = d3.select(el)
 
     const eventHandler = new SimpleEventHandler(el)
@@ -98,39 +98,38 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
     const state = new State(ignoreUrl, stateParams, freezeParams)
 
     init(base)
-    const disableSelection = noSidebar ? 'disabled' : null;
     const selectors = {
         body: d3.select('body'),
-        main: base.select('.ID_main').classed("short-height-main", noSidebar),
-        navBar: base.select('.controls').classed("remove-margin-top", noSidebar),
-        mainPage: base.select('.ID_mainpage').classed("short-height-main", noSidebar),
+        main: base.select('.ID_main'),
+        navBar: base.select('.controls'),
+        mainPage: base.select('.ID_mainpage'),
         resultsPanel: base.select('.ID_results-panel'),
-        sidebar: base.select('.ID_sidebar').classed("empty-sidebar", noSidebar),
-        caseStudy: base.select('.ID_case-study-select').attr('disabled', disableSelection),
+        sidebar: base.select('.ID_sidebar'),
+        caseStudy: base.select('.ID_case-study-select'),
         caseStudyListOptions: base.select('.ID_case-study-select').selectAll('option')
             .data(caseStudyOptions)
             .join('option')
             .attr('value', option => option.value)
             .text(option => option.name),
-        scoreFn: base.select('.ID_scorefn-select').attr('disabled', disableSelection),
+        scoreFn: base.select('.ID_scorefn-select'),
         scoreFnListOptions: base.select('.ID_scorefn-select').selectAll('option')
             .data(scoreFnOptions)
             .join('option')
             .attr('value', option => option.value)
             .text(option => option.name),
-        sortBy: base.select('.ID_sort-by-select').attr('disabled', disableSelection),
+        sortBy: base.select('.ID_sort-by-select'),
         sortByListOptions: base.select('.ID_sort-by-select').selectAll('option')
             .data(sortByOptions)
             .join('option')
             .attr('value', option => option.value)
             .text(option => option.name),
-        predictionFn: base.select('.ID_prediction-filter').attr('disabled', disableSelection),
+        predictionFn: base.select('.ID_prediction-filter'),
         predictionFnListOptions: base.select('.ID_prediction-filter').selectAll('option')
             .data(predictionFnOptions)
             .join('option')
             .attr('value', option => option.value)
             .text(option => option.name),
-        labelFilter: base.select('.ID_label-filter').attr('disabled', disableSelection),
+        labelFilter: base.select('.ID_label-filter'),
         labelFilterListOptions: base.select('.ID_label-filter').selectAll('option')
             .data(labelFilterOptions)
             .join('option')
@@ -139,7 +138,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
     }
 
     const vizs = {
-        histogram: noSidebar ? null : new Histogram(<HTMLElement>selectors.sidebar.node(), eventHandler),
+        histogram: new Histogram(<HTMLElement>selectors.sidebar.node(), eventHandler),
         results: new SaliencyTexts(<HTMLElement>selectors.resultsPanel.node(), eventHandler)
     }
 
