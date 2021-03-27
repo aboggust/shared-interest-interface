@@ -22,8 +22,8 @@ export class State {
     freeze: boolean
     frozenParams: Set<string> = new Set([])
 
-    totalNumImages: number
-    numImages: number
+    totalNumResults: number
+    numResults: number
 
     /**
      * 
@@ -151,19 +151,19 @@ export class State {
         return this
     }
 
-    imageCount(): number
-    imageCount(count: number): this
-    imageCount(count?) { 
-        if (count == null) return this.numImages
-        this.numImages = count
+    resultCount(): number
+    resultCount(count: number): this
+    resultCount(count?) { 
+        if (count == null) return this.numResults
+        this.numResults = count
         return this
     }
 
-    totalImageCount(): number
-    totalImageCount(count: number): this
-    totalImageCount(count?) { 
-        if (count == null) return this.totalNumImages
-        this.totalNumImages = count
+    totalResultCount(): number
+    totalResultCount(count: number): this
+    totalResultCount(count?) { 
+        if (count == null) return this.totalNumResults
+        this.totalNumResults = count
         return this
     }
 }

@@ -4,7 +4,7 @@ import { Histogram } from './vis/Histogram'
 import { SimpleEventHandler } from './etc/SimpleEventHandler'
 import { API } from './api/mainApi'
 import { State, URLParameters } from './state'
-import { caseStudyOptions, sortByOptions, predictionFnOptions, scoreFnOptions, labelFilterOptions } from './etc/selectionOptions'
+import { caseStudyOptions, sortByOptions, predictionFnOptions, scoreFnOptions, labelFilterOptions, caseOptions, caseValues } from './etc/selectionOptions'
 import { SaliencyTextViz } from "./vis/SaliencyTextRow"
 import { SaliencyTexts } from "./vis/SaliencyTexts"
 
@@ -76,7 +76,21 @@ function init(base: D3Sel) {
 
     <!--  Results  -->
     <div class="ID_main">
-        <div class="ID_sidebar"></div>
+        <div class="ID_sidebar">
+            <div class="ID_number-of-results">Filtering to x of Y</div>
+            <!--  Cases  -->
+            <div class="cases">
+                <div class="input-group input-group-sm mb-3">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="case-filter">Case</label>
+                    </div>
+                    <select class="custom-select custom-select-sm ID_cases">
+                        <!-- Fill in from data in TS now -->
+                    </select>
+                </div>
+            </div>
+            <div class="ID_case-description"></div>
+        </div>
         <div class="ID_mainpage">
             <div class="ID_results-panel"></div>
         </div>
@@ -135,6 +149,14 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             .join('option')
             .attr('value', option => option.value)
             .text(option => option.name),
+        numberOfResults: base.select('.ID_number-of-results'),
+        caseFilter: base.select('.ID_cases'),
+        caseListOptions: base.select('.ID_cases').selectAll('option')
+            .data(caseOptions)
+            .join('option')
+            .attr('value', option => option.value)
+            .text(option => option.name),
+        caseDescription: base.select('.ID_case-description').classed("description", true)
     }
 
     const vizs = {
@@ -152,6 +174,11 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         updateResults: (state: State) => {
             api.getResultIDs(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter(), 
                              state.iouFilter(), state.explanationFilter(), state.groundTruthFilter()).then(IDs => {
+                // Set the number of results
+                state.resultCount(IDs.length)
+                eventHelpers.updateResultCount(state)
+
+                // Update results
                 vizs.results.update(IDs)
             })
         },
@@ -161,11 +188,14 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         * @param {State} state - the current state of the application.
         */
         updatePage: (state: State) => {
-            // Update histograms using full images
+            // Update histograms using all results
             const allImageIDs = api.getResultIDs(state.caseStudy(), state.sortBy(), 'all', state.scoreFn(),
                 '', [0, 1], [0, 1], [0, 1])
             selectors.body.style('cursor', 'progress')
             allImageIDs.then(IDs => {
+                // Update number of results
+                state.totalResultCount(IDs.length)
+
                 // Update histograms
                 api.binScores(state.caseStudy(), IDs, 'iou').then(bins => {
                     vizs.IouHistogram.update({bins: bins, brushRange: state.iouFilter()})
@@ -185,6 +215,10 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
                 state.labelFilter(), state.iouFilter(), state.explanationFilter(), state.groundTruthFilter())
             selectors.body.style('cursor', 'progress')
             imageIDs.then(IDs => {
+                // Set the number of results
+                state.resultCount(IDs.length)
+                eventHelpers.updateResultCount(state)
+
                 // Set images
                 vizs.results.update(IDs)
                 selectors.body.style('cursor', 'default')
@@ -227,7 +261,37 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
                     .text(prediction => prediction)
                 selectors.predictionFn.property('value', state.predictionFn())
             })
-        }
+        },
+
+        /**
+        * Update the case if the filters have changed.
+        * @param {State} state - the current state of the application.
+        */
+         updateCase: (state: State) => {
+            const currentCase = selectors.caseFilter.property('value')
+            const currentPredictionFilter = selectors.predictionFn.property('value')
+            if (currentCase != 'default') { 
+                const caseScores = caseValues[currentCase]['scores']
+                if ( currentPredictionFilter != caseValues[currentCase]['prediction'] ||
+                state.iouFilter()[0] != caseScores['iou'][0] || 
+                state.iouFilter()[1] != caseScores['iou'][1] || 
+                state.groundTruthFilter()[0] != caseScores['ground_truth_coverage'][0] ||
+                state.groundTruthFilter()[1] != caseScores['ground_truth_coverage'][1] ||
+                state.explanationFilter()[0] != caseScores['explanation_coverage'][0] ||
+                state.explanationFilter()[1] != caseScores['explanation_coverage'][1] ) {
+                    selectors.caseFilter.property('value', 'default')
+                    selectors.caseDescription.text(caseValues['default']['description'])
+                }
+            }
+        },
+
+        /**
+        * Update the result count.
+        * @param {State} state - the current state of the application.
+        */
+         updateResultCount: (state: State) => {
+            selectors.numberOfResults.text('Filtering to ' + state.resultCount() + ' of ' + state.totalResultCount() + ' images')
+        },
     }
 
     /**
@@ -289,6 +353,21 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         eventHelpers.updatePage(state)
     });
 
+    selectors.caseFilter.on('change', () => {
+        /* When case changes, update the page. */
+        const caseFilter = selectors.caseFilter.property('value')
+        if (caseFilter) { 
+            const caseFilterScores = caseValues[caseFilter]['scores']
+            state.iouFilter(caseFilterScores['iou'][0], caseFilterScores['iou'][1])
+            state.groundTruthFilter(caseFilterScores['ground_truth_coverage'][0], caseFilterScores['ground_truth_coverage'][1])
+            state.explanationFilter(caseFilterScores['explanation_coverage'][0], caseFilterScores['explanation_coverage'][1])
+            state.predictionFn(caseValues[caseFilter]['prediction'])
+            selectors.caseDescription.text(caseValues[caseFilter]['description'])
+            eventHelpers.updatePredictions(state)
+            eventHelpers.updatePage(state)
+        }
+    });
+
     eventHandler.bind(SaliencyTexts.events.onScreen, ({ el, id, caller }) => {
         /* Lazy load the saliency results. */
         const row = new SaliencyTextViz(el, eventHandler)
@@ -309,6 +388,9 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             state.groundTruthFilter(minScore, maxScore)
         }
         eventHelpers.updateResults(state)
-    })
+
+        // Reset case if necessary 
+        eventHelpers.updateCase(state)
+    });
 
 }

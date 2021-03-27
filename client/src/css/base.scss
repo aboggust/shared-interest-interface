@@ -195,33 +195,6 @@ select {
   overflow-y: auto;
 }
 
-.full-width-images {
-  width: var(--body-width) !important;
-  height: var(--small-height) !important;
-}
-
-.saliency-images {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  overflow-y: auto;
-  height: inherit;
-}
-
-.saliency-image-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 200px;
-  margin-bottom: calc(var(--vertical-element-gap) / 2);
-  margin-top: calc(var(--vertical-element-gap) / 2);
-}
-
-.saliency-image {
-  height: 175px;
-  width: 175px;
-}
-
 .row {
   display: flex;
   flex-direction: row;
@@ -312,4 +285,9 @@ select {
 
 .txt-container { 
   font-size: 11pt;
+}
+
+.description { 
+  font-size: 10pt;
+  height: 38px; // height of 2 lines of text.
 }
