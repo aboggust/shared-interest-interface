@@ -1,5 +1,6 @@
 export interface SaliencyImg {
     image: string,
+    image_id: string
     bbox: string[], // Already converted to string in the backend
     saliency: string[], // Already converted to string in the backend
     label: string,

@@ -1,7 +1,5 @@
 export const caseStudyOptions = [
-    { name: "Vehicle", value: "data_vehicle" },
-    { name: "Dogs", value: "data_dogs" },
-    { name: "Melanoma", value: "data_melanoma" },
+    { name: "Vehicle", value: "data_vehicle_10" },
 ]
 
 export const sortByOptions = [

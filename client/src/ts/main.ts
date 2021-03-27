@@ -249,31 +249,6 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
                 selectors.predictionFn.property('value', state.predictionFn())
             })
         },
-
-        // maskSubmitted: (state: State) => {
-        //     selectors.body.style("cursor", "progress")
-        //     const imgData = vizs.interactiveSaliencyMask.imageCanvas.toDataURL().slice(22) // Remove data/png info
-        //     const maskData = vizs.interactiveSaliencyMask.drawCanvas.toDataURL().slice(22) // Remove data/png info
-        //     // Turn mask into 224,224 bit array
-        //     const topk = 4
-        //     eventHelpers.togglePopup()
-        //     // selectors.popup.append(`<div id="loading"></div>`)
-        //     selectors.popupContent.append('div').attr("id", "loading").classed("centered-vh", true)
-        //     api.getBestPrediction(imgData, maskData, state.scoreFn(), topk).then(r => {
-        //         selectors.body.style("cursor", "default")
-
-        //         selectors.popupContent.html('')
-        //         vizs.interactivePopupContent = new InteractiveSaliencyPopup(<HTMLElement>selectors.popupContent.node(), eventHandler);
-
-        //         const data = {
-        //             image: vizs.interactiveSaliencyMask.imageCanvas,
-        //             mask: vizs.interactiveSaliencyMask.drawCanvas,
-        //             scoreFn: state.scoreFn(),
-        //             bestPredicted: r,
-        //         }
-        //         vizs.interactivePopupContent.update(data)
-        //     })
-        // }
     }
 
     /**
@@ -292,10 +267,6 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
 
         // Get data from state parameters
         eventHelpers.updatePage(state)
-
-        api.getSaliencyImage(state.caseStudy(), state.selectedImage(), state.scoreFn()).then(r => {
-            // vizs.interactiveSaliencyMask.update({ image: r.image })
-        })
     }
 
     initializeFromState(state)
@@ -376,7 +347,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         selectors.popupContent.html('')
         selectors.popup.classed('hidden', false)
         vizs.interactivePopupContent = new InteractiveSaliencyPopup(<HTMLElement>selectors.popupContent.node(), eventHandler, { state, api });
-        vizs.interactivePopupContent.update(img)
+        vizs.interactivePopupContent.update({image: img})
     })
     eventHandler.bind(LazySaliencyImages.events.mouseOver, ({ fname }) => {
         selectors.body.style("cursor", "pointer")

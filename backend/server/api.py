@@ -21,8 +21,6 @@ class ImagesPayload(HashableBaseModel):
 # image, image_shape, mask, mask_shape, si_method:str, topk:int = 5
 class BestPredictionPayload(HashableBaseModel):
     image: str
-    image_shape: str
     mask: str
-    mask_shape: str
     si_method: str
     topk: int

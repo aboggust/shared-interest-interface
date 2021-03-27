@@ -143,16 +143,18 @@ export class API {
 
     /**
      * 
-     * @param image Base64 encoded image
+     * @param fname Name of the image file
      * @param mask Base64 encoded mask
      * @param si_method 
      * @param topk 
      */
-    getBestPrediction(image: string, mask: string, si_method: string, topk: number = 4): Promise<BestPredicted[]> {
+     getBestPrediction(fname: string, mask: string, si_method: string, topk: number = 5): Promise<BestPredicted[]> {
         const toSend = {
-            image, mask, si_method, topk
+            fname: fname, 
+            mask: mask,
+            si_method: si_method,
+            topk: topk
         }
-
         const url = makeUrl(this.baseURL + "/get-best-prediction")
         const payload = toPayload(toSend)
         return d3.json(url, payload)

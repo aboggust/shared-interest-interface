@@ -2,9 +2,6 @@ import { HTMLComponent } from './VComponent'
 import { D3Sel } from "../etc/Util";
 import { SimpleEventHandler } from "../etc/SimpleEventHandler";
 import { BestPredicted } from "../types"
-// import * as d3 from "d3"
-import * as _ from "lodash"
-import { scoreFnOptions } from '../etc/selectionOptions';
 
 export interface BestPredictionResultData extends BestPredicted {
     imageCanvas: HTMLCanvasElement
