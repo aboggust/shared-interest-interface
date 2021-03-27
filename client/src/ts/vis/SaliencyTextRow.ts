@@ -20,9 +20,8 @@ interface Selections {
     textInfo: D3Sel
     txtRow: D3Sel
     mainTxt: D3Sel
-    label: D3Sel
-    prediction: D3Sel
-    score: D3Sel
+    labels: D3Sel
+    scores: D3Sel
 }
 
 const Events: EventsI = {
@@ -52,11 +51,7 @@ export class SaliencyTextViz extends HTMLComponent<DI>{
     _init() {
         const html = `
             <div class="layout horizontal ID_txt-row">
-                <div class="txt-info flex">
-                    <span class="info btn ID_score"></span>
-                    <span class="info btn ID_label"></span>
-                    <span class="info btn ID_prediction"></span>
-                </div>
+                <div class="txt-info flex"></div>
                 <div class="txt-container flex-9"></div>
             </div>
         `
@@ -74,18 +69,9 @@ export class SaliencyTextViz extends HTMLComponent<DI>{
             .style('max-height', '125px')
             .style('overflow-y', 'auto')
             .style('align-content', 'flex-start')
-        sels.prediction = sels.textInfo.select('.ID_prediction')
-            .style('text-align', 'center')
-            .style('text-overflow', 'ellipsis')
-            .style('white-space', 'nowrap')
-            .style('overflow', 'hidden')
-        sels.label = sels.textInfo.select('.ID_label')
-            .style('background-color', '#d2d3d4')
-            .style('text-align', 'center')
-            .style('text-overflow', 'ellipsis')
-            .style('white-space', 'nowrap')
-            .style('overflow', 'hidden')
-        sels.score = sels.textInfo.select('.ID_score')
+        sels.scores = sels.textInfo.append("div").classed('instance-info', true)
+        sels.labels = sels.textInfo.append("div").classed('instance-info', true)
+        
     }
 
     _render(txt: SaliencyText) {
@@ -94,17 +80,44 @@ export class SaliencyTextViz extends HTMLComponent<DI>{
         const op = this.options
         const isCorrect = txt.prediction == txt.label
 
-        sels.score.text(txt.score.toFixed(2))
-            .style('color', txt.score < 0.5 ? '#212529' : '#e3e3e3')
-            .style('background-color', this.colorScale(txt.score))
+        // Scores
+        sels.scores.append('span').classed('info', true)
+            .text('IoU: ' + txt.scores['iou'].toFixed(2))
+            .style('color', txt.scores['iou'] < 0.5 ? '#212529' : '#e3e3e3')
+            .style('background-color', this.colorScale(txt.scores['iou']))
             .on("mouseover", function () {
-                self.trigger(Events.onScoreHover, { score: txt.score })
+                self.trigger(Events.onScoreHover, { score: txt.scores['iou'] })
             })
             .on("click", function () {
-                self.trigger(Events.onScoreClick, { score: txt.score })
+                self.trigger(Events.onScoreClick, { score: txt.scores['iou'] })
             })
 
-        sels.label.text(txt.label == 1 ? "positive" : "negative")
+        sels.scores.append('span').classed('info', true)
+            .text('EC: ' + txt.scores['precision'].toFixed(2))
+            .style('color', txt.scores['precision'] < 0.5 ? '#212529' : '#e3e3e3')
+            .style('background-color', this.colorScale(txt.scores['precision']))
+            .on("mouseover", function () {
+                self.trigger(Events.onScoreHover, { score: txt.scores['precision'] })
+            })
+            .on("click", function () {
+                self.trigger(Events.onScoreClick, { score: txt.scores['precision'] })
+            })
+
+        sels.scores.append('span').classed('info', true)
+            .text('GTC: ' + txt.scores['recall'].toFixed(2))
+            .style('color', txt.scores['recall'] < 0.5 ? '#212529' : '#e3e3e3')
+            .style('background-color', this.colorScale(txt.scores['recall']))
+            .on("mouseover", function () {
+                self.trigger(Events.onScoreHover, { score: txt.scores['recall'] })
+            })
+            .on("click", function () {
+                self.trigger(Events.onScoreClick, { score: txt.scores['recall'] })
+            })
+
+        // Label
+        sels.labels.append('span').classed('info', true)
+            .text(txt.label == 1 ? "positive" : "negative")
+            .style('background-color', '#d2d3d4')
             .on("mouseover", function () {
                 self.trigger(Events.onLabelHover, { label: txt.label })
             })
@@ -112,7 +125,9 @@ export class SaliencyTextViz extends HTMLComponent<DI>{
                 self.trigger(Events.onLabelClick, { label: txt.label })
             })
 
-        sels.prediction.text(txt.prediction == 1 ? "positive" : "negative")
+        // Prediction
+        sels.labels.append('span').classed('info', true)
+            .text(txt.prediction == 1 ? "positive" : "negative")
             .style('background-color', isCorrect ? '#afc4a5' : '#b08989')
             .on("mouseover", function () {
                 self.trigger(Events.onPredictionHover, { prediction: txt.prediction })
