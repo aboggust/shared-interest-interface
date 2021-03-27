@@ -70,10 +70,12 @@ export class API {
      * @param {string} caseStudy - the name of the case study
      * @return {Promise<string[]>} a list of all model predictions for caseStudy
      */
-    getPredictions(caseStudy: string): Promise<string[]> {
-        return new Promise((resolve, reject) => {
-            resolve(["0", "1"])
-        })
+     getPredictions(caseStudy: string): Promise<string[]> {
+        const toSend = {
+            case_study: caseStudy
+        }
+        const url = makeUrl(this.baseURL + "/get-predictions", toSend)
+        return d3.json(url)
     }
 
     /**
@@ -83,9 +85,11 @@ export class API {
      * @return {Promise<string[]>} a list of all image labels for caseStudy
      */
     getLabels(caseStudy: string): Promise<string[]> {
-        return new Promise((resolve, reject) => {
-            resolve(["0", "1"])
-        })
+        const toSend = {
+            case_study: caseStudy
+        }
+        const url = makeUrl(this.baseURL + "/get-labels", toSend)
+        return d3.json(url)
     }
 
     /**
