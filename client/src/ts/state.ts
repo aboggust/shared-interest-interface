@@ -6,6 +6,9 @@ export interface URLParameters {
     sortBy: number,
     predictionFn: string,
     labelFilter: string,
+    iouFilter: number[],
+    groundTruthFilter: number[],
+    explanationFilter: number[],
 }
 
 interface StateConf { }
@@ -18,6 +21,9 @@ export class State {
     ignoreUrl: boolean
     freeze: boolean
     frozenParams: Set<string> = new Set([])
+
+    totalNumImages: number
+    numImages: number
 
     /**
      * 
@@ -46,6 +52,9 @@ export class State {
             sortBy: params['sortBy'] || 1,
             predictionFn: params['predictionFn'] || 'all',
             labelFilter: params['labelFilter'] || '',
+            iouFilter: params['iouFilter'] || [0, 1],
+            groundTruthFilter: params['groundTruthFilter'] || [0, 1],
+            explanationFilter: params['explanationFilter'] || [0, 1],
         }
     }
 
@@ -112,6 +121,49 @@ export class State {
         if (filter == null) return this._url.labelFilter
         this._url.labelFilter = filter
         this.toURL()
+        return this
+    }
+
+    iouFilter(): number[]
+    iouFilter(minValue: number, maxValue: number): this
+    iouFilter(minValue?, maxValue?) {
+        if (minValue == null) return this._url.iouFilter
+        this._url.iouFilter = [minValue, maxValue]
+        this.toURL()
+        return this
+    }
+
+    groundTruthFilter(): number[]
+    groundTruthFilter(minValue: number, maxValue: number): this
+    groundTruthFilter(minValue?, maxValue?) {
+        if (minValue == null) return this._url.groundTruthFilter
+        this._url.groundTruthFilter = [minValue, maxValue]
+        this.toURL()
+        return this
+    }
+
+    explanationFilter(): number[]
+    explanationFilter(minValue: number, maxValue: number): this
+    explanationFilter(minValue?, maxValue?) {
+        if (minValue == null) return this._url.explanationFilter
+        this._url.explanationFilter = [minValue, maxValue]
+        this.toURL()
+        return this
+    }
+
+    imageCount(): number
+    imageCount(count: number): this
+    imageCount(count?) { 
+        if (count == null) return this.numImages
+        this.numImages = count
+        return this
+    }
+
+    totalImageCount(): number
+    totalImageCount(count: number): this
+    totalImageCount(count?) { 
+        if (count == null) return this.totalNumImages
+        this.totalNumImages = count
         return this
     }
 }

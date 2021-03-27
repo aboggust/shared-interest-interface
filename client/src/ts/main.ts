@@ -138,7 +138,9 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
     }
 
     const vizs = {
-        histogram: new Histogram(<HTMLElement>selectors.sidebar.node(), eventHandler),
+        IouHistogram: new Histogram(<HTMLElement>selectors.sidebar.node(), 'IoU', eventHandler),
+        ECHistogram: new Histogram(<HTMLElement>selectors.sidebar.node(), 'Explanation Coverage', eventHandler),
+        GTCHistogram: new Histogram(<HTMLElement>selectors.sidebar.node(), 'Ground Truth Coverage', eventHandler),
         results: new SaliencyTexts(<HTMLElement>selectors.resultsPanel.node(), eventHandler)
     }
 
@@ -148,7 +150,8 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         * @param {State} state - the current state of the application.
         */
         updateResults: (state: State) => {
-            api.getResultIDs(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter()).then(IDs => {
+            api.getResultIDs(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter(), 
+                             state.iouFilter(), state.explanationFilter(), state.groundTruthFilter()).then(IDs => {
                 vizs.results.update(IDs)
             })
         },
@@ -158,12 +161,33 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         * @param {State} state - the current state of the application.
         */
         updatePage: (state: State) => {
-            api.getResultIDs(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter()).then(IDs => {
-                vizs.results.update(IDs)
-
-                api.binScores(state.caseStudy(), IDs, state.scoreFn()).then(bins => {
-                    vizs.histogram.update(bins)
+            // Update histograms using full images
+            const allImageIDs = api.getResultIDs(state.caseStudy(), state.sortBy(), 'all', state.scoreFn(),
+                '', [0, 1], [0, 1], [0, 1])
+            selectors.body.style('cursor', 'progress')
+            allImageIDs.then(IDs => {
+                // Update histograms
+                api.binScores(state.caseStudy(), IDs, 'iou').then(bins => {
+                    vizs.IouHistogram.update({bins: bins, brushRange: state.iouFilter()})
                 })
+                api.binScores(state.caseStudy(), IDs, 'explanation_coverage').then(bins => {
+                    vizs.ECHistogram.update({bins: bins, brushRange: state.explanationFilter()})
+                })
+                api.binScores(state.caseStudy(), IDs, 'ground_truth_coverage').then(bins => {
+                    vizs.GTCHistogram.update({bins: bins, brushRange: state.groundTruthFilter()})
+                })
+                selectors.body.style('cursor', 'default')
+            })
+
+            // Update image panel
+            vizs.results.clear()
+            const imageIDs = api.getResultIDs(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(),
+                state.labelFilter(), state.iouFilter(), state.explanationFilter(), state.groundTruthFilter())
+            selectors.body.style('cursor', 'progress')
+            imageIDs.then(IDs => {
+                // Set images
+                vizs.results.update(IDs)
+                selectors.body.style('cursor', 'default')
             })
         },
 
@@ -271,6 +295,20 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         api.getResult(state.caseStudy(), id, state.scoreFn()).then(salTxt => {
             row.update(salTxt)
         })
+    });
+
+    eventHandler.bind(Histogram.events.onBrush, ({ minScore, maxScore, score, caller }) => {
+        /* Filter scores */
+        minScore = Math.round((minScore + Number.EPSILON) * 100) / 100
+        maxScore = Math.round((maxScore + Number.EPSILON) * 100) / 100
+        if (score == 'IoU') { 
+            state.iouFilter(minScore, maxScore)
+        } else if (score == 'Explanation Coverage') { 
+            state.explanationFilter(minScore, maxScore)
+        } else if (score == 'Ground Truth Coverage') { 
+            state.groundTruthFilter(minScore, maxScore)
+        }
+        eventHelpers.updateResults(state)
     })
 
 }

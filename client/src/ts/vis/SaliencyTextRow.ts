@@ -79,7 +79,6 @@ export class SaliencyTextViz extends HTMLComponent<DI>{
         const sels = this.sels
         const op = this.options
         const isCorrect = txt.prediction == txt.label
-        console.log(txt)
 
         // Scores
         sels.scores.append('span').classed('info', true)

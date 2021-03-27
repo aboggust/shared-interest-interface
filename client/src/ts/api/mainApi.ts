@@ -27,19 +27,20 @@ export class API {
      * @param {string} explanationFilter - min and max explanation coverage values
      * @return {Promise<string[]>} a list of imageIDs
      */
-    getResultIDs(caseStudy: string, sortBy: number, predictionFn: string, scoreFn: string, labelFilter: string): Promise<string[]> {
+    getResultIDs(caseStudy: string, sortBy: number, predictionFn: string, scoreFn: string, labelFilter: string,
+        iouFilter: number[], explanationFilter: number[], groundTruthFilter: number[], ): Promise<string[]> {
         const toSend = {
             case_study: caseStudy,
             sort_by: sortBy,
             prediction_fn: predictionFn,
             score_fn: scoreFn,
             label_filter: labelFilter,
-            iou_min: 0,
-            iou_max: 1,
-            ec_min: 0,
-            ec_max: 1,
-            gtc_min: 0,
-            gtc_max: 1,
+            iou_min: iouFilter[0],
+            iou_max: iouFilter[1],
+            ec_min: explanationFilter[0],
+            ec_max: explanationFilter[1],
+            gtc_min: groundTruthFilter[0],
+            gtc_max: groundTruthFilter[1],
         }
         const url = makeUrl(this.baseURL + "/get-result-ids", toSend)
         return d3.json(url)
