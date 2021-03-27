@@ -148,9 +148,8 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         * @param {State} state - the current state of the application.
         */
         updateResults: (state: State) => {
-            api.getTextIDs(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter()).then(r => {
-                //@ts-ignore
-                vizs.results.update(r)
+            api.getResultIDs(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter()).then(IDs => {
+                vizs.results.update(IDs)
             })
         },
 
@@ -159,16 +158,12 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         * @param {State} state - the current state of the application.
         */
         updatePage: (state: State) => {
-            // CHANGE THIS WHEN HISTOGRAM + CONFUSION MATRIX ARE WORKING
-            selectors.sidebar.classed('hidden', true)
-            api.getTextIDs(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter()).then(ids => {
-                //@ts-ignore
-                vizs.results.update(ids)
+            api.getResultIDs(state.caseStudy(), state.sortBy(), state.predictionFn(), state.scoreFn(), state.labelFilter()).then(IDs => {
+                vizs.results.update(IDs)
 
-                // THIS IS REALLY SLOW on the frontend. Need a different route
-                // api.binTextScores(state.caseStudy(), ids, state.scoreFn()).then(bins => {
-                //     vizs.histogram.update(bins)
-                // })
+                api.binScores(state.caseStudy(), IDs, state.scoreFn()).then(bins => {
+                    vizs.histogram.update(bins)
+                })
             })
         },
 
@@ -273,7 +268,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
     eventHandler.bind(SaliencyTexts.events.onScreen, ({ el, id, caller }) => {
         /* Lazy load the saliency results. */
         const row = new SaliencyTextViz(el, eventHandler)
-        api.getSaliencyText(state.caseStudy(), id, state.scoreFn()).then(salTxt => {
+        api.getResult(state.caseStudy(), id, state.scoreFn()).then(salTxt => {
             row.update(salTxt)
         })
     })

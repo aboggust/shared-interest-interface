@@ -13,7 +13,7 @@ class HashableBaseModel(BaseModel):
         return v
 
 
-class ImagesPayload(HashableBaseModel):
+class ResultPayload(HashableBaseModel):
     case_study: str
-    image_ids: List[str]
+    result_ids: List[str]
     score_fn: str

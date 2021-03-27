@@ -79,44 +79,45 @@ export class SaliencyTextViz extends HTMLComponent<DI>{
         const sels = this.sels
         const op = this.options
         const isCorrect = txt.prediction == txt.label
+        console.log(txt)
 
         // Scores
         sels.scores.append('span').classed('info', true)
-            .text('IoU: ' + txt.scores['iou'].toFixed(2))
-            .style('color', txt.scores['iou'] < 0.5 ? '#212529' : '#e3e3e3')
-            .style('background-color', this.colorScale(txt.scores['iou']))
+            .text('IoU: ' + txt.iou.toFixed(2))
+            .style('color', txt.iou < 0.5 ? '#212529' : '#e3e3e3')
+            .style('background-color', this.colorScale(txt.iou))
             .on("mouseover", function () {
-                self.trigger(Events.onScoreHover, { score: txt.scores['iou'] })
+                self.trigger(Events.onScoreHover, { score: txt.iou })
             })
             .on("click", function () {
-                self.trigger(Events.onScoreClick, { score: txt.scores['iou'] })
+                self.trigger(Events.onScoreClick, { score: txt.iou })
             })
 
         sels.scores.append('span').classed('info', true)
-            .text('EC: ' + txt.scores['precision'].toFixed(2))
-            .style('color', txt.scores['precision'] < 0.5 ? '#212529' : '#e3e3e3')
-            .style('background-color', this.colorScale(txt.scores['precision']))
+            .text('EC: ' + txt.explanation_coverage.toFixed(2))
+            .style('color', txt.explanation_coverage < 0.5 ? '#212529' : '#e3e3e3')
+            .style('background-color', this.colorScale(txt.explanation_coverage))
             .on("mouseover", function () {
-                self.trigger(Events.onScoreHover, { score: txt.scores['precision'] })
+                self.trigger(Events.onScoreHover, { score: txt.explanation_coverage })
             })
             .on("click", function () {
-                self.trigger(Events.onScoreClick, { score: txt.scores['precision'] })
+                self.trigger(Events.onScoreClick, { score: txt.explanation_coverage })
             })
 
         sels.scores.append('span').classed('info', true)
-            .text('GTC: ' + txt.scores['recall'].toFixed(2))
-            .style('color', txt.scores['recall'] < 0.5 ? '#212529' : '#e3e3e3')
-            .style('background-color', this.colorScale(txt.scores['recall']))
+            .text('GTC: ' + txt.ground_truth_coverage.toFixed(2))
+            .style('color', txt.ground_truth_coverage < 0.5 ? '#212529' : '#e3e3e3')
+            .style('background-color', this.colorScale(txt.ground_truth_coverage))
             .on("mouseover", function () {
-                self.trigger(Events.onScoreHover, { score: txt.scores['recall'] })
+                self.trigger(Events.onScoreHover, { score: txt.ground_truth_coverage })
             })
             .on("click", function () {
-                self.trigger(Events.onScoreClick, { score: txt.scores['recall'] })
+                self.trigger(Events.onScoreClick, { score: txt.ground_truth_coverage })
             })
 
         // Label
         sels.labels.append('span').classed('info', true)
-            .text(txt.label == 1 ? "positive" : "negative")
+            .text(txt.label)
             .style('background-color', '#d2d3d4')
             .on("mouseover", function () {
                 self.trigger(Events.onLabelHover, { label: txt.label })
@@ -127,7 +128,7 @@ export class SaliencyTextViz extends HTMLComponent<DI>{
 
         // Prediction
         sels.labels.append('span').classed('info', true)
-            .text(txt.prediction == 1 ? "positive" : "negative")
+            .text(txt.prediction)
             .style('background-color', isCorrect ? '#afc4a5' : '#b08989')
             .on("mouseover", function () {
                 self.trigger(Events.onPredictionHover, { prediction: txt.prediction })
