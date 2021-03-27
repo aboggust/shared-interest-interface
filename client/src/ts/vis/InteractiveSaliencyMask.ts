@@ -64,8 +64,8 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
             <div class="layout vertical start-justified">
                 <canvas width=${op.width} height=${op.height} class="flex self-start"></canvas>
                 <div class="layout horizontal flex start self-start">
-                    <span id="reset-button" class="flex btn self-start">Reset</span>
-                    <span id="submit-button" class="flex btn self-start">Submit</span>
+                    <button id="reset-button" class="flex btn self-start">Reset</button>
+                    <button id="submit-button" class="flex btn self-start">Submit</button>
                 </div>
             </div>
         `

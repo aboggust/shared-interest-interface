@@ -146,7 +146,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             .text(option => option.name),
         popup: base.select("#prediction-results-popup"),
         closePopup: base.select(".close").on('click', () => {
-            eventHelpers.togglePopup()
+            eventHelpers.closePopup()
         }),
         popupContent: base.select("#popup-content"),
     }
@@ -164,9 +164,17 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         * Update the image panel.
         * @param {State} state - the current state of the application.
         */
-        togglePopup: () => {
+        closePopup: () => {
             const popup = selectors.popup
-            popup.classed("hidden", !popup.classed("hidden"))
+            popup.classed("hidden", true)
+            selectors.main.classed("background", false)
+            selectors.navBar.classed("background", false)
+        },
+        openPopup: () => {
+            const popup = selectors.popup
+            popup.classed("hidden", false)
+            selectors.main.classed("background", true)
+            selectors.navBar.classed("background", true)
         },
         updateImages: (state: State) => {
             vizs.saliencyImages.clear()
@@ -345,7 +353,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
     })
     eventHandler.bind(SingleSaliencyImage.events.onImageClick, (img: SaliencyImg) => {
         selectors.popupContent.html('')
-        selectors.popup.classed('hidden', false)
+        eventHelpers.openPopup()
         vizs.interactivePopupContent = new InteractiveSaliencyPopup(<HTMLElement>selectors.popupContent.node(), eventHandler, { state, api });
         vizs.interactivePopupContent.update({image: img})
     })

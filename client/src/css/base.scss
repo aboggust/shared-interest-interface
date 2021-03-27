@@ -308,22 +308,6 @@ select {
   margin-top: 10px;
   margin-bottom: 20px;
 }
-
-#prediction-results-popup {
-  position: absolute;
-  vertical-align: middle;
-  margin: 0;
-  top: 50%;
-  left: 50%;
-  width: 90%;
-  height: 70%;
-  -ms-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
-  z-index: 2;
-  background-color: #fff;
-  border-style: outset;
-}
-
 .hidden {
   display: none;
 }
@@ -355,4 +339,46 @@ select {
   position: absolute;
   top: 45%;
   left: 45%;
+}
+
+.best-prediction-result-image {
+  text-align: center;
+}
+
+.background {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+#prediction-results-popup {
+  position: absolute;
+  vertical-align: middle;
+  margin: 0;
+  top: 50%;
+  left: 50%;
+  width: 90%;
+  height: 70%;
+  max-height: 600px;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  background-color: #fff;
+  border-style: outset;
+
+  #popup-content {
+    height: 100%;
+    padding: 1rem;
+  }
+
+  .interactive-saliency-popup {
+    height: 100%;
+    .result-popup {
+      height: 100%;
+      position: relative;
+    }
+    .result-container {
+      height: 100%;
+      overflow-y: auto;
+    }
+  }
 }

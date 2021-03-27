@@ -85,6 +85,9 @@ class SaliencyImage(BaseModel):
     label: str
     prediction: str
     score: str
+    iou: float
+    ground_truth_coverage: float
+    explanation_coverage: float
 
 
 class Bins(BaseModel):
@@ -275,7 +278,6 @@ async def get_confusion_matrix_values(case_study: str, label_filter: str,
 
 def bytes2np(img_bytes):
     """Convert image bytes from frontend to numpy array"""
-    print("\n\nMY IMG BYTES:\n\n ", len(img_bytes))
     im = Image.open(BytesIO(b64decode(img_bytes))).convert("RGB")
     return np.array(im)
 
@@ -322,7 +324,7 @@ async def get_best_prediction(payload: api.BestPredictionPayload):
     top_classes = [CLASSNAMES[ind] for ind in max_inds_sorted]
     
     # Catch info for jupyter comparison:
-    print(f"Fname: {fname}, max_inds: {max_inds_sorted}, classnames: {top_classes}")
+    print(f"\n\nFname: {fname}, max_inds: {max_inds_sorted}, classnames: {top_classes}\n\n")
 
     output = [{'classname': str(top_classes[i]), 'score': float(top_scores[i]), 'saliency_mask': top_saliency_masks[i].tolist()}
             for i in range(topk)]

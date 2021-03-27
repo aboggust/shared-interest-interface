@@ -55,7 +55,7 @@ export class InteractiveSaliencyPopup extends HTMLComponent<DI> {
     protected cur = {
         scoreFn: scoreFnOptions[0].value,
     }
-    protected cssName = "InteractiveSaliencyPopup";
+    protected cssName = "interactive-saliency-popup";
     protected sels: Partial<InteractiveSaliencyPopupSels> = {}
 
     public static events = Events
@@ -72,14 +72,13 @@ export class InteractiveSaliencyPopup extends HTMLComponent<DI> {
         const op = this.options,
             sels = this.sels;
         const templateHtml = `
-        <div class="result-popup">
-            <div class="layout horizontal center">
-                <div class="flex" style="margin-right: 2rem; margin-left: 2rem">
-                    <div class="ID_score-dropdown"></div>
-                    <div class="ID_interactive-saliency"></div>
-                </div>
-                <div class="flex-6 layout horizontal result-container wrap" style="position: relative;">
-                </div>
+        <div class="result-popup layout horizontal center">
+            <div class="flex" style="margin-right: 2rem; margin-left: 2rem">
+                <div class="ID_interactive-saliency"></div>
+                <div class="title">Search by:</div>
+                <div class="ID_score-dropdown"></div>
+            </div>
+            <div class="flex-6 layout horizontal result-container wrap">
             </div>
         </div>
         `
@@ -87,6 +86,11 @@ export class InteractiveSaliencyPopup extends HTMLComponent<DI> {
         sels.scoreFnDropdown = this.base.select(".ID_score-dropdown").append("select")
             .classed("custom-select", true)
             .classed("custom-select-sm", true)
+
+        sels.scoreFnDropdown.on('change', () => {
+            const newValue = sels.scoreFnDropdown.property('value')
+            op.state.scoreFn(newValue)
+        })
 
         sels.scoreFnDropdown.selectAll('option')
             .data(scoreFnOptions)
@@ -103,21 +107,16 @@ export class InteractiveSaliencyPopup extends HTMLComponent<DI> {
         sels.resultContainer = this.base.select(".result-container")
 
         this.eventHandler.bind(InteractiveSaliencyMask.events.submit, () => {
-            console.log("Caught event submission!");
             this.base.style("cursor", "progress")
 
             const maskData = this.interactiveSaliencyMask.drawCanvas.toDataURL().slice(22) // Remove data/png info
             sels.resultContainer.append('div').attr("id", "loading").classed("centered-vh", true)
             const fname = this._data.image.image_id
+            const topk = 6
             op.api.getBestPrediction(fname, maskData, op.state.scoreFn(), topk).then(r => {
                 sels.resultContainer.html('')
-
                 this.createResults(r)
                 this.base.style("cursor", "default")
-            })
-            op.api.getSaliencyImage(op.state.caseStudy(), op.state.selectedImage(), op.state.scoreFn()).then(r => {
-                console.log("Got my image! ", r)
-                this.interactiveSaliencyMask.setNewImage(r.image)
             })
         })
     }
@@ -136,10 +135,12 @@ export class InteractiveSaliencyPopup extends HTMLComponent<DI> {
             .classed("self-start", true)
             .style("margin", "1rem")
 
+            console.log("self image: ", self._data.image)
         sels.resultMasks.each(function (d, i) {
             const viz = new BestPredictionResultImage(<HTMLElement>this, self.eventHandler)
             const data = {
                 imageCanvas: self.interactiveSaliencyMask.imageCanvas,
+                image: self._data.image,
                 ...d
             }
             viz.update(data)

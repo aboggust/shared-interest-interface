@@ -1,10 +1,12 @@
 import { HTMLComponent } from './VComponent'
 import { D3Sel } from "../etc/Util";
 import { SimpleEventHandler } from "../etc/SimpleEventHandler";
-import { BestPredicted } from "../types"
+import { BestPredicted, SaliencyImg } from "../types"
+import * as _ from "lodash"
 
 export interface BestPredictionResultData extends BestPredicted {
     imageCanvas: HTMLCanvasElement
+    image: SaliencyImg
 }
 type DI = BestPredictionResultData
 
@@ -39,7 +41,7 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
         },
         active_alpha: .65
     };
-    protected cssName = "BestPredictionResultImage";
+    protected cssName = "best-prediction-result-image";
     // drawCanvas: HTMLCanvasElement
     // imageCanvas: HTMLCanvasElement
     protected baseCanvas: D3Sel;
@@ -65,9 +67,9 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
         const op = this.options;
         const templateHtml = `
             <div class="result-image">
-                <div class="image-info layout horizontal">
-                    <div class="flex info ID_score"></div>
-                    <div class="flex info ID_classname"></div>
+                <div class="image-info layout horizontal center">
+                    <div class="flex info btn ID_score"></div>
+                    <div class="flex info btn ID_classname"></div>
                 </div>
                 <div class="result-image-canvas">
                     <canvas width=${op.width} height=${op.height}></canvas>
@@ -90,15 +92,26 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
         this.clearCanvas(this.baseCanvas.node())
     }
 
-    _render(rD: DI = null): void {
+    _render(data: DI = null): void {
         // #f2d602 bbox
         // #d95f02 explanation
 
         const op = this.options,
             sels = this.sels;
+        sels.score.html('')
 
-        sels.score.text(rD.score.toFixed(2))
-        sels.classname.text(rD.classname)
+        sels.score.selectAll('.score-stat')
+            .data([
+                {name: "Annotated Score", score: data.score},
+                {name: "IOU", score: data.image.iou},
+                {name: "Expl Cov", score: data.image.explanation_coverage},
+                {name: "GT Cov", score: data.image.ground_truth_coverage}
+            ])
+            .join('div')
+            .classed(".score-stat", true)
+            .text(d => `${d.name}: ${d.score.toFixed(2)}`)
+
+        sels.classname.text(data.classname)
 
         this.baseCanvas
             .property('width', op.width)
@@ -108,7 +121,7 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
 
         let maskData = maskCtx.createImageData(op.width, op.height)
 
-        const flatMask = _.flattenDeep(rD.saliency_mask)
+        const flatMask = _.flattenDeep(data.saliency_mask)
 
         const color = op.colors.explanation
         let num1 = 0
@@ -129,7 +142,7 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
 
         // Render BG
         const ctx = this.baseCanvas.node().getContext('2d')
-        ctx.drawImage(rD.imageCanvas, 0, 0, op.width, op.height)
+        ctx.drawImage(data.imageCanvas, 0, 0, op.width, op.height)
         ctx.drawImage(this.drawCanvas, 0, 0, op.width, op.height)
     }
 }
