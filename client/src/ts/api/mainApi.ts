@@ -148,9 +148,9 @@ export class API {
      * @param si_method 
      * @param topk 
      */
-     getBestPrediction(fname: string, mask: string, si_method: string, topk: number = 5): Promise<BestPredicted[]> {
+    getBestPrediction(fname: string, mask: string, si_method: string, topk: number = 5): Promise<BestPredicted[]> {
         const toSend = {
-            fname: fname, 
+            fname: fname,
             mask: mask,
             si_method: si_method,
             topk: topk

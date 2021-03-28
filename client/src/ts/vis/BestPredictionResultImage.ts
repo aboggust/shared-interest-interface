@@ -102,10 +102,7 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
 
         sels.score.selectAll('.score-stat')
             .data([
-                {name: "Annotated Score", score: data.score},
-                {name: "IOU", score: data.image.iou},
-                {name: "Expl Cov", score: data.image.explanation_coverage},
-                {name: "GT Cov", score: data.image.ground_truth_coverage}
+                { name: "Annotated Score", score: data.score },
             ])
             .join('div')
             .classed(".score-stat", true)

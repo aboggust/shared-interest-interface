@@ -38,6 +38,56 @@ body {
   background-color: gray;
 }
 
+#results-panel {
+  position: relative;
+  height: 90%;
+  overflow-y: auto;
+}
+
+#main-popup {
+  position: absolute;
+  vertical-align: middle;
+  margin: 0;
+  top: 50%;
+  left: 50%;
+  width: 90%;
+  height: 70%;
+  max-height: 600px;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  background-color: #fff;
+  border-style: outset;
+
+  #popup-content {
+    height: 100%;
+    padding: 1rem;
+  }
+
+  .interactive-saliency-popup {
+    height: 100%;
+    .result-popup {
+      height: 100%;
+      position: relative;
+    }
+    .result-container {
+      height: 100%;
+      overflow-y: auto;
+    }
+  }
+}
+
+.selected-image {
+  padding: 3px;
+  border: 4px solid $highlight-color-L3;
+  border-radius: 4px;
+}
+
+#close-popup {
+  position: absolute;
+  right: 5px;
+}
+
 .sticky {
   position: fixed;
 }
@@ -63,13 +113,13 @@ body {
 #paint-brush-options {
   circle {
     &.selected {
-      fill: #f2d602;
+      fill: $gt-color;
     }
   }
 }
 
 .selected {
-  background-color: #98b7d9;
+  background-color: $selected-color;
 }
 
 button {
@@ -81,18 +131,18 @@ button {
   background-color: lightgray;
 
   &.selected {
-    background-color: #98b7d9;
+    background-color: $selected-color;
   }
 }
 
 button:active :focus {
-  background-color: #98b7d9;
+  background-color: $selected-color;
 }
 
 #loader {
   border: 5px solid #f3f3f3;
   border-radius: 50%;
-  border-top: 5px solid #3498db;
+  border-top: 5px solid $selected-color;
   width: 100px;
   height: 100px;
   -webkit-animation: spin 2s linear infinite; /* Safari */
@@ -236,7 +286,8 @@ select {
   flex-wrap: wrap;
   justify-content: space-between;
   overflow-y: auto;
-  height: inherit;
+  height: 100%;
+  padding: 2rem 4rem;
 }
 
 .saliency-image-card {
@@ -351,9 +402,9 @@ select {
   display: inline-block;
   width: 50px;
   height: 50px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
+  border: 3px solid rgba(180, 180, 180, 0.7);
   border-radius: 50%;
-  border-top-color: $component-head-color;
+  border-top-color: $highlight-color-L3;
   animation: spin 1s ease-in-out infinite;
   -webkit-animation: spin 1s ease-in-out infinite;
   z-index: 3;

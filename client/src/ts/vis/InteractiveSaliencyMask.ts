@@ -60,9 +60,10 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
     protected _init() {
         const op = this.options;
         const templateHtml = `
-            <div class="title">Custom Saliency Overlap</div>
             <div class="layout vertical start-justified">
-                <canvas width=${op.width} height=${op.height} class="flex self-start"></canvas>
+                <div id="draw-canvas">
+                    <canvas width=${op.width} height=${op.height} class="flex self-start"></canvas>
+                </div>
                 <div class="layout horizontal flex start self-start">
                     <button id="reset-button" class="flex btn self-start">Reset</button>
                     <button id="submit-button" class="flex btn self-start">Submit</button>
@@ -80,6 +81,7 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
         this.baseCanvas = this.base.select('canvas')
             .property('width', op.width)
             .property('height', op.height)
+            .classed("selected-image", true)
         this.drawCanvas = this._createNewCanvas()
         this.imageCanvas = this._createNewCanvas()
 
@@ -209,7 +211,7 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
         const op = this.options
         const tmpCanvas = this._createNewCanvas(tw, th)
         const tmpCtx = tmpCanvas.getContext('2d')
-        tmpCtx.drawImage(this.imageCanvas, 0, 0, op.width, op.height, 0, 0, tw, th)
+        tmpCtx.drawImage(canvas, 0, 0, op.width, op.height, 0, 0, tw, th)
         return tmpCanvas
     }
 

@@ -46,6 +46,7 @@ export class LazySaliencyImages extends HTMLComponent<DI>{
 
         const scoreFn = imgData.scoreFn
         const caseStudy = imgData.caseStudy
+        self.base.html('')
 
         // Create divs for each image
         var saliencyImageCards = self.base

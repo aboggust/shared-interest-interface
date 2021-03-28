@@ -52,6 +52,10 @@ export class SingleSaliencyImage extends HTMLComponent<DI>{
 
     static events = Events
 
+    options = {
+        showStats: true
+    }
+
     constructor(parent: HTMLElement, eventHandler?: SimpleEventHandler, options = {}) {
         super(parent, eventHandler, options)
         this._superInit(options);
@@ -60,20 +64,38 @@ export class SingleSaliencyImage extends HTMLComponent<DI>{
 
     _init() {
         const self = this
+        const op = this.options
         self.sels.imgInfo = self.base.append("div").classed("image-info", true)
         self.sels.imgContainer = self.base.append("div").classed("image-container", true)
-
-        self.sels.mainImg = self.sels.imgContainer.append("img").classed("saliency-image", true)
-        self.sels.bboxMask = self.sels.imgContainer.append("svg").classed("bbox", true).classed("mask", true)
-        self.sels.saliencyMask = self.sels.imgContainer.append("svg").classed("saliency", true).classed("mask", true)
+        self.sels.mainImg = self.sels.imgContainer.append("img").classed("saliency-image", true).attr('draggable', false)
+        self.sels.bboxMask = op.showStats && self.sels.imgContainer.append("svg").classed("bbox", true).classed("mask", true)
+        self.sels.saliencyMask = op.showStats && self.sels.imgContainer.append("svg").classed("saliency", true).classed("mask", true)
     }
 
     _render(img: SaliencyImg) {
         const self = this
+        const op = this.options
         const sels = this.sels
 
         const isCorrect = img.prediction == img.label
 
+        sels.mainImg.attr("src", toImgStr(img.image))
+            .attr("height", 175)
+            .attr("width", 175)
+            .on('click', () => {
+                d3.event.stopPropagation()
+                this.trigger(Events.onImageClick, img)
+            })
+            .on('mouseover', function () {
+                const me = d3.select(this)
+                me.style('cursor', 'pointer')
+            })
+            .on('mouseout', function () {
+                const me = d3.select(this)
+                me.style('cursor', 'default')
+            })
+
+        if (!op.showStats) return
         // INFO LOGIC
         sels.imgInfo.html('')
 
@@ -130,14 +152,6 @@ export class SingleSaliencyImage extends HTMLComponent<DI>{
         // Container Logic
         sels.imgContainer.classed("correct", isCorrect)
         sels.imgContainer.classed("incorrect", !isCorrect)
-            .on('click', () => {
-                d3.event.stopPropagation()
-                this.trigger(Events.onImageClick, img)
-            })
-
-        sels.mainImg.attr("src", toImgStr(img.image))
-            .attr("height", 175)
-            .attr("width", 175)
 
         sels.bboxMask.html('')
         sels.bboxMask
@@ -161,7 +175,14 @@ export class SingleSaliencyImage extends HTMLComponent<DI>{
             .style('fill-opacity', '10%')
             .style('stroke', '#d95f02')
             .style('stroke-width', '1.5px')
+    }
 
+    select() {
+        this.sels.mainImg.classed("selected-image", true)
+    }
+
+    deselect() {
+        this.sels.mainImg.classed("selected-image", false)
     }
 
 }
