@@ -40,6 +40,7 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
     imageCanvas: HTMLCanvasElement
     protected baseCanvas: D3Sel;
     protected sels: Partial<InteractiveSaliencyMaskSels> = {}
+    hasContent: boolean = false
 
     public static events = Events
     protected hasImg: boolean = false
@@ -72,6 +73,7 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
         `
         this.base.html(templateHtml)
         this.sels.resetBtn = this.base.select("#reset-button").on('click', () => {
+            this.hasContent = false
             this.resetMask()
             this.trigger(Events.resetMask, {})
         })
@@ -108,6 +110,7 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
         const assignMouseMove = () => {
             this.baseCanvas.on("mousemove", (e) => {
                 if (!this.hasImg) return
+                this.hasContent = true
                 const [x, y] = d3.mouse(this.baseCanvas.node());
                 drawCircle(drawCtx, x, y, op.radius)
                 this._render()

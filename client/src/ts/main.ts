@@ -65,13 +65,17 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
 
     const eventHelpers = {
         newPredictions: (state) => {
+            if (!vizs.interactiveSaliencyMask.hasContent) {
+                sels.resultsPanel.html('')
+                return
+            }
             const img = state.selectedImage()
-            const maskCanvas =vizs.interactiveSaliencyMask.getDrawCanvas(224,224) 
-            const maskData = maskCanvas.toDataURL().slice(22) // Remove data/png info
+            const maskCanvas = vizs.interactiveSaliencyMask.getDrawCanvas(224,224) 
+            const maskData = maskCanvas.toDataURL().slice(22) 
             sels.resultsPanel.html('').append('div').attr("id", "loading").classed("centered-vh", true)
             const topk = 6
+            sels.body.style('cursor', 'progress')
             api.getBestPrediction(state.selectedImage(), maskData, state.scoreFn(), topk).then(r => {
-
                 const resultMasks = sels.resultsPanel.html('').selectAll('.result-mask-image')
                     .data(r)
                     .join('div')
@@ -89,6 +93,9 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
                     }
                     viz.update(data)
                 })
+                sels.body.style("cursor", "default")
+            }).catch(e => {
+                sels.resultsPanel.html('')
                 sels.body.style("cursor", "default")
             })
 
@@ -140,6 +147,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
                 vizs.interactiveSaliencyMask.update(img)
                 sels.resultsPanel.append('div').attr("id", "loading").classed("centered-vh", true)
                 eventHelpers.newPredictions(state)
+                sels.body.style("cursor", "default")
             })
         }
     }

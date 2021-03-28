@@ -301,10 +301,11 @@ async def get_best_prediction(payload: api.BestPredictionPayload):
     si_method = payload['si_method']
     topk = payload['topk']
 
-    # Batch masks
-    # mask = np.array([float(num) for num in mask.split(',')]).reshape(SHAPE) #BAD
+    # If the mask is empty, do not process
     mask = (bytes2np(mask).sum(axis=-1) > 0)
+
     mask = transforms.ToTensor()(mask)
+
     if len(mask.shape) == 2:
         mask.unsqueeze(0)
     mask_batch = mask.repeat(NUM_CLASSES, 1, 1).numpy()
