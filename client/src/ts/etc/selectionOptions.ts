@@ -1,5 +1,5 @@
 export const caseStudyOptions = [
-    { name: "BeerAdvocate", value: "beer_advocate" },
+    { name: "BeerAdvocate: Appearance", value: "data_beeradvocate_sis_aspect0" },
 ]
 
 export const sortByOptions = [

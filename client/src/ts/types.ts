@@ -14,7 +14,7 @@ export interface ConfusionMatrixI {
 export interface SaliencyText {
     words: string[]
     label: string
-    prediction: string
+    prediction: number | string
     explanation_inds: number[]
     ground_truth_inds: number[]
     ground_truth_coverage: number

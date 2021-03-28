@@ -47,7 +47,7 @@ export class State {
         const params = this.ignoreUrl ? {} : URLHandler.parameters
 
         this._url = {
-            caseStudy: params['caseStudy'] || 'beer_advocate',
+            caseStudy: params['caseStudy'] || 'data_beeradvocate_sis_aspect0',
             scoreFn: params['scoreFn'] || 'explanation_coverage',
             sortBy: params['sortBy'] || 1,
             predictionFn: params['predictionFn'] || 'all',

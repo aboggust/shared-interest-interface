@@ -66,14 +66,14 @@ class SaliencyText(BaseModel):
     explanation_inds: list
     ground_truth_inds: list
     label: str
-    prediction: str
+    prediction: float # TODO update for non-float predictions
     iou: float
     ground_truth_coverage: float
     explanation_coverage: float
 
 
 # Load case study datasets
-datasets = ['beer_advocate',]
+datasets = ['data_beeradvocate_sis_aspect0',]
 dataframes = {}
 for dataset in datasets:
     dataframe = pd.read_json("./data/examples/%s.json" % dataset)
@@ -105,21 +105,33 @@ async def get_result_ids(case_study: str, sort_by: int, prediction_fn: str,
     """
     df = dataframes[case_study]
 
+    # Handle regression data
+    is_prediction_correct = lambda df: df.label == df.prediction
+    is_prediction_equal = lambda df, prediction: df.prediction == prediction
+    delta = 0.05 # TODO: Update for other datasets
+    if df.prediction.dtype == 'float64': # TODO: update delta for other datasets
+        is_prediction_correct = lambda df: np.logical_and(df.prediction >= pd.to_numeric(df.label) - delta, 
+                                                          df.prediction <= pd.to_numeric(df.label) + delta)
+        def is_prediction_equal(df, prediction):
+            min_value, max_value = [float(value) for value in prediction.split('-')]
+            return np.logical_and(df.prediction >= min_value, df.prediction <= max_value)
+
     # Filter by prediction
     if prediction_fn == "all":
         pred_inds = np.ones(len(df))
     elif prediction_fn == "correct_only":
-        pred_inds = df.label == df.prediction
+        pred_inds = is_prediction_correct(df)
     elif prediction_fn == "incorrect_only":
-        pred_inds = df.label != df.prediction
+        pred_inds = ~is_prediction_correct(df)
     else:  # Assume predictionFn is a label
-        pred_inds = df.prediction == prediction_fn
+        pred_inds = is_prediction_equal(df, prediction_fn)
 
     # Filter by label 
+    
     if label_filter == '':
         label_inds = np.ones(len(df))
     else:
-        label_inds = df.label == label_filter
+        label_inds = df.label.apply(str) == label_filter
 
     # Filter by scores
     iou_inds = np.logical_and(df.iou.round(2) >= iou_min, df.iou.round(2) <= iou_max)
@@ -153,13 +165,20 @@ async def get_result(case_study: str, result_id: str, score_fn: str):
 async def get_labels(case_study: str):
     """Gets the label values given the case study."""
     df = dataframes[case_study]
-    return list(df.label.unique())
+    return sorted(list(df.label.unique()))
 
 
 @app.get("/api/get-predictions", response_model=List[str])
 async def get_predictions(case_study: str):
     """Gets the possible prediction values given the case study."""
     df = dataframes[case_study]
+
+    # Handle regression data
+    if df.prediction.dtype == 'float64':
+        min_label, max_label = 0.0, pd.to_numeric(df.label).max()
+        delta = 0.05 # TODO: change this to adapt to other sizes
+        predictions = ['%.1f-%.1f' %(min_value, min_value + delta) for min_value in np.arange(min_label, max_label, delta)]
+        return predictions
     return list(df.prediction.unique())
 
 

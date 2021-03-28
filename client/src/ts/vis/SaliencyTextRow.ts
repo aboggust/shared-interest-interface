@@ -78,7 +78,13 @@ export class SaliencyTextViz extends HTMLComponent<DI>{
         const self = this
         const sels = this.sels
         const op = this.options
-        const isCorrect = txt.prediction == txt.label
+
+        // Handle regression values
+        var isCorrect = txt.prediction == txt.label
+        if (typeof txt.prediction === 'number') {
+            const delta = 0.05;
+            isCorrect = txt.prediction >= +txt.label - delta && txt.prediction <= +txt.label + delta;
+        }
 
         // Scores
         sels.scores.append('span').classed('info', true)
