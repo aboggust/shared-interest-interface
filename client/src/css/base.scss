@@ -7,7 +7,7 @@
   --selection-height: 40px;
   --body-height: calc(100vh - var(--navbar-height) - var(--vertical-element-gap) * 2);
   --main-height: calc(var(--body-height) - var(--selection-height) - var(--vertical-element-gap));
-  --main-width: calc(var(--body-widht) - var(--sidebar-width) - var(--horizontal-element-gap));
+  --main-width: calc(var(--body-width) - var(--sidebar-width) - var(--horizontal-element-gap));
   --small-height: 400px;
   --image-panel-height: var(--main-height);
   --image-panel-width: calc(var(--body-width) - var(--sidebar-width) - var(--horizontal-element-gap));
@@ -18,6 +18,24 @@ body {
   font-family: "IBM Plex Sans", sans-serif;
   font-weight: 400;
   height: var(--body-height);
+}
+
+#app {
+  margin-top: var(--navbar-height);
+  height: calc(100vh - var(--navbar-height));
+}
+
+#main-wrapper {
+  height: 100%;
+  align-items: stretch;
+}
+
+#divider {
+  --height: 90%;
+  width: 1px;
+  height: var(--height);
+  margin-top: calc((100% - var(--height)) / 2);
+  background-color: gray;
 }
 
 .sticky {
@@ -35,6 +53,23 @@ body {
 .scrolling {
   overflow: auto;
   max-height: 98%;
+}
+
+.hovered {
+  border: 2px solid gray;
+  border-radius: 4px;
+}
+
+#paint-brush-options {
+  circle {
+    &.selected {
+      fill: #f2d602;
+    }
+  }
+}
+
+.selected {
+  background-color: #98b7d9;
 }
 
 button {
@@ -381,4 +416,9 @@ select {
       overflow-y: auto;
     }
   }
+}
+
+.interactive-saliency-mask {
+  width: 400px;
+  height: 400px;
 }

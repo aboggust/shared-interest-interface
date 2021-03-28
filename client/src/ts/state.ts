@@ -4,6 +4,7 @@ export interface URLParameters {
     caseStudy: string,
     scoreFn: string,
     sortBy: number,
+    paintBrushR: number,
     predictionFn: string,
     labelFilter: string,
     selectedImage: string,
@@ -43,10 +44,11 @@ export class State {
         this._url = {
             caseStudy: params['caseStudy'] || 'data_vehicle_10',
             scoreFn: params['scoreFn'] || 'explanation_coverage',
-            sortBy: params['sortBy'] || 1,
-            predictionFn: params['predictionFn'] || 'all_images',
-            labelFilter: params['labelFilter'] || '',
-            selectedImage: params['selectedImage'] || "",
+            selectedImage: params['selectedImage'] || "n02701002_10156",
+            sortBy: 1,
+            predictionFn: 'all_images',
+            labelFilter: '',
+            paintBrushR: params['paintBrushR'] || 10,
         }
     }
 
@@ -121,6 +123,15 @@ export class State {
     selectedImage(value?) {
         if (value == null) return this._url.selectedImage
         this._url.selectedImage = value
+        this.toURL()
+        return this
+    }
+
+    paintBrushR(): number
+    paintBrushR(value: number): this
+    paintBrushR(value?) {
+        if (value == null) return this._url.paintBrushR
+        this._url.paintBrushR = value
         this.toURL()
         return this
     }

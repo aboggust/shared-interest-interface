@@ -29,13 +29,13 @@ export interface InteractiveSaliencyMaskSels {
 export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> {
     protected options = {
         pos: { x: 0, y: 0 },
-        width: 224,
-        height: 224,
+        width: 360,
+        height: 360,
         radius: 10,
         draw_color: "#f2d602",
         active_alpha: .65
     };
-    protected cssName = "InteractiveSaliencyMask";
+    protected cssName = "interactive-saliency-mask";
     drawCanvas: HTMLCanvasElement
     imageCanvas: HTMLCanvasElement
     protected baseCanvas: D3Sel;
@@ -50,10 +50,10 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
         this._init()
     }
 
-    _createNewCanvas() {
+    _createNewCanvas(width = null, height = null) {
         const res = document.createElement('canvas');
-        res.width = this.options.width;
-        res.height = this.options.height;
+        res.width = width || this.options.width;
+        res.height = height || this.options.height;
         return res;
     }
 
@@ -195,5 +195,29 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
         ctx.drawImage(this.imageCanvas, 0, 0, op.width, op.height)
         ctx.globalAlpha = op.active_alpha
         ctx.drawImage(this.drawCanvas, 0, 0, op.width, op.height)
+    }
+
+    radius(): number
+    radius(val: number): this
+    radius(val?) {
+        if (val == null) return this.options.radius
+        this.options.radius = val
+        return this
+    }
+
+    _resizeCanvas(canvas, tw = 224, th = 224): HTMLCanvasElement {
+        const op = this.options
+        const tmpCanvas = this._createNewCanvas(tw, th)
+        const tmpCtx = tmpCanvas.getContext('2d')
+        tmpCtx.drawImage(this.imageCanvas, 0, 0, op.width, op.height, 0, 0, tw, th)
+        return tmpCanvas
+    }
+
+    getImageCanvas(width = 224, height = 224): HTMLCanvasElement {
+        return this._resizeCanvas(this.imageCanvas, width, height)
+    }
+
+    getDrawCanvas(width = 224, height = 224): HTMLCanvasElement {
+        return this._resizeCanvas(this.drawCanvas, width, height)
     }
 }
