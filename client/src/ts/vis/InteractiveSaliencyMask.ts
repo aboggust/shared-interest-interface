@@ -61,7 +61,7 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
     protected _init() {
         const op = this.options;
         const templateHtml = `
-            <div class="layout vertical start-justified">
+            <div class="layout vertical">
                 <div id="draw-canvas">
                     <canvas width=${op.width} height=${op.height} class="flex self-start"></canvas>
                 </div>

@@ -19,8 +19,8 @@ function init(base: D3Sel) {
             <div id="popup-content"></div>
         </div>
         <div class="layout horizontal center center-center" id="main-wrapper">
-            <div id="draw-panel" class="flex-6 self-center">
-                <button class="btn info" id="select-image-button">Select Image</button>
+            <div id="draw-panel" class="flex-6 self-center layout vertical center-center">
+                <button class="btn info flex" id="select-image-button">Select Image</button>
                 <div id="score-select-dropdown"></div>
                 <div id="interactive-mask"></div>
                 <div class="title">Paint Brush Size</div>
