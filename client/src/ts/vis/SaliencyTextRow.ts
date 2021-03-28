@@ -80,10 +80,12 @@ export class SaliencyTextViz extends HTMLComponent<DI>{
         const op = this.options
 
         // Handle regression values
-        var isCorrect = txt.prediction == txt.label
+        var isCorrect;
         if (typeof txt.prediction === 'number') {
             const delta = 0.05;
             isCorrect = txt.prediction >= +txt.label - delta && txt.prediction <= +txt.label + delta;
+        } else { 
+            isCorrect = txt.prediction == txt.label
         }
 
         // Scores
@@ -133,7 +135,7 @@ export class SaliencyTextViz extends HTMLComponent<DI>{
 
         // Prediction
         sels.labels.append('span').classed('info', true)
-            .text(txt.prediction)
+            .text(txt.prediction.toFixed(1))
             .style('background-color', isCorrect ? '#afc4a5' : '#b08989')
             .on("mouseover", function () {
                 self.trigger(Events.onPredictionHover, { prediction: txt.prediction })

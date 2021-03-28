@@ -73,7 +73,10 @@ class SaliencyText(BaseModel):
 
 
 # Load case study datasets
-datasets = ['data_beeradvocate_sis_aspect0',]
+datasets = ['data_beeradvocate_sis_aspect0', 'data_beeradvocate_lime_aspect0', 'data_beeradvocate_integrated_gradients_aspect0',
+            'data_beeradvocate_sis_aspect1', 'data_beeradvocate_lime_aspect1', 'data_beeradvocate_integrated_gradients_aspect1',
+            'data_beeradvocate_sis_aspect2', 'data_beeradvocate_lime_aspect2', 'data_beeradvocate_integrated_gradients_aspect2',
+]
 dataframes = {}
 for dataset in datasets:
     dataframe = pd.read_json("./data/examples/%s.json" % dataset)

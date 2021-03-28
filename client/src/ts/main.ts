@@ -16,7 +16,7 @@ function init(base: D3Sel) {
     <!--  Filter Controls  -->
     <div class="controls container-md cont-nav">
         <div class="form-row">
-            <div class="col-sm-2">
+            <div class="col-sm-3">
                 <div class="input-group input-group-sm mb-3">
                     <div class="input-group-prepend">
                         <label class="input-group-text" for="case-study-select">Demo</label>
@@ -27,7 +27,7 @@ function init(base: D3Sel) {
                 </div>
             </div>
 
-            <div class="col-sm-3">
+            <div class="col-sm-2">
                 <div class="input-group input-group-sm mb-3">
                     <div class="input-group-prepend">
                         <label class="input-group-text" for="scorefn-select">Score</label>
