@@ -16,7 +16,7 @@ export const sortByOptions = [
 ]
 
 export const scoreFnOptions = [
-    { name: "Explanation Coverage", value: 'explanation_coverage'},
+    { name: "Saliency Coverage", value: 'explanation_coverage'},
     { name: "Ground Truth Coverage", value: 'ground_truth_coverage' },
     { name: "IoU", value: 'iou' },
 ]
@@ -59,7 +59,7 @@ export const caseValues = {
     "sufficient_subset":
         {'scores': {"iou": full, 'ground_truth_coverage': low, 'explanation_coverage': high},
          'prediction': 'correct_only',
-         'description': 'Correctly classified images with high Ground Truth Coverage and low Explanation Coverage.'},
+         'description': 'Correctly classified images with high Ground Truth Coverage and low Saliency Coverage.'},
     "sufficient_background":
         {'scores': {"iou": full, 'ground_truth_coverage': low, 'explanation_coverage': full},
          'prediction': 'correct_only',
@@ -67,7 +67,7 @@ export const caseValues = {
     "context_dependant":
         {'scores': {"iou": full, 'ground_truth_coverage': high, 'explanation_coverage': low},
          'prediction': 'correct_only',
-         'description': 'Correctly classified images with low Ground Truth Coverage and high Explanation Coverage.'},
+         'description': 'Correctly classified images with low Ground Truth Coverage and high Saliency Coverage.'},
     "confuser":
         {'scores': {"iou": high, 'ground_truth_coverage': full, 'explanation_coverage': full},
         'prediction': 'incorrect_only',
@@ -75,7 +75,7 @@ export const caseValues = {
     "too_focused":
         {'scores': {"iou": full, 'ground_truth_coverage': low, 'explanation_coverage': high},
         'prediction': 'incorrect_only',
-        'description': 'Incorrectly classified images with high Ground Truth Coverage and low Explanation Coverage.'},
+        'description': 'Incorrectly classified images with high Ground Truth Coverage and low Saliency Coverage.'},
     "distracted":
         {'scores': {"iou": full, 'ground_truth_coverage': low, 'explanation_coverage': full},
         'prediction': 'incorrect_only',
@@ -83,5 +83,5 @@ export const caseValues = {
     "context_confusion":
         {'scores': {"iou": full, 'ground_truth_coverage': high, 'explanation_coverage': low},
         'prediction': 'incorrect_only',
-        'description': 'Incorrectly classified images with low Ground Truth Coverage and high Explanation Coverage.'},
+        'description': 'Incorrectly classified images with low Ground Truth Coverage and high Saliency Coverage.'},
 }

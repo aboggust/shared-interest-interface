@@ -161,7 +161,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
 
     const vizs = {
         IouHistogram: new Histogram(<HTMLElement>selectors.sidebar.node(), 'IoU', eventHandler),
-        ECHistogram: new Histogram(<HTMLElement>selectors.sidebar.node(), 'Explanation Coverage', eventHandler),
+        ECHistogram: new Histogram(<HTMLElement>selectors.sidebar.node(), 'Saliency Coverage', eventHandler),
         GTCHistogram: new Histogram(<HTMLElement>selectors.sidebar.node(), 'Ground Truth Coverage', eventHandler),
         results: new SaliencyTexts(<HTMLElement>selectors.resultsPanel.node(), eventHandler)
     }
@@ -382,7 +382,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         maxScore = Math.round((maxScore + Number.EPSILON) * 100) / 100
         if (score == 'IoU') { 
             state.iouFilter(minScore, maxScore)
-        } else if (score == 'Explanation Coverage') { 
+        } else if (score == 'Saliency Coverage') { 
             state.explanationFilter(minScore, maxScore)
         } else if (score == 'Ground Truth Coverage') { 
             state.groundTruthFilter(minScore, maxScore)

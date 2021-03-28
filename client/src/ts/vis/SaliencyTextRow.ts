@@ -101,7 +101,7 @@ export class SaliencyTextViz extends HTMLComponent<DI>{
             })
 
         sels.scores.append('span').classed('info', true)
-            .text('EC: ' + txt.explanation_coverage.toFixed(2))
+            .text('SC: ' + txt.explanation_coverage.toFixed(2))
             .style('color', txt.explanation_coverage < 0.5 ? '#212529' : '#e3e3e3')
             .style('background-color', this.colorScale(txt.explanation_coverage))
             .on("mouseover", function () {
