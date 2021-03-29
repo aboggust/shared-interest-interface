@@ -21,7 +21,7 @@ function init(base: D3Sel) {
     <!--  Filter Controls  -->
     <div class="controls container-md cont-nav">
         <div class="form-row">
-            <div class="col-sm-2">
+            <div class="col-sm-3">
                 <div class="input-group input-group-sm mb-3">
                     <div class="input-group-prepend">
                         <label class="input-group-text" for="case-study-select">Demo</label>
@@ -32,7 +32,7 @@ function init(base: D3Sel) {
                 </div>
             </div>
 
-            <div class="col-sm-3">
+            <div class="col-sm-2">
                 <div class="input-group input-group-sm mb-3">
                     <div class="input-group-prepend">
                         <label class="input-group-text" for="scorefn-select">Score</label>
@@ -82,7 +82,7 @@ function init(base: D3Sel) {
     <!--  Saliency Image Grid  -->
     <div class="ID_main">
         <div class="ID_sidebar">
-            <div class="ID_number-of-images">Filtering to x of Y images</div>
+            <div class="ID_number-of-images">Filtering to x of Y</div>
             <!--  Cases  -->
             <div class="cases">
                 <div class="input-group input-group-sm mb-3">
@@ -167,7 +167,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
 
     const vizs = {
         IouHistogram: noSidebar ? null : new Histogram(<HTMLElement>selectors.sidebar.node(), 'IoU', eventHandler),
-        ECHistogram: noSidebar ? null : new Histogram(<HTMLElement>selectors.sidebar.node(), 'Explanation Coverage', eventHandler),
+        ECHistogram: noSidebar ? null : new Histogram(<HTMLElement>selectors.sidebar.node(), 'Saliency Coverage', eventHandler),
         GTCHistogram: noSidebar ? null : new Histogram(<HTMLElement>selectors.sidebar.node(), 'Ground Truth Coverage', eventHandler),
         saliencyImages: new LazySaliencyImages(<HTMLElement>selectors.imagesPanel.node(), eventHandler),
     }
@@ -415,7 +415,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         maxScore = Math.round((maxScore + Number.EPSILON) * 100) / 100
         if (score == 'IoU') { 
             state.iouFilter(minScore, maxScore)
-        } else if (score == 'Explanation Coverage') { 
+        } else if (score == 'Saliency Coverage') { 
             state.explanationFilter(minScore, maxScore)
         } else if (score == 'Ground Truth Coverage') { 
             state.groundTruthFilter(minScore, maxScore)

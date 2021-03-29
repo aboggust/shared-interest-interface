@@ -107,7 +107,7 @@ export class SingleSaliencyImage extends HTMLComponent<DI>{
         sels.imgScores.append('span')
             .classed('info', true)
             // .classed('btn', true) // Add when functionality has been added to score info
-            .text('EC: ' + Number(img.explanation_coverage).toFixed(2))
+            .text('SC: ' + Number(img.explanation_coverage).toFixed(2))
             .style('background-color', self.colorScale(img.explanation_coverage))
             .style('color', img.explanation_coverage < 0.5 ? '#212529' : '#e3e3e3')
             .on("mouseover", function() {

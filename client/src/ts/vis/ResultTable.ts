@@ -85,7 +85,7 @@ export class ResultTable extends HTMLComponent<null>{
   </thead>
   <tbody>
     <tr id="row1">
-      <th scope="row" class="align-middle">Explanation Coverage</th>
+      <th scope="row" class="align-middle">Saliency Coverage</th>
     </tr>
     <tr id="row2">
       <th scope="row" class="align-middle">Ground Truth Coverage</th>
