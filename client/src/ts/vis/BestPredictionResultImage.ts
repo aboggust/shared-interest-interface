@@ -75,7 +75,7 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
         const templateHtml = `
             <div class="result-image">
                 <div class="image-info layout horizontal center">
-                    <div class="flex info btn ID_classname"></div>
+                    <div class="flex title ID_classname"></div>
                 </div>
                 <div class="result-image-canvas">
                     <canvas width=${op.width} height=${op.height}></canvas>

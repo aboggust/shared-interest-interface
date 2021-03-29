@@ -13,17 +13,23 @@ interface EventsI {
     resetMask: string
     maskChanged: string
     submit: string
+    selectImage: string
+    paintBrushClick: string
 }
 
 const Events: EventsI = {
     resetMask: "InteractiveSaliencyMask_resetMask",
     maskChanged: "InteractiveSaliencyMask_maskChanged",
-    submit: "InteractiveSaliencyMask_submit"
+    submit: "InteractiveSaliencyMask_submit",
+    selectImage: "InteractiveSaliencyMask_selectImage",
+    paintBrushClick: "InteractiveSaliencyMask_paintBrushClick",
 }
 
 export interface InteractiveSaliencyMaskSels {
     resetBtn: D3Sel
     submitBtn: D3Sel
+    newPicBtn: D3Sel
+    paintBrushOptions: D3Sel
 }
 
 export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> {
@@ -61,14 +67,21 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
     protected _init() {
         const op = this.options;
         const templateHtml = `
-            <div class="layout vertical">
+            <div class="layout vertical center-center" style="width: inherit;">
                 <div id="draw-canvas">
                     <canvas width=${op.width} height=${op.height} class="flex self-start"></canvas>
                 </div>
-                <div class="layout horizontal flex start self-start">
-                    <button id="reset-button" class="flex btn self-start">Reset</button>
-                    <button id="submit-button" class="flex btn self-start">Submit</button>
+                <div class="layout horizontal flex end between-justify" style="width: inherit">
+                    <div class="flex self-start">
+                        <button class="btn flex" id="select-image-button">Select Image</button>
+                    </div>
+                    <div class="flex self-end layout horizontal end">
+                        <button id="reset-button" class="flex btn self-start">Reset</button>
+                        <button id="submit-button" class="flex btn self-start">Submit</button>
+                    </div>
                 </div>
+                <div class="" id="paint-brush-label">Paint Brush Size</div>
+                <div id="paint-brush-options"></div>
             </div>
         `
         this.base.html(templateHtml)
@@ -80,6 +93,12 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
         this.sels.submitBtn = this.base.select("#submit-button").on('click', () => {
             this.trigger(Events.submit, { mask: this.drawCanvas })
         })
+        this.sels.newPicBtn = this.base.select("#select-image-button").on('click', () => {
+            this.trigger(Events.selectImage, {})
+        })
+
+        d3.select("#paint-brush-label").style("margin-top", "1rem")
+        this.sels.paintBrushOptions = this.base.select("#paint-brush-options")
         this.baseCanvas = this.base.select('canvas')
             .property('width', op.width)
             .property('height', op.height)
@@ -131,6 +150,49 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
 
         this.baseCanvas.on("mouseup", clearMousemove)
         this.baseCanvas.on("mouseout", clearMousemove)
+
+        const paintBrushRs = [3, 10, 25]
+        const maxR = d3.max(paintBrushRs)
+
+        const paintBrushDivs = this.sels.paintBrushOptions
+            .style('width', "50%")
+            .attr('class', "layout horizontal around-justified").selectAll('div')
+            .data(paintBrushRs)
+            .join('div')
+            .classed('paint-brush-div', true)
+            // .classed("selected", d => d == this.options.radius)
+            .style('margin-left', d => `${d}px`)
+            .style('text-align', 'center')
+            .on('mouseover', function () {
+                const me = d3.select(this)
+                me.classed("hovered", true)
+            })
+            .on('mouseout', function () {
+                const me = d3.select(this)
+                me.classed("hovered", false)
+            })
+
+        const paintBrushCircles = paintBrushDivs.append('svg')
+            .classed("self-start", true)
+            .attr('width', 2 * maxR)
+            .attr('height', 2 * maxR)
+            .append('circle')
+            .attr('r', d => d)
+            .attr('cx', maxR)
+            .attr('cy', maxR)
+
+        const selectNewPaintbrush = (r?) => {
+            if (r != null) {
+                this.radius(r)
+
+                this.trigger(Events.paintBrushClick, { radius: r })
+                // vizs.interactiveSaliencyMask.radius(r)
+            }
+            // paintBrushDivs.classed("selected", d => d == this.options.radius)
+            paintBrushCircles.classed("selected", d => d == this.options.radius)
+        }
+        selectNewPaintbrush()
+        paintBrushDivs.on('click', selectNewPaintbrush)
     }
 
     clearCanvas(canvas: HTMLCanvasElement) {
