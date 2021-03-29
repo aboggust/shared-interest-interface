@@ -117,6 +117,15 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
         const op = this.options,
             sels = this.sels;
         sels.score.text(data.score.toFixed(2))
+
+        // Enable same behavior on score mouseover as bar mouse over
+        sels.score.on("mouseover", () => {
+            this.trigger(Events.barMouseOver, {score: data.score.toFixed(2), myScoreIdx: data.myScoreIdx, idxInList: op.idxInList, idx: data.myScoreIdx})
+        })
+        .on("mouseout", (d, i) => {
+            this.trigger(Events.barMouseOut, {score: data.score.toFixed(2), myScoreIdx: data.myScoreIdx, idxInList: op.idxInList, idx: data.myScoreIdx})
+        })
+
         sels.classname.text(data.classname)
 
         const scaleWidth = op.scoreScaleWidth
