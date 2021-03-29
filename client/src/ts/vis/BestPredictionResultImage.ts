@@ -14,9 +14,13 @@ export interface BestPredictionResultData extends BestPredicted {
 type DI = BestPredictionResultData
 
 interface EventsI {
+    barMouseOver: string
+    barMouseOut: string
 }
 
 const Events: EventsI = {
+    barMouseOver: "BestPredictionResultImage_barMouseOver",
+    barMouseOut: "BestPredictionResultImage_barMouesOut",
 }
 
 export interface BestPredictionResultImageSels {
@@ -46,7 +50,8 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
         },
         scoreHeight: 1.5, // rem
         scoreScaleWidth: d3.scaleLinear().domain([0, 1]).range([0,100]),
-        active_alpha: .65
+        active_alpha: .65,
+        idxInList: -1
     };
     protected cssName = "best-prediction-result-image";
     // drawCanvas: HTMLCanvasElement
@@ -121,6 +126,12 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
             .join('div')
             .classed("bar", true)
             .classed("this-img-bar", (d, i) => (i == data.myScoreIdx))
+            .on("mouseover", (d, i) => {
+                this.trigger(Events.barMouseOver, {score: d, myScoreIdx: data.myScoreIdx, idxInList: op.idxInList, idx: i})
+            })
+            .on("mouseout", (d, i) => {
+                this.trigger(Events.barMouseOut, {score: d, myScoreIdx: data.myScoreIdx, idx: i})
+            })
             .style("width", d => `${scaleWidth(d)}%`)
             .style("height", `${op.scoreHeight / barData.length}rem`)
             .style("margin-bottom", "1px")
@@ -156,5 +167,13 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
         const ctx = this.baseCanvas.node().getContext('2d')
         ctx.drawImage(data.imageCanvas, 0, 0, op.width, op.height)
         ctx.drawImage(this.drawCanvas, 0, 0, op.width, op.height)
+    }
+
+    highlight() {
+        this.base.classed("highlighted-img", true)
+    }
+
+    unHighlight() {
+        this.base.classed("highlighted-img", false)
     }
 }

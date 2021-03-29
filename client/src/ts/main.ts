@@ -70,8 +70,8 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
                 return
             }
             const img = state.selectedImage()
-            const maskCanvas = vizs.interactiveSaliencyMask.getDrawCanvas(224,224) 
-            const maskData = maskCanvas.toDataURL().slice(22) 
+            const maskCanvas = vizs.interactiveSaliencyMask.getDrawCanvas(224, 224)
+            const maskData = maskCanvas.toDataURL().slice(22)
             sels.resultsPanel.html('').append('div').attr("id", "loading").classed("centered-vh", true)
             const topk = 6
             sels.body.style('cursor', 'progress')
@@ -79,24 +79,26 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
                 const resultMasks = sels.resultsPanel.html('').selectAll('.result-mask-image')
                     .data(r)
                     .join('div')
+                    .attr('data-index', (d, i) => `${i}`)
                     .classed("result-mask-image", true)
                     .classed("flex", true)
                     .classed("self-start", true)
                     .style("margin", "1rem")
 
                 const scores = r.map(x => +x.score.toFixed(2))
-                const scoreScaleWidth = d3.scaleLinear().domain([d3.min(scores), d3.max(scores)]).range([20,100])
+                // const scoreScaleWidth = d3.scaleLinear().domain([d3.min(scores), d3.max(scores)]).range([20,100])
+                const scoreScaleWidth = d3.scaleLinear().domain([0, 1]).range([0, 100])
 
                 resultMasks.each(function (d, i) {
-                    const viz = new BestPredictionResultImage(<HTMLElement>this, eventHandler, {scoreScaleWidth})
+                    const viz = new BestPredictionResultImage(<HTMLElement>this, eventHandler, { scoreScaleWidth, idxInList: i })
 
                     const adjacentScoreList = i == 0 ? scores.slice(0, 3)
                         : i == (scores.length - 1) ? scores.slice(-3)
-                        : scores.slice(i-1, i+2)
+                            : scores.slice(i - 1, i + 2)
 
                     const myScoreIdx = i == 0 ? 0
                         : i == (scores.length - 1) ? 2
-                        : 1
+                            : 1
                     const data = {
                         imageCanvas: vizs.interactiveSaliencyMask.imageCanvas,
                         image: img,
@@ -169,7 +171,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
 
     eventHandler.bind(LazySaliencyImages.events.onScreen, ({ el, id, scoreFn, caseStudy, caller }) => {
         /* Lazy load the saliency images. */
-        const img = new SingleSaliencyImage(el, eventHandler, {showStats: false})
+        const img = new SingleSaliencyImage(el, eventHandler, { showStats: false })
         api.getSaliencyImage(caseStudy, id, scoreFn).then(salImg => {
             img.update(salImg)
             salImg.image_id == state.selectedImage() ? img.select() : img.deselect()
@@ -195,5 +197,17 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
 
     eventHandler.bind(InteractiveSaliencyMask.events.selectImage, () => {
         eventHelpers.openImageSelection()
+    })
+
+    eventHandler.bind(BestPredictionResultImage.events.barMouseOver, (e) => {
+        const idx = e.idxInList + (e.idx - e.myScoreIdx)
+        d3.select(`.result-mask-image[data-index="${idx}"]`)
+            .classed("highlighted-img", true)
+            .classed("selected-highlighted-img", e.idx == e.myScoreIdx)
+    })
+
+    eventHandler.bind(BestPredictionResultImage.events.barMouseOut, (e) => {
+        d3.selectAll(`.result-mask-image`)
+            .classed("highlighted-img", false)
     })
 }

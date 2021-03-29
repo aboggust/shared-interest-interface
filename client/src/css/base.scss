@@ -346,6 +346,15 @@ canvas {
   overflow-y: hidden;
 }
 
+.result-mask-image.highlighted-img {
+  border: 2px solid rgba($blue-3, 0.6);
+  border-radius: 4px;
+
+  &.selected-highlighted-img {
+    border: 2px solid rgba($blue-5, 0.8);
+  }
+}
+
 .best-prediction-result-image {
   text-align: center;
   margin: auto;
