@@ -430,6 +430,15 @@ select {
 
 .best-prediction-result-image {
   text-align: center;
+  margin:auto;
+
+  .bar {
+    background:rgba(110, 110, 110, 0.6);
+  }
+
+  .this-img-bar {
+    background: black;
+  }
 }
 
 .background {

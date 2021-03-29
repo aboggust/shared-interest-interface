@@ -84,11 +84,24 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
                     .classed("self-start", true)
                     .style("margin", "1rem")
 
+                const scores = r.map(x => x.score)
+                const scoreScaleWidth = d3.scaleLinear().domain([d3.min(scores), d3.max(scores)]).range([20,100])
+
                 resultMasks.each(function (d, i) {
-                    const viz = new BestPredictionResultImage(<HTMLElement>this, eventHandler)
+                    const viz = new BestPredictionResultImage(<HTMLElement>this, eventHandler, {scoreScaleWidth})
+
+                    const adjacentScoreList = i == 0 ? scores.slice(0, 3)
+                        : i == (scores.length - 1) ? scores.slice(-3)
+                        : scores.slice(i-1, i+2)
+
+                    const myScoreIdx = i == 0 ? 0
+                        : i == (scores.length - 1) ? 2
+                        : 1
                     const data = {
                         imageCanvas: vizs.interactiveSaliencyMask.imageCanvas,
                         image: img,
+                        adjacentScoreList,
+                        myScoreIdx,
                         ...d
                     }
                     viz.update(data)

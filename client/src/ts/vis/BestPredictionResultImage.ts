@@ -1,12 +1,15 @@
 import { HTMLComponent } from './VComponent'
-import { D3Sel } from "../etc/Util";
+import { d3S, D3Sel } from "../etc/Util";
 import { SimpleEventHandler } from "../etc/SimpleEventHandler";
 import { BestPredicted, SaliencyImg } from "../types"
 import * as _ from "lodash"
+import * as d3 from "d3"
 
 export interface BestPredictionResultData extends BestPredicted {
     imageCanvas: HTMLCanvasElement
     image: SaliencyImg
+    adjacentScoreList: number[]
+    myScoreIdx: number // Index into adjacentScoreList with this value
 }
 type DI = BestPredictionResultData
 
@@ -18,6 +21,8 @@ const Events: EventsI = {
 
 export interface BestPredictionResultImageSels {
     score: D3Sel
+    scoreSubtext: D3Sel
+    scoreBars: D3Sel
     classname: D3Sel
 }
 
@@ -39,6 +44,8 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
                 b: 2
             }
         },
+        scoreHeight: 1.5, // rem
+        scoreScaleWidth: d3.scaleLinear().domain([0, 1]).range([0,100]),
         active_alpha: .65
     };
     protected cssName = "best-prediction-result-image";
@@ -68,16 +75,22 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
         const templateHtml = `
             <div class="result-image">
                 <div class="image-info layout horizontal center">
-                    <div class="flex info btn ID_score"></div>
                     <div class="flex info btn ID_classname"></div>
                 </div>
                 <div class="result-image-canvas">
                     <canvas width=${op.width} height=${op.height}></canvas>
                 </div>
             </div>
+            <div class="score-subtext layout horizontal center" style="width: 100%">
+                <div class="score flex-3"></div>
+                <div class="score-bars flex-12 layout vertical start" style="width: 100%;"></div>
+            </div>
         `
         this.base.html(templateHtml)
-        this.sels.score = this.base.select(".ID_score")
+        this.base.style('width', `${op.width}px`)
+        this.sels.score = this.base.select(".score")
+        this.sels.scoreSubtext = this.base.select(".score-subtext")
+        this.sels.scoreBars = this.base.select(".score-bars")
         this.sels.classname = this.base.select(".ID_classname")
         this.baseCanvas = this.base.select('canvas')
         this.drawCanvas = this._createNewCanvas()
@@ -98,17 +111,19 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
 
         const op = this.options,
             sels = this.sels;
-        sels.score.html('')
-
-        sels.score.selectAll('.score-stat')
-            .data([
-                { name: "Annotated Score", score: data.score },
-            ])
-            .join('div')
-            .classed(".score-stat", true)
-            .text(d => `${d.name}: ${d.score.toFixed(2)}`)
-
+        sels.score.text(data.score.toFixed(2))
         sels.classname.text(data.classname)
+
+        const scaleWidth = op.scoreScaleWidth
+        const barData = data.adjacentScoreList
+        sels.scoreBars.style("justify-content", "space-between").selectAll(".bar")
+            .data(barData)
+            .join('div')
+            .classed("bar", true)
+            .classed("this-img-bar", (d, i) => (i == data.myScoreIdx))
+            .style("width", d => `${scaleWidth(d)}%`)
+            .style("height", `${op.scoreHeight / barData.length}rem`)
+            .style("margin-bottom", "1px")
 
         this.baseCanvas
             .property('width', op.width)
