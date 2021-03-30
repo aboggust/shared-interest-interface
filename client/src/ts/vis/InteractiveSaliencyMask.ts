@@ -141,8 +141,8 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
 
         this.baseCanvas.on("mousedown", assignMouseMove)
         // Assign mouse movement if dragged over with pointer clicked
-        this.baseCanvas.on("mouseover", () => {
-            const pointerClicked = d3.event.which == 1
+        this.baseCanvas.on("mouseenter", () => {
+            const pointerClicked = (d3.event.which == 1) && (d3.event.buttons == 1)
             if (pointerClicked) {
                 assignMouseMove()
             }

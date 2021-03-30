@@ -10,8 +10,8 @@ from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import uvicorn
-import server.api as api
-import server.path_fixes as pf
+import backend.server.api as api
+import backend.server.path_fixes as pf
 
 import torch
 from torchvision import models, transforms
