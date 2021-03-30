@@ -252,13 +252,16 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             api.getPredictions(state.caseStudy()).then(predictions => {
                 const predictionValues = predictions.slice();
                 predictions.splice.apply(predictions, [0, 0 as string | number].concat(predictionFnOptions.map(option => option.name)));
+                console.log("Predictions: ", predictions);
                 predictionValues.splice.apply(predictionValues, [0, 0 as string | number].concat(predictionFnOptions.map(option => option.value)));
                 selectors.predictionFn.selectAll('option')
                     .data(predictions)
                     .join('option')
                     .attr('value', (prediction, i) => predictionValues[i])
                     .attr('disabled', state.isFrozen('predictionFn'))
-                    .text(prediction => prediction)
+                    .text(prediction => {
+                        return prediction
+                    })
                 selectors.predictionFn.property('value', state.predictionFn())
             })
         },
@@ -290,7 +293,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         * @param {State} state - the current state of the application.
         */
          updateResultCount: (state: State) => {
-            selectors.numberOfResults.text('Filtering to ' + state.resultCount() + ' of ' + state.totalResultCount() + ' images')
+            selectors.numberOfResults.text('Filtering to ' + state.resultCount() + ' of ' + state.totalResultCount() + ' results')
         },
     }
 
