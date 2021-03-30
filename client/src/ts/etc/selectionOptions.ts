@@ -35,10 +35,10 @@ export const caseOptions = [
     { name: "--- Select a preset to explore ---", value: 'default' },
     { name: "Human Aligned", value: 'human_aligned' },
     { name: "Sufficient Subset", value: 'sufficient_subset' },
-    { name: "Sufficient Background", value: 'sufficient_background' },
-    { name: "Context Dependant", value: 'context_dependant' },
+    { name: "Sufficient Context", value: 'sufficient_context' },
+    { name: "Context Dependant", value: 'context_dependent' },
     { name: "Confuser", value: 'confuser' },
-    { name: "Too Focused", value: 'too_focused' },
+    { name: "Insufficient Subset", value: 'insufficient_subset' },
     { name: "Distracted", value: 'distracted' },
     { name: "Context Confusion", value: 'context_confusion' },
 ]
@@ -60,11 +60,11 @@ export const caseValues = {
         {'scores': {"iou": full, 'ground_truth_coverage': low, 'explanation_coverage': high},
          'prediction': 'correct_only',
          'description': 'Correctly classified images with high Ground Truth Coverage and low Saliency Coverage.'},
-    "sufficient_background":
-        {'scores': {"iou": full, 'ground_truth_coverage': low, 'explanation_coverage': full},
+    "sufficient_context":
+        {'scores': {"iou": low, 'ground_truth_coverage': full, 'explanation_coverage': full},
          'prediction': 'correct_only',
-         'description': 'Correctly classified images with low Ground Truth Coverage.'},
-    "context_dependant":
+         'description': 'Correctly classified images with low IoU.'},
+    "context_dependent":
         {'scores': {"iou": full, 'ground_truth_coverage': high, 'explanation_coverage': low},
          'prediction': 'correct_only',
          'description': 'Correctly classified images with low Ground Truth Coverage and high Saliency Coverage.'},
@@ -72,14 +72,14 @@ export const caseValues = {
         {'scores': {"iou": high, 'ground_truth_coverage': full, 'explanation_coverage': full},
         'prediction': 'incorrect_only',
         'description': 'Incorrectly classified images with high IoU.'},
-    "too_focused":
+    "insufficient_subset":
         {'scores': {"iou": full, 'ground_truth_coverage': low, 'explanation_coverage': high},
         'prediction': 'incorrect_only',
         'description': 'Incorrectly classified images with high Ground Truth Coverage and low Saliency Coverage.'},
     "distracted":
-        {'scores': {"iou": full, 'ground_truth_coverage': low, 'explanation_coverage': full},
+        {'scores': {"iou": low, 'ground_truth_coverage': full, 'explanation_coverage': full},
         'prediction': 'incorrect_only',
-        'description': 'Inorrectly classified images with low Ground Truth Coverage.'},
+        'description': 'Inorrectly classified images with low IoU.'},
     "context_confusion":
         {'scores': {"iou": full, 'ground_truth_coverage': high, 'explanation_coverage': low},
         'prediction': 'incorrect_only',
