@@ -375,6 +375,8 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             const caseFilterScores = cf['scores']
             state.scoreFn(cf['selectedScore'])
             state.sortBy(cf['sortBy'])
+            selectors.scoreFn.property('value', state.scoreFn())
+            selectors.sortBy.property('value', state.sortBy())
             state.iouFilter(caseFilterScores['iou'][0], caseFilterScores['iou'][1])
             state.groundTruthFilter(caseFilterScores['ground_truth_coverage'][0], caseFilterScores['ground_truth_coverage'][1])
             state.explanationFilter(caseFilterScores['explanation_coverage'][0], caseFilterScores['explanation_coverage'][1])
