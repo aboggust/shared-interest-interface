@@ -8,7 +8,6 @@ import { SimpleEventHandler } from './etc/SimpleEventHandler'
 import { API } from './api/mainApi'
 import { State, URLParameters } from './state'
 import { caseStudyOptions, sortByOptions, predictionFnOptions, scoreFnOptions, labelFilterOptions, caseOptions, caseValues} from './etc/selectionOptions'
-import { SaliencyImg } from './types';
 import { min } from 'lodash'
 import { stat } from 'fs'
 
@@ -244,8 +243,8 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         */
         updateLabels: (state: State) => {
             api.getLabels(state.caseStudy()).then(labels => {
-                const labelValues = labels.slice();
-                labels.splice.apply(labels, [0, 0 as string | number].concat(labelFilterOptions.map(option => option.name)));
+                const labelValues = labels.slice().sort(d3.ascending);
+                labels.sort(d3.ascending).splice.apply(labels, [0, 0 as string | number].concat(labelFilterOptions.map(option => option.name)));
                 labelValues.splice.apply(labelValues, [0, 0 as string | number].concat(labelFilterOptions.map(option => option.value)));
                 selectors.labelFilter.selectAll('option')
                     .data(labels)
@@ -263,7 +262,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         */
         updatePredictions: (state: State) => {
             api.getPredictions(state.caseStudy()).then(predictions => {
-                const predictionValues = predictions.slice();
+                const predictionValues = predictions.slice().sort(d3.ascending);
                 predictions.sort(d3.ascending).splice.apply(predictions, [0, 0 as string | number].concat(predictionFnOptions.map(option => option.name)));
                 predictionValues.splice.apply(predictionValues, [0, 0 as string | number].concat(predictionFnOptions.map(option => option.value)));
                 selectors.predictionFn.selectAll('option')
@@ -372,7 +371,10 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         /* When case changes, update the page. */
         const caseFilter = selectors.caseFilter.property('value')
         if (caseFilter) { 
-            const caseFilterScores = caseValues[caseFilter]['scores']
+            const cf = caseValues[caseFilter]
+            const caseFilterScores = cf['scores']
+            state.scoreFn(cf['selectedScore'])
+            state.sortBy(cf['sortBy'])
             state.iouFilter(caseFilterScores['iou'][0], caseFilterScores['iou'][1])
             state.groundTruthFilter(caseFilterScores['ground_truth_coverage'][0], caseFilterScores['ground_truth_coverage'][1])
             state.explanationFilter(caseFilterScores['explanation_coverage'][0], caseFilterScores['explanation_coverage'][1])
