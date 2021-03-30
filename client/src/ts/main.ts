@@ -252,7 +252,6 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             api.getPredictions(state.caseStudy()).then(predictions => {
                 const predictionValues = predictions.slice().sort(d3.ascending);
                 predictions.sort(d3.ascending).splice.apply(predictions, [0, 0 as string | number].concat(predictionFnOptions.map(option => option.name)));
-                console.log("Predictions: ", predictions);
                 predictionValues.splice.apply(predictionValues, [0, 0 as string | number].concat(predictionFnOptions.map(option => option.value)));
                 console.log("Prediction Values: ", predictions);
                 selectors.predictionFn.selectAll('option')

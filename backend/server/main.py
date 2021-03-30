@@ -172,15 +172,16 @@ async def get_labels(case_study: str):
 
 
 @app.get("/api/get-predictions", response_model=List[str])
-async def get_predictions(case_study: str):
+async def get_predictions(case_study: str, delta: float=0.1):
     """Gets the possible prediction values given the case study."""
     df = dataframes[case_study]
 
     # Handle regression data
     if df.prediction.dtype == 'float64':
         min_label, max_label = 0.0, pd.to_numeric(df.label).max()
-        delta = 0.05 # TODO: change this to adapt to other sizes
-        predictions = ['%.1f-%.1f' %(min_value, min_value + delta) for min_value in np.arange(min_label, max_label, delta)]
+        arr = np.arange(min_label, max_label, delta)
+        ranges = [(arr[i-1], arr[i]) for i in range(1, len(arr))]
+        predictions = ['%.1f-%.1f' % x for x in ranges]
         return predictions
     return list(df.prediction.unique())
 
