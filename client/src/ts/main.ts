@@ -274,9 +274,9 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             const currentCase = selectors.caseFilter.property('value')
             const currentPredictionFilter = selectors.predictionFn.property('value')
             if (currentCase != 'default') { 
-                const cf = caseValues[currentCase]
-                state.scoreFn(cf['selectedScore'])
-                state.sortBy(cf['sortBy'])
+                // const cf = caseValues[currentCase]
+                // state.scoreFn(cf['selectedScore'])
+                // state.sortBy(cf['sortBy'])
                 const caseScores = caseValues[currentCase]['scores']
                 if ( currentPredictionFilter != caseValues[currentCase]['prediction'] ||
                 state.iouFilter()[0] != caseScores['iou'][0] || 
@@ -322,6 +322,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
 
     selectors.caseStudy.on('change', () => {
         /* When the case study changes, update the page with the new data. */
+        console.log("CaseStudy Changing");
         const caseStudy = selectors.caseStudy.property('value')
         state.caseStudy(caseStudy)
         state.labelFilter('')
@@ -363,7 +364,12 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         /* When case changes, update the page. */
         const caseFilter = selectors.caseFilter.property('value')
         if (caseFilter) { 
-            const caseFilterScores = caseValues[caseFilter]['scores']
+            const cf = caseValues[caseFilter]
+            const caseFilterScores = cf['scores']
+            state.scoreFn(cf['selectedScore'])
+            selectors.scoreFn.property('value', state.scoreFn())
+            state.sortBy(cf['sortBy'])
+            selectors.sortBy.property('value', state.sortBy())
             state.iouFilter(caseFilterScores['iou'][0], caseFilterScores['iou'][1])
             state.groundTruthFilter(caseFilterScores['ground_truth_coverage'][0], caseFilterScores['ground_truth_coverage'][1])
             state.explanationFilter(caseFilterScores['explanation_coverage'][0], caseFilterScores['explanation_coverage'][1])
@@ -372,7 +378,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             eventHelpers.updatePredictions(state)
             eventHelpers.updatePage(state)
         }
-    });
+    }) 
 
     eventHandler.bind(SaliencyTexts.events.onScreen, ({ el, id, caller }) => {
         /* Lazy load the saliency results. */
