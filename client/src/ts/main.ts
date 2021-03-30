@@ -274,6 +274,9 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             const currentCase = selectors.caseFilter.property('value')
             const currentPredictionFilter = selectors.predictionFn.property('value')
             if (currentCase != 'default') { 
+                const cf = caseValues[currentCase]
+                state.scoreFn(cf['selectedScore'])
+                state.sortBy(cf['sortBy'])
                 const caseScores = caseValues[currentCase]['scores']
                 if ( currentPredictionFilter != caseValues[currentCase]['prediction'] ||
                 state.iouFilter()[0] != caseScores['iou'][0] || 
