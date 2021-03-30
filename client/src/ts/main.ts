@@ -231,8 +231,8 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         */
         updateLabels: (state: State) => {
             api.getLabels(state.caseStudy()).then(labels => {
-                const labelValues = labels.slice();
-                labels.splice.apply(labels, [0, 0 as string | number].concat(labelFilterOptions.map(option => option.name)));
+                const labelValues = labels.slice().sort(d3.ascending);
+                labels.sort(d3.ascending).splice.apply(labels, [0, 0 as string | number].concat(labelFilterOptions.map(option => option.name)));
                 labelValues.splice.apply(labelValues, [0, 0 as string | number].concat(labelFilterOptions.map(option => option.value)));
                 selectors.labelFilter.selectAll('option')
                     .data(labels)
@@ -250,8 +250,8 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         */
         updatePredictions: (state: State) => {
             api.getPredictions(state.caseStudy()).then(predictions => {
-                const predictionValues = predictions.slice();
-                predictions.splice.apply(predictions, [0, 0 as string | number].concat(predictionFnOptions.map(option => option.name)));
+                const predictionValues = predictions.slice().sort(d3.ascending);
+                predictions.sort(d3.ascending).splice.apply(predictions, [0, 0 as string | number].concat(predictionFnOptions.map(option => option.name)));
                 console.log("Predictions: ", predictions);
                 predictionValues.splice.apply(predictionValues, [0, 0 as string | number].concat(predictionFnOptions.map(option => option.value)));
                 console.log("Prediction Values: ", predictions);
