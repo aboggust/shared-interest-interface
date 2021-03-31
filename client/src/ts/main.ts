@@ -53,7 +53,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         closePopup: d3.select("#close-popup"),
         mainWrapper: d3.select("#main-wrapper"),
         drawPanel: d3.select("#draw-panel"),
-        scoreSelectDropdown: d3.select("#score-select-dropdown"),
+        scoreSelectDropdown: d3.select("#score-select-dropdown").append('select'),
         interactiveMask: d3.select("#interactive-mask"),
         resultsPanel: d3.select("#results-panel")
     }
@@ -157,12 +157,16 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             sels.mainWrapper.classed("background", false)
         })
 
-        sels.scoreSelectDropdown.append("select")
-            .selectAll('option')
+        sels.scoreSelectDropdown.selectAll('option')
             .data(scoreFnOptions)
             .join('option')
             .property('value', d => d.value)
             .text(d => d.name)
+
+        sels.scoreSelectDropdown.on('change', function () {
+            const val = sels.scoreSelectDropdown.property('value')
+            state.scoreFn(val)
+        })
 
         eventHelpers.updatePage()
     }

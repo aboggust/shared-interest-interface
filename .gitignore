@@ -3,6 +3,7 @@ _archive
 _scratch.html
 Untitled*.ipynb
 data/examples/**/*.pkl
+*.zip
 
 # Projects
 .idea
