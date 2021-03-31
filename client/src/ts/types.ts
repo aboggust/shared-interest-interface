@@ -31,4 +31,7 @@ export interface BestPredicted {
     classname: string
     score: number
     saliency_mask: number[][]
+    iou: number
+    ground_truth_coverage: number
+    explanation_coverage: number
 }

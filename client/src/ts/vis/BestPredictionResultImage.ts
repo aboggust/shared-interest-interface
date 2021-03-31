@@ -8,8 +8,8 @@ import * as d3 from "d3"
 export interface BestPredictionResultData extends BestPredicted {
     imageCanvas: HTMLCanvasElement
     image: SaliencyImg
-    adjacentScoreList: number[]
-    myScoreIdx: number // Index into adjacentScoreList with this value
+    adjacentScoreList?: number[]
+    myScoreIdx?: number // Index into adjacentScoreList with this value
 }
 type DI = BestPredictionResultData
 
@@ -24,9 +24,7 @@ const Events: EventsI = {
 }
 
 export interface BestPredictionResultImageSels {
-    score: D3Sel
     scoreSubtext: D3Sel
-    scoreBars: D3Sel
     classname: D3Sel
 }
 
@@ -53,9 +51,9 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
         active_alpha: 120,
         idxInList: -1,
         useAlphaMask: true, // If false, color with traditional saliency color
+        showBars: true,
     };
     protected cssName = "best-prediction-result-image";
-    // drawCanvas: HTMLCanvasElement
     imageCanvas: HTMLCanvasElement
     protected baseCanvas: D3Sel;
     protected drawCanvas: HTMLCanvasElement;
@@ -88,15 +86,19 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
                 </div>
             </div>
             <div class="score-subtext layout horizontal center" style="width: 100%">
-                <div class="score flex-3"></div>
-                <div class="score-bars flex-12 layout vertical start" style="width: 100%;"></div>
             </div>
         `
         this.base.html(templateHtml)
         this.base.style('width', `${op.width}px`)
-        this.sels.score = this.base.select(".score")
         this.sels.scoreSubtext = this.base.select(".score-subtext")
-        this.sels.scoreBars = this.base.select(".score-bars")
+
+        if (op.showBars) {
+            this.sels.scoreSubtext.append("div").attr("class", "score flex-3")
+            this.sels.scoreSubtext.append("div").attr("class", "score-bars flex-12 layout vertical start").style('width', "100%")
+        } else {
+            this.sels.scoreSubtext.append('div').attr("class", "score-info layout horizontal center-center").style('width', '100%')
+        }
+
         this.sels.classname = this.base.select(".ID_classname")
         this.baseCanvas = this.base.select('canvas')
         this.drawCanvas = this._createNewCanvas()
@@ -118,34 +120,54 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
 
         const op = this.options,
             sels = this.sels;
-        sels.score.text(data.score.toFixed(2))
-
-        // Enable same behavior on score mouseover as bar mouse over
-        sels.score.on("mouseover", () => {
-            this.trigger(Events.barMouseOver, { score: data.score.toFixed(2), myScoreIdx: data.myScoreIdx, idxInList: op.idxInList, idx: data.myScoreIdx })
-        })
-            .on("mouseout", (d, i) => {
-                this.trigger(Events.barMouseOut, { score: data.score.toFixed(2), myScoreIdx: data.myScoreIdx, idxInList: op.idxInList, idx: data.myScoreIdx })
-            })
 
         sels.classname.text(data.classname)
 
         const scaleWidth = op.scoreScaleWidth
         const barData = data.adjacentScoreList
-        sels.scoreBars.style("justify-content", "space-between").selectAll(".bar")
-            .data(barData)
-            .join('div')
-            .classed("bar", true)
-            .classed("this-img-bar", (d, i) => (i == data.myScoreIdx))
-            .on("mouseover", (d, i) => {
-                this.trigger(Events.barMouseOver, { score: d, myScoreIdx: data.myScoreIdx, idxInList: op.idxInList, idx: i })
+
+        if (op.showBars) {
+            const score = this.sels.scoreSubtext.select(".score")
+            const scoreBars = this.sels.scoreSubtext.select(".score-bars")
+            score.text(data.score.toFixed(2))
+
+            // Enable same behavior on score mouseover as bar mouse over
+            score.on("mouseover", () => {
+                this.trigger(Events.barMouseOver, { score: data.score.toFixed(2), myScoreIdx: data.myScoreIdx, idxInList: op.idxInList, idx: data.myScoreIdx })
             })
-            .on("mouseout", (d, i) => {
-                this.trigger(Events.barMouseOut, { score: d, myScoreIdx: data.myScoreIdx, idx: i })
-            })
-            .style("width", d => `${scaleWidth(d)}%`)
-            .style("height", `${op.scoreHeight / barData.length}rem`)
-            .style("margin-bottom", "1px")
+                .on("mouseout", (d, i) => {
+                    this.trigger(Events.barMouseOut, { score: data.score.toFixed(2), myScoreIdx: data.myScoreIdx, idxInList: op.idxInList, idx: data.myScoreIdx })
+                })
+
+            scoreBars.style("justify-content", "space-between").selectAll(".bar")
+                .data(barData)
+                .join('div')
+                .classed("bar", true)
+                .classed("this-img-bar", (d, i) => (i == data.myScoreIdx))
+                .on("mouseover", (d, i) => {
+                    this.trigger(Events.barMouseOver, { score: d, myScoreIdx: data.myScoreIdx, idxInList: op.idxInList, idx: i })
+                })
+                .on("mouseout", (d, i) => {
+                    this.trigger(Events.barMouseOut, { score: d, myScoreIdx: data.myScoreIdx, idx: i })
+                })
+                .style("width", d => `${scaleWidth(d)}%`)
+                .style("height", `${op.scoreHeight / barData.length}rem`)
+                .style("margin-bottom", "1px")
+        }
+        else {
+            const scoreInfo = sels.scoreSubtext.select(".score-info")
+
+            scoreInfo.selectAll(".score-info-box")
+                .data([
+                    {name: "IoU", value: data.iou},
+                    {name: "GTC", value: data.ground_truth_coverage},
+                    {name: "SC", value: data.explanation_coverage},
+                ])
+                .join("div")
+                .classed("score-info-box", true)
+                .classed("flex", true)
+                .text(d => `${d.name}: ${d.value.toFixed(2)}`)
+        }
 
         this.baseCanvas
             .property('width', op.width)
