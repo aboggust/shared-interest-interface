@@ -1,5 +1,5 @@
 export const caseStudyOptions = [
-    { name: "Vehicle", value: "data_vehicle_10" },
+    { name: "Vehicle", value: "data_dogs_10" },
 ]
 
 export const sortByOptions = [
@@ -8,9 +8,9 @@ export const sortByOptions = [
 ]
 
 export const scoreFnOptions = [
-    { name: "Explanation Coverage", value: 'explanation_coverage'},
-    { name: "Ground Truth Coverage", value: 'ground_truth_coverage' },
     { name: "IoU", value: 'iou' },
+    { name: "Saliency Coverage", value: 'explanation_coverage'},
+    { name: "Ground Truth Coverage", value: 'ground_truth_coverage' },
 ]
 
 export const predictionFnOptions = [

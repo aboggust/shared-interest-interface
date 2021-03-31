@@ -98,7 +98,7 @@ class ConfusionMatrix(BaseModel):
 
 
 # Load case study datasets
-datasets = ['data_vehicle_10']
+datasets = ['data_dogs_10']
 dataframes = {}
 for dataset in datasets:
     dataframe = pd.read_json("./data/examples/%s.json" % dataset)
@@ -305,7 +305,7 @@ async def get_best_prediction(payload: api.BestPredictionPayload):
     mask_batch = mask.repeat(NUM_CLASSES, 1, 1).numpy()
 
     # Load saliency masks
-    with open(os.path.join(SALIENCY_MASK_DIR, 'human_annotation_data_vehicle_10_%s.pkl' %(fname)), 'rb') as f:
+    with open(os.path.join(SALIENCY_MASK_DIR, 'human_annotation_data_dogs_10_%s.pkl' %(fname)), 'rb') as f:
         saliency_masks = pickle.load(f)
 
     # Compute shared interest scores.

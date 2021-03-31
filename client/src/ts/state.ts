@@ -42,9 +42,9 @@ export class State {
         const params = this.ignoreUrl ? {} : URLHandler.parameters
 
         this._url = {
-            caseStudy: params['caseStudy'] || 'data_vehicle_10',
-            scoreFn: params['scoreFn'] || 'explanation_coverage',
-            selectedImage: params['selectedImage'] || "n02701002_10156",
+            caseStudy: params['caseStudy'] || 'data_dogs_10',
+            scoreFn: params['scoreFn'] || 'iou',
+            selectedImage: params['selectedImage'] || "n02085620_3360",
             sortBy: 1,
             predictionFn: 'all_images',
             labelFilter: '',
