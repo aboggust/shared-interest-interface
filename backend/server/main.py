@@ -312,19 +312,35 @@ async def get_best_prediction(payload: api.BestPredictionPayload):
         saliency_masks = pickle.load(f)
 
     # Compute shared interest scores.
-    shared_interest_scores = shared_interest(mask_batch, saliency_masks, score=si_method)
+    iou_scores = shared_interest(mask_batch, saliency_masks, score='iou')
+    explanation_converage_scores = shared_interest(mask_batch, saliency_masks, score='explanation_coverage')
+    ground_truth_coverage_scores = shared_interest(mask_batch, saliency_masks, score='ground_truth_coverage')
+    if si_method == 'iou':
+        shared_interest_scores = iou_scores
+    elif si_method == 'explanation_coverage':
+        shared_interest_scores = explanation_converage_scores
+    elif si_method == 'ground_truth_coverage':
+        shared_interest_scores = ground_truth_coverage_scores
 
     # Return topk saliency maps and scores.
     max_inds = np.argpartition(shared_interest_scores, -topk)[-topk:]
     max_inds_sorted = max_inds[np.argsort(shared_interest_scores[max_inds])][::-1]
     top_scores = shared_interest_scores[max_inds_sorted]
+    top_iou = iou_scores[max_inds_sorted]
+    top_ground_truth_coverage = ground_truth_coverage_scores[max_inds_sorted]
+    top_explanation_coverage = explanation_converage_scores[max_inds_sorted]
     top_saliency_masks = saliency_masks[max_inds_sorted]
     top_classes = [CLASSNAMES[ind] for ind in max_inds_sorted]
     
     # Catch info for jupyter comparison:
     print(f"\n\nFname: {fname}, max_inds: {max_inds_sorted}, classnames: {top_classes}\n\n")
 
-    output = [{'classname': str(top_classes[i]), 'score': float(top_scores[i]), 'iou': 0.1, 'ground_truth_coverage': 0.2, 'explanation_coverage':0.3, 'saliency_mask': top_saliency_masks[i].tolist()}
+    output = [{'classname': str(top_classes[i]), 
+               'score': float(top_scores[i]), 
+               'iou': float(top_iou[i]),
+               'explanation_coverage': float(top_explanation_coverage[i]),
+               'ground_truth_coverage': float(top_ground_truth_coverage[i]),
+               'saliency_mask': top_saliency_masks[i].tolist()}
             for i in range(topk)]
     return output
 
