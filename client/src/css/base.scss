@@ -359,6 +359,12 @@ canvas {
   text-align: center;
   margin: auto;
 
+  .score-info-box {
+    background: rgba($blue-3, 0.5);
+    // border: 2px solid rgba($blue-5, 0.8);
+    border-radius: 2px;
+  }
+
   .bar {
     background: rgba($blue-3, 0.6);
   }
@@ -415,6 +421,11 @@ canvas {
 
 .title {
   font-size: 12pt;
+  font-weight: 600;
+}
+
+.small-title {
+  font-size: 10pt;
   font-weight: 600;
 }
 

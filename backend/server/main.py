@@ -286,6 +286,9 @@ class BestPrediction(BaseModel):
     classname: str
     score: float
     saliency_mask: list
+    ground_truth_coverage: float
+    explanation_coverage: float
+    iou: float
 
 @app.post("/api/get-best-prediction", response_model=List[BestPrediction])
 async def get_best_prediction(payload: api.BestPredictionPayload):
@@ -321,7 +324,7 @@ async def get_best_prediction(payload: api.BestPredictionPayload):
     # Catch info for jupyter comparison:
     print(f"\n\nFname: {fname}, max_inds: {max_inds_sorted}, classnames: {top_classes}\n\n")
 
-    output = [{'classname': str(top_classes[i]), 'score': float(top_scores[i]), 'saliency_mask': top_saliency_masks[i].tolist()}
+    output = [{'classname': str(top_classes[i]), 'score': float(top_scores[i]), 'iou': 0.1, 'ground_truth_coverage': 0.2, 'explanation_coverage':0.3, 'saliency_mask': top_saliency_masks[i].tolist()}
             for i in range(topk)]
     return output
 

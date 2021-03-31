@@ -51,7 +51,7 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
         active_alpha: 120,
         idxInList: -1,
         useAlphaMask: true, // If false, color with traditional saliency color
-        showBars: true,
+        showBars: false,
     };
     protected cssName = "best-prediction-result-image";
     imageCanvas: HTMLCanvasElement
@@ -159,13 +159,15 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
 
             scoreInfo.selectAll(".score-info-box")
                 .data([
-                    {name: "IoU", value: data.iou},
-                    {name: "GTC", value: data.ground_truth_coverage},
-                    {name: "SC", value: data.explanation_coverage},
+                    { name: "IoU", value: data.iou },
+                    { name: "GTC", value: data.ground_truth_coverage },
+                    { name: "SC", value: data.explanation_coverage },
                 ])
                 .join("div")
                 .classed("score-info-box", true)
                 .classed("flex", true)
+                .classed("small-title", true)
+                .style("margin", "1px 2px")
                 .text(d => `${d.name}: ${d.value.toFixed(2)}`)
         }
 
