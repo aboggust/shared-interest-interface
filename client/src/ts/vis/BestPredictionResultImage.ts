@@ -121,7 +121,7 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
         const op = this.options,
             sels = this.sels;
 
-        sels.classname.text(data.classname)
+        sels.classname.text(data.classname.replace(/_/g," ").toLowerCase())
 
         const scaleWidth = op.scoreScaleWidth
         const barData = data.adjacentScoreList
