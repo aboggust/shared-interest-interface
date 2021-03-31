@@ -49,13 +49,14 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
             }
         },
         scoreHeight: 1.5, // rem
-        scoreScaleWidth: d3.scaleLinear().domain([0, 1]).range([0,100]),
-        active_alpha: .65,
-        idxInList: -1
+        scoreScaleWidth: d3.scaleLinear().domain([0, 1]).range([0, 100]),
+        active_alpha: 120,
+        idxInList: -1,
+        useAlphaMask: true, // If false, color with traditional saliency color
     };
     protected cssName = "best-prediction-result-image";
     // drawCanvas: HTMLCanvasElement
-    // imageCanvas: HTMLCanvasElement
+    imageCanvas: HTMLCanvasElement
     protected baseCanvas: D3Sel;
     protected drawCanvas: HTMLCanvasElement;
     protected sels: Partial<BestPredictionResultImageSels> = {}
@@ -99,6 +100,7 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
         this.sels.classname = this.base.select(".ID_classname")
         this.baseCanvas = this.base.select('canvas')
         this.drawCanvas = this._createNewCanvas()
+        this.imageCanvas = this._createNewCanvas()
     }
 
     clearCanvas(canvas: HTMLCanvasElement) {
@@ -120,11 +122,11 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
 
         // Enable same behavior on score mouseover as bar mouse over
         sels.score.on("mouseover", () => {
-            this.trigger(Events.barMouseOver, {score: data.score.toFixed(2), myScoreIdx: data.myScoreIdx, idxInList: op.idxInList, idx: data.myScoreIdx})
+            this.trigger(Events.barMouseOver, { score: data.score.toFixed(2), myScoreIdx: data.myScoreIdx, idxInList: op.idxInList, idx: data.myScoreIdx })
         })
-        .on("mouseout", (d, i) => {
-            this.trigger(Events.barMouseOut, {score: data.score.toFixed(2), myScoreIdx: data.myScoreIdx, idxInList: op.idxInList, idx: data.myScoreIdx})
-        })
+            .on("mouseout", (d, i) => {
+                this.trigger(Events.barMouseOut, { score: data.score.toFixed(2), myScoreIdx: data.myScoreIdx, idxInList: op.idxInList, idx: data.myScoreIdx })
+            })
 
         sels.classname.text(data.classname)
 
@@ -136,10 +138,10 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
             .classed("bar", true)
             .classed("this-img-bar", (d, i) => (i == data.myScoreIdx))
             .on("mouseover", (d, i) => {
-                this.trigger(Events.barMouseOver, {score: d, myScoreIdx: data.myScoreIdx, idxInList: op.idxInList, idx: i})
+                this.trigger(Events.barMouseOver, { score: d, myScoreIdx: data.myScoreIdx, idxInList: op.idxInList, idx: i })
             })
             .on("mouseout", (d, i) => {
-                this.trigger(Events.barMouseOut, {score: d, myScoreIdx: data.myScoreIdx, idx: i})
+                this.trigger(Events.barMouseOut, { score: d, myScoreIdx: data.myScoreIdx, idx: i })
             })
             .style("width", d => `${scaleWidth(d)}%`)
             .style("height", `${op.scoreHeight / barData.length}rem`)
@@ -149,32 +151,37 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
             .property('width', op.width)
             .property('height', op.height);
 
+        // Render BG
+        const imgCtx = this.imageCanvas.getContext('2d')
+        imgCtx.drawImage(data.imageCanvas, 0, 0, op.width, op.height)
+        let imgData = imgCtx.getImageData(0, 0, op.width, op.height)
+
+        // Add mask
         const maskCtx = this.drawCanvas.getContext('2d')
-
         let maskData = maskCtx.createImageData(op.width, op.height)
-
         const flatMask = _.flattenDeep(data.saliency_mask)
-
         const color = op.colors.explanation
-        let num1 = 0
-        let alpha = Math.floor(op.active_alpha * 255)
+        let alpha = Math.floor(op.active_alpha)
         for (let i = 0; i < maskData.data.length; i += 4) {
             const val = flatMask[Math.floor(i / 4)]
 
-            if (val == 1) {
-                num1 += 1
+            if (op.useAlphaMask) {
+                maskData.data[i] = imgData.data[i]
+                maskData.data[i + 1] = imgData.data[i + 1]
+                maskData.data[i + 2] = imgData.data[i + 2]
+                maskData.data[i + 3] = val == 1 ? 255 : alpha
+            }
+            else {
                 maskData.data[i] = color.r
                 maskData.data[i + 1] = color.g
                 maskData.data[i + 2] = color.b
-                maskData.data[i + 3] = alpha
+                maskData.data[i + 3] = 255
             }
         }
 
         maskCtx.putImageData(maskData, 0, 0)
-
-        // Render BG
         const ctx = this.baseCanvas.node().getContext('2d')
-        ctx.drawImage(data.imageCanvas, 0, 0, op.width, op.height)
+        op.useAlphaMask || ctx.drawImage(this.imageCanvas, 0, 0, op.width, op.height)
         ctx.drawImage(this.drawCanvas, 0, 0, op.width, op.height)
     }
 

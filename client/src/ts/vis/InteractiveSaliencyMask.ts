@@ -185,7 +185,6 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
         const selectNewPaintbrush = (r?) => {
             if (r != null) {
                 self.radius(r)
-
                 self.trigger(Events.paintBrushClick, { radius: r })
             }
             paintBrushCircles.classed("selected", d => d == this.options.radius)

@@ -59,7 +59,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
     }
 
     const vizs = {
-        interactiveSaliencyMask: new InteractiveSaliencyMask(<HTMLElement>sels.interactiveMask.node(), eventHandler),
+        interactiveSaliencyMask: new InteractiveSaliencyMask(<HTMLElement>sels.interactiveMask.node(), eventHandler, {radius: state.paintBrushR()}),
         lazySaliencyImages: new LazySaliencyImages(<HTMLElement>sels.popupContent.node(), eventHandler),
     }
 
@@ -90,7 +90,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
                 const scoreScaleWidth = d3.scaleLinear().domain([0, 1]).range([0, 100])
 
                 resultMasks.each(function (d, i) {
-                    const viz = new BestPredictionResultImage(<HTMLElement>this, eventHandler, { scoreScaleWidth, idxInList: i })
+                    const viz = new BestPredictionResultImage(<HTMLElement>this, eventHandler, { scoreScaleWidth, idxInList: i, useAlphaMask: true, active_alpha: 120 })
 
                     const adjacentScoreList = i == 0 ? scores.slice(0, 3)
                         : i == (scores.length - 1) ? scores.slice(-3)
@@ -196,6 +196,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
     })
 
     eventHandler.bind(InteractiveSaliencyMask.events.paintBrushClick, (r) => {
+        console.log("I was clicked!")
         state.paintBrushR(r.radius)
     })
 
