@@ -66,6 +66,7 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
 
     protected _init() {
         const op = this.options;
+        const self = this
         const templateHtml = `
             <div class="layout vertical center-center" style="width: inherit;">
                 <div id="draw-canvas">
@@ -183,12 +184,10 @@ export class InteractiveSaliencyMask extends HTMLComponent<CanvasImageMaskData> 
 
         const selectNewPaintbrush = (r?) => {
             if (r != null) {
-                this.radius(r)
+                self.radius(r)
 
-                this.trigger(Events.paintBrushClick, { radius: r })
-                // vizs.interactiveSaliencyMask.radius(r)
+                self.trigger(Events.paintBrushClick, { radius: r })
             }
-            // paintBrushDivs.classed("selected", d => d == this.options.radius)
             paintBrushCircles.classed("selected", d => d == this.options.radius)
         }
         selectNewPaintbrush()

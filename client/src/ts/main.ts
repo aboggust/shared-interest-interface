@@ -192,7 +192,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
     })
 
     eventHandler.bind(InteractiveSaliencyMask.events.paintBrushClick, (r) => {
-        state.paintBrushR(r)
+        state.paintBrushR(r.radius)
     })
 
     eventHandler.bind(InteractiveSaliencyMask.events.selectImage, () => {
