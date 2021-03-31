@@ -29,6 +29,10 @@ export interface BestPredictionResultImageSels {
 }
 
 export class BestPredictionResultImage extends HTMLComponent<DI> {
+
+    colorScale = d3.scaleSequential(d3.interpolateBlues)
+    .domain([-0.2, 1]) // start the color scheme from light blue instead of white
+
     protected options = {
         width: 224,
         height: 224,
@@ -166,10 +170,26 @@ export class BestPredictionResultImage extends HTMLComponent<DI> {
                 .join("div")
                 .classed("score-info-box", true)
                 .classed("flex", true)
+                .classed('info', true)
                 .classed("small-title", true)
                 .style("margin", "1px 2px")
+                .style('color', d => d.value < 0.5 ? '#212529' : '#e3e3e3')
+                .style('background-color', d => this.colorScale(d.value))
                 .text(d => `${d.name}: ${d.value.toFixed(2)}`)
         }
+
+        // sels.imgScores.append('span')
+        //     .classed('info', true)
+        //     // .classed('btn', true) // Add when functionality has been added to score info
+        //     .text('SC: ' + Number(img.explanation_coverage).toFixed(2))
+        //     .style('background-color', self.colorScale(img.explanation_coverage))
+        //     .style('color', img.explanation_coverage < 0.5 ? '#212529' : '#e3e3e3')
+        //     .on("mouseover", function() {
+        //         self.trigger(Events.onScoreHover, {score: img.explanation_coverage})
+        //     })
+        //     .on("click", function() {
+        //         self.trigger(Events.onScoreClick, {score: img.explanation_coverage})
+        //     })
 
         this.baseCanvas
             .property('width', op.width)

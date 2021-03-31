@@ -20,11 +20,18 @@ function init(base: D3Sel) {
         </div>
         <div class="layout horizontal center center-center" id="main-wrapper">
             <div id="draw-panel" class="flex-6 self-center layout vertical center-center">
-                <div class="title">1. Select scoring method</div>
-                <div id="score-select-dropdown" class="btn-light"></div>
-                <div class="spacer-5"></div>
-
-                <div class="title">2. Annotate regions of interest</div>
+                <div class='select-score-container'>
+                    <div class="selection col-sm-9">
+                        <div class="input-group input-group-sm mb-2">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text" for="case-study-select">Select a Score</label>
+                            </div>
+                            <select id="score-select-dropdown" class="custom-select custom-select-sm">
+                                <!-- Fill in from data in TS now -->
+                            </select>
+                        </div>
+                    </div>
+                </div>
                 <div id="interactive-mask"></div>
                 <div class="spacer-5"></div>
             </div>
@@ -53,9 +60,9 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         closePopup: d3.select("#close-popup"),
         mainWrapper: d3.select("#main-wrapper"),
         drawPanel: d3.select("#draw-panel"),
-        scoreSelectDropdown: d3.select("#score-select-dropdown").append('select'),
+        scoreSelectDropdown: d3.select("#score-select-dropdown"),
         interactiveMask: d3.select("#interactive-mask"),
-        resultsPanel: d3.select("#results-panel")
+        resultsPanel: d3.select("#results-panel"),
     }
 
     const vizs = {
