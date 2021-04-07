@@ -283,7 +283,7 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
             const currentCase = selectors.caseFilter.property('value')
             const currentPredictionFilter = selectors.predictionFn.property('value')
             if (currentCase != 'default') { 
-                const caseScores = caseValues[currentCase]['scores']
+                const caseScores = caseValues[currentCase][state.caseStudy()]['scores']
                 if ( currentPredictionFilter != caseValues[currentCase]['prediction'] ||
                 state.iouFilter()[0] != caseScores['iou'][0] || 
                 state.iouFilter()[1] != caseScores['iou'][1] || 
@@ -372,7 +372,8 @@ export function main(el: Element, ignoreUrl: boolean = false, stateParams: Parti
         const caseFilter = selectors.caseFilter.property('value')
         if (caseFilter) { 
             const cf = caseValues[caseFilter]
-            const caseFilterScores = cf['scores']
+            console.log(cf)
+            const caseFilterScores = cf[state.caseStudy()]['scores']
             state.scoreFn(cf['selectedScore'])
             state.sortBy(cf['sortBy'])
             selectors.scoreFn.property('value', state.scoreFn())

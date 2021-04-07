@@ -38,13 +38,15 @@ export const caseOptions = [
 ]
 
 const full = [0.0, 1.0]
-const low = [0.0, 0.1]
-const high = [0.7, 1.0]
+const low = [0.0, 0.2]
+const high = [0.65, 1.0]
 
 export const caseValues = {
     "default":
     {
-        'scores': { "iou": full, 'ground_truth_coverage': full, 'explanation_coverage': full },
+        'data_vehicle': {'scores': { "iou": full, 'ground_truth_coverage': full, 'explanation_coverage': full }},
+        'data_dogs': {'scores': { "iou": full, 'ground_truth_coverage': full, 'explanation_coverage': full }},
+        'data_melanoma': {'scores': { "iou": full, 'ground_truth_coverage': full, 'explanation_coverage': full }},
         'prediction': 'all_images',
         'description': '',
         'selectedScore': 'explanation_coverage',
@@ -52,7 +54,9 @@ export const caseValues = {
     },
     "human_aligned":
     {
-        'scores': { "iou": high, 'ground_truth_coverage': full, 'explanation_coverage': full },
+        'data_vehicle': {'scores': { "iou": high, 'ground_truth_coverage': full, 'explanation_coverage': full }},
+        'data_dogs': {'scores': { "iou": high, 'ground_truth_coverage': full, 'explanation_coverage': full }},
+        'data_melanoma': {'scores': { "iou": [0.39, 1.0], 'ground_truth_coverage': full, 'explanation_coverage': full }},
         'prediction': 'correct_only',
         'description': 'Correctly classified images with high IoU.',
         'selectedScore': 'iou',
@@ -60,7 +64,9 @@ export const caseValues = {
     },
     "sufficient_subset":
     {
-        'scores': { "iou": full, 'ground_truth_coverage': low, 'explanation_coverage': high },
+        'data_vehicle': {'scores': { "iou": full, 'ground_truth_coverage': low, 'explanation_coverage': high }},
+        'data_dogs': {'scores': { "iou": full, 'ground_truth_coverage': low, 'explanation_coverage': high }},
+        'data_melanoma': {'scores': { "iou": full, 'ground_truth_coverage': [0.0, 0.3], 'explanation_coverage': [0.8, 1.0] }},
         'prediction': 'correct_only',
         'description': 'Correctly classified images with high Ground Truth Coverage and low Saliency Coverage.',
         'selectedScore': 'explanation_coverage',
@@ -68,7 +74,9 @@ export const caseValues = {
     },
     "sufficient_context":
     {
-        'scores': { "iou": low, 'ground_truth_coverage': full, 'explanation_coverage': full },
+        'data_vehicle': {'scores': { "iou": low, 'ground_truth_coverage': full, 'explanation_coverage': full }},
+        'data_dogs': {'scores': { "iou": low, 'ground_truth_coverage': full, 'explanation_coverage': full }},
+        'data_melanoma': {'scores': { "iou": [0.0, 0.1], 'ground_truth_coverage': full, 'explanation_coverage': full }},
         'prediction': 'correct_only',
         'description': 'Correctly classified images with low IoU.',
         'selectedScore': 'iou',
@@ -76,7 +84,9 @@ export const caseValues = {
     },
     "context_dependent":
     {
-        'scores': { "iou": full, 'ground_truth_coverage': high, 'explanation_coverage': low },
+        'data_vehicle': {'scores': { "iou": full, 'ground_truth_coverage': high, 'explanation_coverage': low }},
+        'data_dogs': {'scores': { "iou": full, 'ground_truth_coverage': high, 'explanation_coverage': low }},
+        'data_melanoma': {'scores': { "iou": full, 'ground_truth_coverage': [0.2, 1.0], 'explanation_coverage': [0.0, 0.55] }},
         'prediction': 'correct_only',
         'description': 'Correctly classified images with low Ground Truth Coverage and high Saliency Coverage.',
         'selectedScore': 'ground_truth_coverage',
@@ -84,7 +94,9 @@ export const caseValues = {
     },
     "confuser":
     {
-        'scores': { "iou": high, 'ground_truth_coverage': full, 'explanation_coverage': full },
+        'data_vehicle': {'scores': { "iou": high, 'ground_truth_coverage': full, 'explanation_coverage': full }},
+        'data_dogs': {'scores': { "iou": high, 'ground_truth_coverage': full, 'explanation_coverage': full }},
+        'data_melanoma': {'scores': { "iou": [0.39, 1.0], 'ground_truth_coverage': full, 'explanation_coverage': full }},
         'prediction': 'incorrect_only',
         'description': 'Incorrectly classified images with high IoU.',
         'selectedScore': 'iou',
@@ -92,7 +104,9 @@ export const caseValues = {
     },
     "insufficient_subset":
     {
-        'scores': { "iou": full, 'ground_truth_coverage': low, 'explanation_coverage': high },
+        'data_vehicle': {'scores': { "iou": full, 'ground_truth_coverage': low, 'explanation_coverage': high }},
+        'data_dogs': {'scores': { "iou": full, 'ground_truth_coverage': low, 'explanation_coverage': high }},
+        'data_melanoma': {'scores': { "iou": full, 'ground_truth_coverage': [0.0, 0.3], 'explanation_coverage': [0.8, 1.0] }},
         'prediction': 'incorrect_only',
         'description': 'Incorrectly classified images with high Ground Truth Coverage and low Saliency Coverage.',
         'selectedScore': 'explanation_coverage',
@@ -100,7 +114,9 @@ export const caseValues = {
     },
     "distracted":
     {
-        'scores': { "iou": low, 'ground_truth_coverage': full, 'explanation_coverage': full },
+        'data_vehicle': {'scores': { "iou": low, 'ground_truth_coverage': full, 'explanation_coverage': full }},
+        'data_dogs': {'scores': { "iou": low, 'ground_truth_coverage': full, 'explanation_coverage': full }},
+        'data_melanoma': {'scores': { "iou": [0.0, 0.1], 'ground_truth_coverage': full, 'explanation_coverage': full }},
         'prediction': 'incorrect_only',
         'description': 'Inorrectly classified images with low IoU.',
         'selectedScore': 'iou',
@@ -108,7 +124,9 @@ export const caseValues = {
     },
     "context_confusion":
     {
-        'scores': { "iou": full, 'ground_truth_coverage': high, 'explanation_coverage': low },
+        'data_vehicle': {'scores': { "iou": full, 'ground_truth_coverage': high, 'explanation_coverage': low }},
+        'data_dogs': {'scores': { "iou": full, 'ground_truth_coverage': high, 'explanation_coverage': low }},
+        'data_melanoma': {'scores': { "iou": full, 'ground_truth_coverage': [0.2, 1.0], 'explanation_coverage': [0.0, 0.55] }},
         'prediction': 'incorrect_only',
         'description': 'Incorrectly classified images with low Ground Truth Coverage and high Saliency Coverage.',
         'selectedScore': 'ground_truth_coverage',
