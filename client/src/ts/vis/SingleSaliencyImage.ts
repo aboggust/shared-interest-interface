@@ -89,20 +89,6 @@ export class SingleSaliencyImage extends HTMLComponent<DI>{
                 self.trigger(Events.onScoreClick, {score: img.iou})
             })
 
-        // GTC Score 
-        sels.imgScores.append('span')
-            .classed('info', true)
-            // .classed('btn', true) // Add when functionality has been added to score info
-            .text('GTC: ' + Number(img.ground_truth_coverage).toFixed(2))
-            .style('background-color', self.colorScale(img.ground_truth_coverage))
-            .style('color', img.ground_truth_coverage < 0.5 ? '#212529' : '#e3e3e3')
-            .on("mouseover", function() {
-                self.trigger(Events.onScoreHover, {score: img.ground_truth_coverage})
-            })
-            .on("click", function() {
-                self.trigger(Events.onScoreClick, {score: img.ground_truth_coverage})
-            })
-
         // EC Score 
         sels.imgScores.append('span')
             .classed('info', true)
@@ -115,6 +101,20 @@ export class SingleSaliencyImage extends HTMLComponent<DI>{
             })
             .on("click", function() {
                 self.trigger(Events.onScoreClick, {score: img.explanation_coverage})
+            })
+
+        // GTC Score 
+        sels.imgScores.append('span')
+            .classed('info', true)
+            // .classed('btn', true) // Add when functionality has been added to score info
+            .text('GTC: ' + Number(img.ground_truth_coverage).toFixed(2))
+            .style('background-color', self.colorScale(img.ground_truth_coverage))
+            .style('color', img.ground_truth_coverage < 0.5 ? '#212529' : '#e3e3e3')
+            .on("mouseover", function() {
+                self.trigger(Events.onScoreHover, {score: img.ground_truth_coverage})
+            })
+            .on("click", function() {
+                self.trigger(Events.onScoreClick, {score: img.ground_truth_coverage})
             })
 
         // Label 
