@@ -1,5 +1,9 @@
 # Personal choices
 _archive
+Untitled.ipynb
+_scratch.html
+*.pkl
+client/dist/
 
 # Projects
 .idea

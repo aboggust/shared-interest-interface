@@ -7,3 +7,4 @@ ROOT = Path(
 ).parent.parent.parent  # Root directory of the project
 CLIENT = ROOT / "client"
 SRC = CLIENT / "src"
+DIST = CLIENT / "dist"

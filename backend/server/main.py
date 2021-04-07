@@ -45,7 +45,7 @@ def send_static_client(file_path: str):
     Args:
         file_path: Name of file in the client directory
     """
-    f = str(pf.SRC / file_path)
+    f = str(pf.DIST / file_path)
     print("Finding file: ", f)
     return FileResponse(f)
 
