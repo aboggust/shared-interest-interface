@@ -232,6 +232,14 @@ select {
   color: $blue-3;
 }
 
+.more-info {
+  color:white;
+}
+
+.more-info:hover {
+  color:rgba(255,255,255,.5);
+}
+
 #mainpage,
 .ID_mainpage {
   height: var(--main-height);
