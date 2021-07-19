@@ -131,6 +131,14 @@ select {
   font-weight: bold;
 }
 
+.more-info {
+  color:white;
+}
+
+.more-info:hover {
+  color:rgba(255,255,255,.5);
+}
+
 .main_frame {
   position: fixed;
   top: 55px;
